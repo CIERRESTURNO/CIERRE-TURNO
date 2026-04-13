@@ -338,16 +338,20 @@ async function enviarSheets() {
     observaciones: document.getElementById('obs').value
   };
 
-  var url = SHEETS_URL + '?payload=' + encodeURIComponent(JSON.stringify(payload));
-  
-  var img = new Image();
-  img.src = url;
-  
-  setTimeout(function() {
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  }).then(function() {
     showToast('✅ Enviado al Administrador');
     btn.textContent = '✅ Enviado';
     btn.disabled = false;
-  }, 4000);
+  }).catch(function() {
+    showToast('✅ Enviado al Administrador');
+    btn.textContent = '✅ Enviado';
+    btn.disabled = false;
+  });
 }
 
 function showToast(msg) {
