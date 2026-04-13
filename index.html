@@ -338,20 +338,16 @@ async function enviarSheets() {
     observaciones: document.getElementById('obs').value
   };
 
-  const urlConDatos = SHEETS_URL + '?payload=' + encodeURIComponent(JSON.stringify(payload));
-
-  var script = document.createElement('script');
-  script.src = urlConDatos + '&callback=respuestaSheets';
-  script.onerror = function() {
-    showToast('✅ Enviado al Administrador');
-    btn.textContent = '✅ Enviado';
-  };
-  document.body.appendChild(script);
-
+  var url = SHEETS_URL + '?payload=' + encodeURIComponent(JSON.stringify(payload));
+  
+  var img = new Image();
+  img.src = url;
+  
   setTimeout(function() {
     showToast('✅ Enviado al Administrador');
     btn.textContent = '✅ Enviado';
-  }, 3000);
+    btn.disabled = false;
+  }, 4000);
 }
 
 function showToast(msg) {
