@@ -22,8 +22,13 @@
 
   .sec-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
   .sec-title::after { content:''; flex:1; height:1px; background:var(--border); }
+  .sec-title.info-color { color: #94a3b8; }
+  .sec-title.info-color::after { background:var(--border); }
 
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  .card.info { border-color: #2d3a4a; background: #0f1825; }
+  .info-badge { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #64748b; background: rgba(100,116,139,.12); border: 1px solid rgba(100,116,139,.2); border-radius: 6px; padding: 3px 8px; margin-bottom: 10px; display: inline-block; }
+
   label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--text2); margin-bottom: 5px; }
   input, select, textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 16px; padding: 11px 13px; outline: none; transition: border-color .2s; -webkit-appearance: none; }
   input:focus, select:focus, textarea:focus { border-color: var(--accent); }
@@ -43,17 +48,24 @@
   .fuel-card.ex .fuel-name { color: #f59e0b; }
   .fuel-card.ac .fuel-name { color: #3b82f6; }
   .result-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; margin-top: 10px; }
+  .result-box.info { background: #0a0e1a; border-color: #1e2d45; }
   .result-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
   .result-value { font-size: 22px; font-weight: 800; color: var(--green); margin-top: 2px; }
+  .result-value.info { color: #64748b; }
 
   .ext-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; }
-  .ext-name { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .ext-name { font-size: 14px; font-weight: 700; margin-bottom: 10px; color: #64748b; }
 
   .pago-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
   .pago-emoji { font-size: 22px; width: 30px; text-align: center; }
   .pago-info { flex: 1; }
   .pago-name-lbl { font-size: 13px; color: var(--text); margin-bottom: 4px; font-weight: 700; }
   .pago-info input { background: var(--bg); margin: 0; }
+
+  /* VARIOS */
+  .varios-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; position: relative; }
+  .varios-remove { position: absolute; top: 8px; right: 10px; background: none; border: none; color: var(--text3); font-size: 20px; cursor: pointer; }
+  .btn-add-varios { width: 100%; background: rgba(245,158,11,.08); border: 1px dashed var(--accent); border-radius: 8px; color: var(--accent); font-size: 14px; font-weight: 700; padding: 10px; cursor: pointer; margin-bottom: 10px; }
 
   .resumen-card { background: linear-gradient(135deg, #1a2235, #0f1e35); border: 1px solid var(--accent); border-radius: 10px; padding: 16px; }
   .res-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
@@ -109,57 +121,70 @@
   <div class="fuel-card co">
     <div class="fuel-name">🟢 CORRIENTE</div>
     <div class="precio-edit-row">
-      <input type="number" id="co_precio" inputmode="numeric" placeholder="Precio x galón" oninput="calcFuel('co')">
+      <input type="text" inputmode="decimal" id="co_precio" placeholder="Precio x galón" oninput="calcFuel('co')">
       <div class="precio-badge">✏️ Precio x Gal</div>
     </div>
-    <div class="field"><label>Galones Vendidos</label><input type="number" id="co_gal" inputmode="decimal" placeholder="0.00" oninput="calcFuel('co')"></div>
+    <div class="field"><label>Galones Vendidos</label><input type="text" inputmode="decimal" id="co_gal" placeholder="0.00" oninput="calcFuel('co')"></div>
     <div class="result-box"><div class="result-label">Total Corriente</div><div class="result-value" id="co_total_v">$0</div></div>
   </div>
 
   <div class="fuel-card ex">
     <div class="fuel-name">🟡 EXTRA</div>
     <div class="precio-edit-row">
-      <input type="number" id="ex_precio" inputmode="numeric" placeholder="Precio x galón" oninput="calcFuel('ex')">
+      <input type="text" inputmode="decimal" id="ex_precio" placeholder="Precio x galón" oninput="calcFuel('ex')">
       <div class="precio-badge">✏️ Precio x Gal</div>
     </div>
-    <div class="field"><label>Galones Vendidos</label><input type="number" id="ex_gal" inputmode="decimal" placeholder="0.00" oninput="calcFuel('ex')"></div>
+    <div class="field"><label>Galones Vendidos</label><input type="text" inputmode="decimal" id="ex_gal" placeholder="0.00" oninput="calcFuel('ex')"></div>
     <div class="result-box"><div class="result-label">Total Extra</div><div class="result-value" id="ex_total_v">$0</div></div>
   </div>
 
   <div class="fuel-card ac">
     <div class="fuel-name">🔵 ACPM / DIÉSEL</div>
     <div class="precio-edit-row">
-      <input type="number" id="ac_precio" inputmode="numeric" placeholder="Precio x galón" oninput="calcFuel('ac')">
+      <input type="text" inputmode="decimal" id="ac_precio" placeholder="Precio x galón" oninput="calcFuel('ac')">
       <div class="precio-badge">✏️ Precio x Gal</div>
     </div>
-    <div class="field"><label>Galones Vendidos</label><input type="number" id="ac_gal" inputmode="decimal" placeholder="0.00" oninput="calcFuel('ac')"></div>
+    <div class="field"><label>Galones Vendidos</label><input type="text" inputmode="decimal" id="ac_gal" placeholder="0.00" oninput="calcFuel('ac')"></div>
     <div class="result-box"><div class="result-label">Total ACPM</div><div class="result-value" id="ac_total_v">$0</div></div>
   </div>
 
-  <!-- UREA -->
-  <div class="sec-title">Urea</div>
-  <div class="card">
+  <!-- UREA — INFORMATIVO -->
+  <div class="sec-title info-color">Urea <span style="font-size:10px;color:#64748b;font-weight:400;letter-spacing:0;text-transform:none">— solo informativo</span></div>
+  <div class="card info">
+    <div class="info-badge">ℹ️ No suma al total de ventas</div>
     <div class="row2">
-      <div class="field"><label>Litros Vendidos</label><input type="number" id="urea_litros" inputmode="decimal" placeholder="0.0" oninput="calcUrea()"></div>
-      <div class="field"><label>Precio x Litro ($)</label><input type="number" id="urea_precio" inputmode="numeric" value="3700" oninput="calcUrea()"></div>
+      <div class="field"><label>Litros Vendidos</label><input type="text" inputmode="decimal" id="urea_litros" placeholder="0.0" oninput="calcUrea()"></div>
+      <div class="field"><label>Precio x Litro ($)</label><input type="text" inputmode="decimal" id="urea_precio" value="3700" oninput="calcUrea()"></div>
     </div>
-    <div class="result-box"><div class="result-label">Total Urea</div><div class="result-value" id="urea_total_v">$0</div></div>
+    <div class="result-box info"><div class="result-label">Total Urea</div><div class="result-value info" id="urea_total_v">$0</div></div>
   </div>
 
-  <!-- EXTINTORES -->
-  <div class="sec-title">Extintores</div>
-  <div class="ext-item">
-    <div class="ext-name">🧯 Extintor</div>
-    <div class="row2">
-      <div class="field"><label>Precio Recarga ($)</label><input type="number" id="epc_0" value="20000" inputmode="numeric" oninput="calcExt()"></div>
-      <div class="field"><label>Cant. Recarga</label><input type="number" id="ecc_0" value="0" min="0" inputmode="numeric" oninput="calcExt()"></div>
-      <div class="field"><label>Precio Nuevo ($)</label><input type="number" id="epn_0" value="34500" inputmode="numeric" oninput="calcExt()"></div>
-      <div class="field"><label>Cant. Nuevo</label><input type="number" id="ecn_0" value="0" min="0" inputmode="numeric" oninput="calcExt()"></div>
+  <!-- EXTINTORES — INFORMATIVO -->
+  <div class="sec-title info-color">Extintores <span style="font-size:10px;color:#64748b;font-weight:400;letter-spacing:0;text-transform:none">— solo informativo</span></div>
+  <div class="card info">
+    <div class="info-badge">ℹ️ No suma al total de ventas</div>
+    <div class="ext-item">
+      <div class="ext-name">🧯 Extintor</div>
+      <div class="row2">
+        <div class="field"><label>Precio Recarga ($)</label><input type="text" inputmode="decimal" id="epc_0" value="20000" oninput="calcExt()"></div>
+        <div class="field"><label>Cant. Recarga</label><input type="text" inputmode="numeric" id="ecc_0" value="0" oninput="calcExt()"></div>
+        <div class="field"><label>Precio Nuevo ($)</label><input type="text" inputmode="decimal" id="epn_0" value="34500" oninput="calcExt()"></div>
+        <div class="field"><label>Cant. Nuevo</label><input type="text" inputmode="numeric" id="ecn_0" value="0" oninput="calcExt()"></div>
+      </div>
+    </div>
+    <div class="card info" style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+      <span style="font-size:13px;color:var(--text3)">Total Extintores</span>
+      <span style="font-size:20px;font-weight:800;color:#64748b" id="ext_total_v">$0</span>
     </div>
   </div>
+
+  <!-- VARIOS -->
+  <div class="sec-title">Varios</div>
+  <div id="varios-list"></div>
+  <button class="btn-add-varios" onclick="addVarios()">+ Agregar ítem</button>
   <div class="card" style="display:flex;align-items:center;justify-content:space-between">
-    <span style="font-size:13px;color:var(--text2)">Total Extintores</span>
-    <span style="font-size:20px;font-weight:800;color:var(--green)" id="ext_total_v">$0</span>
+    <span style="font-size:13px;color:var(--text2)">Total Varios</span>
+    <span style="font-size:20px;font-weight:800;color:var(--green)" id="varios_total_lbl">$0</span>
   </div>
 
   <!-- MEDIOS DE PAGO -->
@@ -176,8 +201,7 @@
     <div class="res-row"><span>Corriente</span><span class="res-amt" id="r_co">$0</span></div>
     <div class="res-row"><span>Extra</span><span class="res-amt" id="r_ex">$0</span></div>
     <div class="res-row"><span>ACPM / Diésel</span><span class="res-amt" id="r_ac">$0</span></div>
-    <div class="res-row"><span>Urea</span><span class="res-amt" id="r_urea">$0</span></div>
-    <div class="res-row"><span>Extintores</span><span class="res-amt" id="r_ext">$0</span></div>
+    <div class="res-row"><span>Varios</span><span class="res-amt" id="r_varios">$0</span></div>
     <div class="res-row grand"><span>TOTAL VENTAS</span><span id="r_grand">$0</span></div>
     <div class="res-row" style="padding-top:10px">
       <span style="color:var(--text2);font-size:13px">Total Medios de Pago</span>
@@ -186,6 +210,11 @@
     <div class="res-row">
       <span style="color:var(--text2);font-size:13px">Diferencia</span>
       <span id="r_diff" style="font-weight:800;font-size:15px">$0</span>
+    </div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase">Solo informativo</div>
+      <div class="res-row" style="padding:4px 0"><span style="color:var(--text3);font-size:13px">Urea</span><span style="color:#64748b;font-weight:600" id="r_urea">$0</span></div>
+      <div class="res-row" style="padding:4px 0;border:none"><span style="color:var(--text3);font-size:13px">Extintores</span><span style="color:#64748b;font-weight:600" id="r_ext">$0</span></div>
     </div>
   </div>
 
@@ -224,6 +253,8 @@ const MEDIOS = [
   { id:'moneda',            nombre:'Moneda',                emoji:'🪙' },
 ];
 
+let variosCount = 0;
+
 window.onload = () => {
   document.getElementById('fecha').valueAsDate = new Date();
 
@@ -234,7 +265,7 @@ window.onload = () => {
         <div class="pago-emoji">${mp.emoji}</div>
         <div class="pago-info">
           <div class="pago-name-lbl">${mp.nombre}</div>
-          <input type="number" id="pago_${mp.id}" placeholder="0" inputmode="numeric" oninput="calcPagos()">
+          <input type="text" inputmode="decimal" id="pago_${mp.id}" placeholder="0" oninput="calcPagos()">
         </div>
       </div>`;
   });
@@ -244,13 +275,19 @@ window.onload = () => {
   }, 1000);
 };
 
-function n(id) { return parseFloat(document.getElementById(id)?.value)||0; }
+// Parseo seguro de números con punto o coma
+function n(id) {
+  var el = document.getElementById(id);
+  if (!el) return 0;
+  var v = el.value.replace(',', '.');
+  return parseFloat(v) || 0;
+}
 function fmt(v) { return Math.round(v).toLocaleString('es-CO'); }
 function getV(id) { return parseFloat((document.getElementById(id)?.textContent||'0').replace(/[$,.]/g,''))||0; }
 
 function calcFuel(p) {
-  const total = n(`${p}_gal`) * n(`${p}_precio`);
-  document.getElementById(`${p}_total_v`).textContent = '$' + fmt(total);
+  var total = n(p+'_gal') * n(p+'_precio');
+  document.getElementById(p+'_total_v').textContent = '$' + fmt(total);
   calcResumen();
 }
 
@@ -260,54 +297,115 @@ function calcUrea() {
 }
 
 function calcExt() {
-  const t = n('ecc_0')*n('epc_0') + n('ecn_0')*n('epn_0');
+  var t = n('ecc_0')*n('epc_0') + n('ecn_0')*n('epn_0');
   document.getElementById('ext_total_v').textContent = '$' + fmt(t);
   calcResumen();
 }
 
+// VARIOS
+function addVarios() {
+  var id = variosCount++;
+  var div = document.createElement('div');
+  div.className = 'varios-item';
+  div.id = 'varios_wrap_' + id;
+  div.innerHTML = `
+    <button class="varios-remove" onclick="removeVarios(${id})">×</button>
+    <div class="field"><label>Descripción</label>
+      <input type="text" id="varios_desc_${id}" placeholder="Ej: Urea Rumbo, Aceite, etc...">
+    </div>
+    <div class="field"><label>Valor ($)</label>
+      <input type="text" inputmode="decimal" id="varios_val_${id}" placeholder="0" oninput="calcVarios()">
+    </div>`;
+  document.getElementById('varios-list').appendChild(div);
+  calcVarios();
+}
+
+function removeVarios(id) {
+  var el = document.getElementById('varios_wrap_' + id);
+  if (el) el.remove();
+  calcVarios();
+}
+
+function calcVarios() {
+  var t = 0;
+  for (var i = 0; i < variosCount; i++) {
+    if (!document.getElementById('varios_wrap_' + i)) continue;
+    var v = document.getElementById('varios_val_' + i)?.value || '0';
+    t += parseFloat(v.replace(',','.')) || 0;
+  }
+  document.getElementById('varios_total_lbl').textContent = '$' + fmt(t);
+  calcResumen();
+}
+
 function calcPagos() {
-  let t = 0;
-  MEDIOS.forEach(mp => t += n(`pago_${mp.id}`));
+  var t = 0;
+  MEDIOS.forEach(function(mp) { t += n('pago_' + mp.id); });
   document.getElementById('pago_total_lbl').textContent = '$' + fmt(t);
   calcResumen();
 }
 
 function calcResumen() {
-  const co = getV('co_total_v'), ex = getV('ex_total_v'), ac = getV('ac_total_v');
-  const urea = getV('urea_total_v'), ext = getV('ext_total_v');
-  document.getElementById('r_co').textContent   = '$' + fmt(co);
-  document.getElementById('r_ex').textContent   = '$' + fmt(ex);
-  document.getElementById('r_ac').textContent   = '$' + fmt(ac);
+  var co = getV('co_total_v'), ex = getV('ex_total_v'), ac = getV('ac_total_v');
+  var urea = getV('urea_total_v'), ext = getV('ext_total_v');
+
+  // Varios
+  var varios = 0;
+  for (var i = 0; i < variosCount; i++) {
+    if (!document.getElementById('varios_wrap_' + i)) continue;
+    var v = document.getElementById('varios_val_' + i)?.value || '0';
+    varios += parseFloat(v.replace(',','.')) || 0;
+  }
+
+  document.getElementById('r_co').textContent = '$' + fmt(co);
+  document.getElementById('r_ex').textContent = '$' + fmt(ex);
+  document.getElementById('r_ac').textContent = '$' + fmt(ac);
+  document.getElementById('r_varios').textContent = '$' + fmt(varios);
   document.getElementById('r_urea').textContent = '$' + fmt(urea);
-  document.getElementById('r_ext').textContent  = '$' + fmt(ext);
-  const grand = co + ex + ac + urea + ext;
+  document.getElementById('r_ext').textContent = '$' + fmt(ext);
+
+  // Total ventas SIN urea ni extintores
+  var grand = co + ex + ac + varios;
   document.getElementById('r_grand').textContent = '$' + fmt(grand);
-  let pagos = 0;
-  MEDIOS.forEach(mp => pagos += n(`pago_${mp.id}`));
+
+  var pagos = 0;
+  MEDIOS.forEach(function(mp) { pagos += n('pago_' + mp.id); });
   document.getElementById('r_pagos').textContent = '$' + fmt(pagos);
-  const diff = grand - pagos;
-  const el = document.getElementById('r_diff');
+
+  var diff = grand - pagos;
+  var el = document.getElementById('r_diff');
   el.textContent = diff === 0 ? '✅ Cuadrado' : (diff > 0 ? '▲ Faltante $' : '▼ Sobrante $') + fmt(Math.abs(diff));
   el.style.color = diff === 0 ? '#10b981' : diff > 0 ? '#f59e0b' : '#ef4444';
 }
 
 async function enviarSheets() {
-  const emp = document.getElementById('empleado').value.trim();
+  var emp = document.getElementById('empleado').value.trim();
   if (!emp) { showToast('⚠️ Escribe el nombre del promotor'); return; }
 
-  const btn = document.getElementById('btn-enviar');
+  var btn = document.getElementById('btn-enviar');
   btn.textContent = '⏳ Enviando...';
   btn.disabled = true;
 
-  const coT = n('co_gal')*n('co_precio');
-  const exT = n('ex_gal')*n('ex_precio');
-  const acT = n('ac_gal')*n('ac_precio');
-  const ureaT = n('urea_litros')*n('urea_precio');
-  const extT = n('ecc_0')*n('epc_0') + n('ecn_0')*n('epn_0');
-  let pagosT = 0; MEDIOS.forEach(mp => pagosT += n(`pago_${mp.id}`));
-  const grand = coT + exT + acT + ureaT + extT;
+  var coT = n('co_gal')*n('co_precio');
+  var exT = n('ex_gal')*n('ex_precio');
+  var acT = n('ac_gal')*n('ac_precio');
+  var ureaT = n('urea_litros')*n('urea_precio');
+  var extT = n('ecc_0')*n('epc_0') + n('ecn_0')*n('epn_0');
 
-  const payload = {
+  var varios = 0;
+  var variosDesc = [];
+  for (var i = 0; i < variosCount; i++) {
+    if (!document.getElementById('varios_wrap_' + i)) continue;
+    var desc = document.getElementById('varios_desc_' + i)?.value || '';
+    var val = parseFloat((document.getElementById('varios_val_' + i)?.value||'0').replace(',','.')) || 0;
+    varios += val;
+    if (desc || val) variosDesc.push(desc + ': $' + fmt(val));
+  }
+
+  var pagosT = 0;
+  MEDIOS.forEach(function(mp) { pagosT += n('pago_' + mp.id); });
+  var grand = coT + exT + acT + varios;
+
+  var payload = {
     fecha: document.getElementById('fecha').value,
     hora: new Date().toLocaleTimeString('es-CO',{hour12:false}),
     promotor: emp,
@@ -317,6 +415,7 @@ async function enviarSheets() {
     ac_precio: n('ac_precio'), ac_gal: n('ac_gal'), ac_total: acT,
     urea_litros: n('urea_litros'), urea_precio: n('urea_precio'), urea_total: ureaT,
     ext_recarga: n('ecc_0'), ext_nuevo: n('ecn_0'), ext_total: extT,
+    varios_detalle: variosDesc.join(' | '), varios_total: varios,
     pago_efectivo: n('pago_efectivo'),
     pago_datafono_liquidos: n('pago_datafono_liquidos'),
     pago_datafono_gnv: n('pago_datafono_gnv'),
@@ -355,9 +454,9 @@ async function enviarSheets() {
 }
 
 function showToast(msg) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
 }
 
 function limpiar() {
