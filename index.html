@@ -9,6 +9,7 @@
     --bg: #0a0e1a; --surface: #111827; --surface2: #1a2235;
     --border: #1e2d45; --accent: #f59e0b; --green: #10b981;
     --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b;
+    --red: #ef4444;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
@@ -23,7 +24,6 @@
   .sec-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
   .sec-title::after { content:''; flex:1; height:1px; background:var(--border); }
   .sec-title.info-color { color: #94a3b8; }
-  .sec-title.info-color::after { background:var(--border); }
 
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
   .card.info { border-color: #2d3a4a; background: #0f1825; }
@@ -32,7 +32,10 @@
   label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--text2); margin-bottom: 5px; }
   input, select, textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 16px; padding: 11px 13px; outline: none; transition: border-color .2s; -webkit-appearance: none; }
   input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  input.error { border-color: var(--red) !important; }
   .field { margin-bottom: 10px; }
+  .field-hint { font-size: 10px; color: var(--text3); margin-top: 3px; }
+  .field-hint.warn { color: #f59e0b; }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
   .precio-edit-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
@@ -62,10 +65,16 @@
   .pago-name-lbl { font-size: 13px; color: var(--text); margin-bottom: 4px; font-weight: 700; }
   .pago-info input { background: var(--bg); margin: 0; }
 
-  /* VARIOS */
   .varios-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; position: relative; }
   .varios-remove { position: absolute; top: 8px; right: 10px; background: none; border: none; color: var(--text3); font-size: 20px; cursor: pointer; }
   .btn-add-varios { width: 100%; background: rgba(245,158,11,.08); border: 1px dashed var(--accent); border-radius: 8px; color: var(--accent); font-size: 14px; font-weight: 700; padding: 10px; cursor: pointer; margin-bottom: 10px; }
+
+  /* ALERTA VALIDACIÓN */
+  .alert-box { background: rgba(239,68,68,.1); border: 1px solid var(--red); border-radius: 10px; padding: 14px; margin-bottom: 16px; display: none; }
+  .alert-box.show { display: block; }
+  .alert-title { font-size: 13px; font-weight: 800; color: var(--red); margin-bottom: 8px; }
+  .alert-list { font-size: 12px; color: #fca5a5; padding-left: 16px; }
+  .alert-list li { margin-bottom: 4px; }
 
   .resumen-card { background: linear-gradient(135deg, #1a2235, #0f1e35); border: 1px solid var(--accent); border-radius: 10px; padding: 16px; }
   .res-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
@@ -91,17 +100,24 @@
 
 <main>
 
+  <!-- ALERTA -->
+  <div class="alert-box" id="alert-box">
+    <div class="alert-title">⚠️ Completa estos campos antes de enviar:</div>
+    <ul class="alert-list" id="alert-list"></ul>
+  </div>
+
   <!-- DATOS -->
   <div class="sec-title">Datos del Turno</div>
   <div class="card">
     <div class="field">
-      <label>Promotor</label>
-      <input type="text" id="empleado" placeholder="Escribe tu nombre completo..." autocomplete="name">
+      <label>Nombre y Apellido *</label>
+      <input type="text" id="empleado" placeholder="Escribe tu nombre y apellido..." autocomplete="name">
     </div>
     <div class="row2">
       <div class="field">
-        <label>Turno</label>
+        <label>Turno *</label>
         <select id="turno">
+          <option value="">— Seleccionar —</option>
           <option>🌙 12:00am - 6:00am</option>
           <option>🌅 6:00am - 2:00pm</option>
           <option>☀️ 2:00pm - 9:30pm</option>
@@ -109,7 +125,7 @@
         </select>
       </div>
       <div class="field">
-        <label>Fecha</label>
+        <label>Fecha *</label>
         <input type="date" id="fecha">
       </div>
     </div>
@@ -121,55 +137,87 @@
   <div class="fuel-card co">
     <div class="fuel-name">🟢 CORRIENTE</div>
     <div class="precio-edit-row">
-      <input type="text" inputmode="decimal" id="co_precio" placeholder="Precio x galón" oninput="calcFuel('co')">
+      <input type="text" inputmode="numeric" id="co_precio" placeholder="Ej: 10900" oninput="soloEnteros(this); calcFuel('co')">
       <div class="precio-badge">✏️ Precio x Gal</div>
     </div>
-    <div class="field"><label>Galones Vendidos</label><input type="text" inputmode="decimal" id="co_gal" placeholder="0.00" oninput="calcFuel('co')"></div>
+    <div class="field-hint warn">⚠️ Sin puntos ni comas — solo números enteros</div>
+    <div class="field" style="margin-top:8px"><label>Galones Vendidos</label>
+      <input type="text" inputmode="decimal" id="co_gal" placeholder="Ej: 244.11" oninput="calcFuel('co')">
+      <div class="field-hint">Puedes usar punto o coma decimal</div>
+    </div>
     <div class="result-box"><div class="result-label">Total Corriente</div><div class="result-value" id="co_total_v">$0</div></div>
   </div>
 
   <div class="fuel-card ex">
     <div class="fuel-name">🟡 EXTRA</div>
     <div class="precio-edit-row">
-      <input type="text" inputmode="decimal" id="ex_precio" placeholder="Precio x galón" oninput="calcFuel('ex')">
+      <input type="text" inputmode="numeric" id="ex_precio" placeholder="Ej: 12000" oninput="soloEnteros(this); calcFuel('ex')">
       <div class="precio-badge">✏️ Precio x Gal</div>
     </div>
-    <div class="field"><label>Galones Vendidos</label><input type="text" inputmode="decimal" id="ex_gal" placeholder="0.00" oninput="calcFuel('ex')"></div>
+    <div class="field-hint warn">⚠️ Sin puntos ni comas — solo números enteros</div>
+    <div class="field" style="margin-top:8px"><label>Galones Vendidos</label>
+      <input type="text" inputmode="decimal" id="ex_gal" placeholder="Ej: 36.36" oninput="calcFuel('ex')">
+      <div class="field-hint">Puedes usar punto o coma decimal</div>
+    </div>
     <div class="result-box"><div class="result-label">Total Extra</div><div class="result-value" id="ex_total_v">$0</div></div>
   </div>
 
   <div class="fuel-card ac">
     <div class="fuel-name">🔵 ACPM / DIÉSEL</div>
     <div class="precio-edit-row">
-      <input type="text" inputmode="decimal" id="ac_precio" placeholder="Precio x galón" oninput="calcFuel('ac')">
+      <input type="text" inputmode="numeric" id="ac_precio" placeholder="Ej: 9800" oninput="soloEnteros(this); calcFuel('ac')">
       <div class="precio-badge">✏️ Precio x Gal</div>
     </div>
-    <div class="field"><label>Galones Vendidos</label><input type="text" inputmode="decimal" id="ac_gal" placeholder="0.00" oninput="calcFuel('ac')"></div>
+    <div class="field-hint warn">⚠️ Sin puntos ni comas — solo números enteros</div>
+    <div class="field" style="margin-top:8px"><label>Galones Vendidos</label>
+      <input type="text" inputmode="decimal" id="ac_gal" placeholder="Ej: 10.50" oninput="calcFuel('ac')">
+      <div class="field-hint">Puedes usar punto o coma decimal</div>
+    </div>
     <div class="result-box"><div class="result-label">Total ACPM</div><div class="result-value" id="ac_total_v">$0</div></div>
   </div>
 
   <!-- UREA — INFORMATIVO -->
-  <div class="sec-title info-color">Urea <span style="font-size:10px;color:#64748b;font-weight:400;letter-spacing:0;text-transform:none">— solo informativo</span></div>
+  <div class="sec-title info-color">Urea <span style="font-size:10px;color:#64748b;font-weight:400;letter-spacing:0;text-transform:none">— informativo</span></div>
   <div class="card info">
     <div class="info-badge">ℹ️ No suma al total de ventas</div>
     <div class="row2">
-      <div class="field"><label>Litros Vendidos</label><input type="text" inputmode="decimal" id="urea_litros" placeholder="0.0" oninput="calcUrea()"></div>
-      <div class="field"><label>Precio x Litro ($)</label><input type="text" inputmode="decimal" id="urea_precio" value="3700" oninput="calcUrea()"></div>
+      <div class="field"><label>Litros Vendidos *</label>
+        <input type="text" inputmode="decimal" id="urea_litros" placeholder="0" oninput="calcUrea()">
+        <div class="field-hint">Escribe 0 si no hubo ventas</div>
+      </div>
+      <div class="field"><label>Precio x Litro ($)</label>
+        <input type="text" inputmode="numeric" id="urea_precio" value="3700" oninput="soloEnteros(this); calcUrea()">
+      </div>
     </div>
     <div class="result-box info"><div class="result-label">Total Urea</div><div class="result-value info" id="urea_total_v">$0</div></div>
   </div>
 
+  <!-- LUBES Y ADITIVOS — INFORMATIVO -->
+  <div class="sec-title info-color">Lubes y Aditivos <span style="font-size:10px;color:#64748b;font-weight:400;letter-spacing:0;text-transform:none">— informativo</span></div>
+  <div class="card info">
+    <div class="info-badge">ℹ️ No suma al total de ventas</div>
+    <div class="field">
+      <label>Venta Lubes y Aditivos ($) *</label>
+      <input type="text" inputmode="numeric" id="lubes_valor" placeholder="0" oninput="soloEnteros(this); calcResumen()">
+      <div class="field-hint">Escribe 0 si no hubo ventas</div>
+    </div>
+  </div>
+
   <!-- EXTINTORES — INFORMATIVO -->
-  <div class="sec-title info-color">Extintores <span style="font-size:10px;color:#64748b;font-weight:400;letter-spacing:0;text-transform:none">— solo informativo</span></div>
+  <div class="sec-title info-color">Extintores <span style="font-size:10px;color:#64748b;font-weight:400;letter-spacing:0;text-transform:none">— informativo</span></div>
   <div class="card info">
     <div class="info-badge">ℹ️ No suma al total de ventas</div>
     <div class="ext-item">
       <div class="ext-name">🧯 Extintor</div>
       <div class="row2">
-        <div class="field"><label>Precio Recarga ($)</label><input type="text" inputmode="decimal" id="epc_0" value="20000" oninput="calcExt()"></div>
-        <div class="field"><label>Cant. Recarga</label><input type="text" inputmode="numeric" id="ecc_0" value="0" oninput="calcExt()"></div>
-        <div class="field"><label>Precio Nuevo ($)</label><input type="text" inputmode="decimal" id="epn_0" value="34500" oninput="calcExt()"></div>
-        <div class="field"><label>Cant. Nuevo</label><input type="text" inputmode="numeric" id="ecn_0" value="0" oninput="calcExt()"></div>
+        <div class="field"><label>Precio Recarga ($)</label><input type="text" inputmode="numeric" id="epc_0" value="20000" oninput="soloEnteros(this); calcExt()"></div>
+        <div class="field"><label>Cant. Recarga *</label><input type="text" inputmode="numeric" id="ecc_0" placeholder="0" oninput="soloEnteros(this); calcExt()">
+          <div class="field-hint">Escribe 0 si no hubo</div>
+        </div>
+        <div class="field"><label>Precio Nuevo ($)</label><input type="text" inputmode="numeric" id="epn_0" value="34500" oninput="soloEnteros(this); calcExt()"></div>
+        <div class="field"><label>Cant. Nuevo *</label><input type="text" inputmode="numeric" id="ecn_0" placeholder="0" oninput="soloEnteros(this); calcExt()">
+          <div class="field-hint">Escribe 0 si no hubo</div>
+        </div>
       </div>
     </div>
     <div class="card info" style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
@@ -214,6 +262,7 @@
     <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
       <div style="font-size:11px;color:var(--text3);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase">Solo informativo</div>
       <div class="res-row" style="padding:4px 0"><span style="color:var(--text3);font-size:13px">Urea</span><span style="color:#64748b;font-weight:600" id="r_urea">$0</span></div>
+      <div class="res-row" style="padding:4px 0"><span style="color:var(--text3);font-size:13px">Lubes y Aditivos</span><span style="color:#64748b;font-weight:600" id="r_lubes">$0</span></div>
       <div class="res-row" style="padding:4px 0;border:none"><span style="color:var(--text3);font-size:13px">Extintores</span><span style="color:#64748b;font-weight:600" id="r_ext">$0</span></div>
     </div>
   </div>
@@ -236,47 +285,51 @@
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbyjLkewT-R1rHFjIN6IcG9tknbqqC0seartc7ED6XGp4zn7RtBiXdDl0GFus6vR3gW5/exec";
 
 const MEDIOS = [
-  { id:'efectivo',          nombre:'Efectivo',              emoji:'💵' },
-  { id:'datafono_liquidos', nombre:'Datáfono Líquidos',     emoji:'💳' },
-  { id:'datafono_gnv',      nombre:'Datáfono GNV',          emoji:'💳' },
-  { id:'gopass',            nombre:'Gopass',                emoji:'🚗' },
-  { id:'rumbo',             nombre:'Rumbo',                 emoji:'🔴' },
-  { id:'mi_empresa',        nombre:'Mi Empresa',            emoji:'🏢' },
-  { id:'bonos',             nombre:'Bonos',                 emoji:'🎟' },
-  { id:'credito_flota',     nombre:'Crédito Flota Propia',  emoji:'🚛' },
-  { id:'credito_recuperado',nombre:'Crédito Recuperado',    emoji:'✅' },
-  { id:'creditos_eds',      nombre:'Créditos EDS',          emoji:'🏪' },
-  { id:'app_terpel',        nombre:'App Terpel',            emoji:'⛽' },
-  { id:'nequi',             nombre:'Nequi',                 emoji:'💜' },
-  { id:'daviplata',         nombre:'DaviPlata',             emoji:'🔵' },
-  { id:'bancolombia',       nombre:'Bancolombia',           emoji:'🏦' },
+  { id:'efectivo',            nombre:'Efectivo',              emoji:'💵' },
+  { id:'datafono_liquidos',   nombre:'Datáfono Líquidos',     emoji:'💳' },
+  { id:'datafono_gnv',        nombre:'Datáfono GNV',          emoji:'💳' },
+  { id:'gopass',              nombre:'Gopass',                emoji:'🚗' },
+  { id:'rumbo',               nombre:'Rumbo',                 emoji:'🔴' },
+  { id:'mi_empresa',          nombre:'Mi Empresa',            emoji:'🏢' },
+  { id:'bonos',               nombre:'Bonos',                 emoji:'🎟' },
+  { id:'credito_flota',       nombre:'Crédito Flota Propia',  emoji:'🚛' },
+  { id:'credito_recuperado',  nombre:'Crédito Recuperado',    emoji:'✅' },
+  { id:'creditos_eds',        nombre:'Créditos EDS',          emoji:'🏪' },
+  { id:'app_terpel',          nombre:'App Terpel',            emoji:'⛽' },
+  { id:'nequi',               nombre:'Nequi',                 emoji:'💜' },
+  { id:'daviplata',           nombre:'DaviPlata',             emoji:'🔵' },
+  { id:'bancolombia',         nombre:'Bancolombia',           emoji:'🏦' },
   { id:'pruebas_combustible', nombre:'Pruebas Combustible',   emoji:'🧪' },
-  { id:'moneda',            nombre:'Moneda',                emoji:'🪙' },
+  { id:'moneda',              nombre:'Moneda',                emoji:'🪙' },
 ];
 
-let variosCount = 0;
+var variosCount = 0;
 
-window.onload = () => {
+window.onload = function() {
   document.getElementById('fecha').valueAsDate = new Date();
 
-  const pagoList = document.getElementById('pago-list');
-  MEDIOS.forEach(mp => {
+  var pagoList = document.getElementById('pago-list');
+  MEDIOS.forEach(function(mp) {
     pagoList.innerHTML += `
       <div class="pago-item">
         <div class="pago-emoji">${mp.emoji}</div>
         <div class="pago-info">
           <div class="pago-name-lbl">${mp.nombre}</div>
-          <input type="text" inputmode="decimal" id="pago_${mp.id}" placeholder="0" oninput="calcPagos()">
+          <input type="text" inputmode="numeric" id="pago_${mp.id}" placeholder="0" oninput="soloEnteros(this); calcPagos()">
         </div>
       </div>`;
   });
 
-  setInterval(() => {
+  setInterval(function() {
     document.getElementById('clock').textContent = new Date().toLocaleTimeString('es-CO',{hour12:false});
   }, 1000);
 };
 
-// Parseo seguro de números con punto o coma
+// Solo enteros — elimina puntos, comas, letras
+function soloEnteros(el) {
+  el.value = el.value.replace(/[^0-9]/g, '');
+}
+
 function n(id) {
   var el = document.getElementById(id);
   if (!el) return 0;
@@ -303,7 +356,6 @@ function calcExt() {
   calcResumen();
 }
 
-// VARIOS
 function addVarios() {
   var id = variosCount++;
   var div = document.createElement('div');
@@ -312,10 +364,10 @@ function addVarios() {
   div.innerHTML = `
     <button class="varios-remove" onclick="removeVarios(${id})">×</button>
     <div class="field"><label>Descripción</label>
-      <input type="text" id="varios_desc_${id}" placeholder="Ej: Urea Rumbo, Aceite, etc...">
+      <input type="text" id="varios_desc_${id}" placeholder="Ej: Urea Rumbo, Aceite...">
     </div>
     <div class="field"><label>Valor ($)</label>
-      <input type="text" inputmode="decimal" id="varios_val_${id}" placeholder="0" oninput="calcVarios()">
+      <input type="text" inputmode="numeric" id="varios_val_${id}" placeholder="0" oninput="soloEnteros(this); calcVarios()">
     </div>`;
   document.getElementById('varios-list').appendChild(div);
   calcVarios();
@@ -331,8 +383,7 @@ function calcVarios() {
   var t = 0;
   for (var i = 0; i < variosCount; i++) {
     if (!document.getElementById('varios_wrap_' + i)) continue;
-    var v = document.getElementById('varios_val_' + i)?.value || '0';
-    t += parseFloat(v.replace(',','.')) || 0;
+    t += parseFloat(document.getElementById('varios_val_' + i)?.value || '0') || 0;
   }
   document.getElementById('varios_total_lbl').textContent = '$' + fmt(t);
   calcResumen();
@@ -348,13 +399,12 @@ function calcPagos() {
 function calcResumen() {
   var co = getV('co_total_v'), ex = getV('ex_total_v'), ac = getV('ac_total_v');
   var urea = getV('urea_total_v'), ext = getV('ext_total_v');
+  var lubes = parseFloat(document.getElementById('lubes_valor')?.value || '0') || 0;
 
-  // Varios
   var varios = 0;
   for (var i = 0; i < variosCount; i++) {
     if (!document.getElementById('varios_wrap_' + i)) continue;
-    var v = document.getElementById('varios_val_' + i)?.value || '0';
-    varios += parseFloat(v.replace(',','.')) || 0;
+    varios += parseFloat(document.getElementById('varios_val_' + i)?.value || '0') || 0;
   }
 
   document.getElementById('r_co').textContent = '$' + fmt(co);
@@ -362,9 +412,9 @@ function calcResumen() {
   document.getElementById('r_ac').textContent = '$' + fmt(ac);
   document.getElementById('r_varios').textContent = '$' + fmt(varios);
   document.getElementById('r_urea').textContent = '$' + fmt(urea);
+  document.getElementById('r_lubes').textContent = '$' + fmt(lubes);
   document.getElementById('r_ext').textContent = '$' + fmt(ext);
 
-  // Total ventas SIN urea ni extintores
   var grand = co + ex + ac + varios;
   document.getElementById('r_grand').textContent = '$' + fmt(grand);
 
@@ -378,10 +428,67 @@ function calcResumen() {
   el.style.color = diff === 0 ? '#10b981' : diff > 0 ? '#f59e0b' : '#ef4444';
 }
 
-async function enviarSheets() {
+// VALIDACIÓN
+function validar() {
+  var errores = [];
   var emp = document.getElementById('empleado').value.trim();
-  if (!emp) { showToast('⚠️ Escribe el nombre del promotor'); return; }
+  var turno = document.getElementById('turno').value;
+  var fecha = document.getElementById('fecha').value;
+  var coPrecio = document.getElementById('co_precio').value.trim();
+  var coGal = document.getElementById('co_gal').value.trim();
+  var exPrecio = document.getElementById('ex_precio').value.trim();
+  var exGal = document.getElementById('ex_gal').value.trim();
+  var acPrecio = document.getElementById('ac_precio').value.trim();
+  var acGal = document.getElementById('ac_gal').value.trim();
+  var ureaLitros = document.getElementById('urea_litros').value.trim();
+  var lubes = document.getElementById('lubes_valor').value.trim();
+  var eccVal = document.getElementById('ecc_0').value.trim();
+  var ecnVal = document.getElementById('ecn_0').value.trim();
 
+  // Limpiar errores anteriores
+  document.querySelectorAll('.error').forEach(function(el) { el.classList.remove('error'); });
+
+  if (!emp || emp.split(' ').length < 2) {
+    errores.push('Nombre y Apellido completos');
+    document.getElementById('empleado').classList.add('error');
+  }
+  if (!turno) {
+    errores.push('Turno');
+    document.getElementById('turno').classList.add('error');
+  }
+  if (!fecha) {
+    errores.push('Fecha');
+    document.getElementById('fecha').classList.add('error');
+  }
+  if (!coPrecio) { errores.push('Precio Corriente'); document.getElementById('co_precio').classList.add('error'); }
+  if (!coGal) { errores.push('Galones Corriente'); document.getElementById('co_gal').classList.add('error'); }
+  if (!exPrecio) { errores.push('Precio Extra'); document.getElementById('ex_precio').classList.add('error'); }
+  if (!exGal) { errores.push('Galones Extra'); document.getElementById('ex_gal').classList.add('error'); }
+  if (!acPrecio) { errores.push('Precio ACPM'); document.getElementById('ac_precio').classList.add('error'); }
+  if (!acGal) { errores.push('Galones ACPM'); document.getElementById('ac_gal').classList.add('error'); }
+  if (ureaLitros === '') { errores.push('Urea Litros (escribe 0 si no hubo)'); document.getElementById('urea_litros').classList.add('error'); }
+  if (lubes === '') { errores.push('Lubes y Aditivos (escribe 0 si no hubo)'); document.getElementById('lubes_valor').classList.add('error'); }
+  if (eccVal === '') { errores.push('Cant. Recarga Extintor (escribe 0 si no hubo)'); document.getElementById('ecc_0').classList.add('error'); }
+  if (ecnVal === '') { errores.push('Cant. Nuevo Extintor (escribe 0 si no hubo)'); document.getElementById('ecn_0').classList.add('error'); }
+
+  var alertBox = document.getElementById('alert-box');
+  var alertList = document.getElementById('alert-list');
+
+  if (errores.length > 0) {
+    alertList.innerHTML = errores.map(function(e) { return '<li>' + e + '</li>'; }).join('');
+    alertBox.classList.add('show');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    return false;
+  }
+
+  alertBox.classList.remove('show');
+  return true;
+}
+
+function enviarSheets() {
+  if (!validar()) return;
+
+  var emp = document.getElementById('empleado').value.trim();
   var btn = document.getElementById('btn-enviar');
   btn.textContent = '⏳ Enviando...';
   btn.disabled = true;
@@ -391,13 +498,14 @@ async function enviarSheets() {
   var acT = n('ac_gal')*n('ac_precio');
   var ureaT = n('urea_litros')*n('urea_precio');
   var extT = n('ecc_0')*n('epc_0') + n('ecn_0')*n('epn_0');
+  var lubes = parseFloat(document.getElementById('lubes_valor').value || '0') || 0;
 
   var varios = 0;
   var variosDesc = [];
   for (var i = 0; i < variosCount; i++) {
     if (!document.getElementById('varios_wrap_' + i)) continue;
     var desc = document.getElementById('varios_desc_' + i)?.value || '';
-    var val = parseFloat((document.getElementById('varios_val_' + i)?.value||'0').replace(',','.')) || 0;
+    var val = parseFloat(document.getElementById('varios_val_' + i)?.value || '0') || 0;
     varios += val;
     if (desc || val) variosDesc.push(desc + ': $' + fmt(val));
   }
@@ -415,6 +523,7 @@ async function enviarSheets() {
     ex_precio: n('ex_precio'), ex_gal: n('ex_gal'), ex_total: exT,
     ac_precio: n('ac_precio'), ac_gal: n('ac_gal'), ac_total: acT,
     urea_litros: n('urea_litros'), urea_precio: n('urea_precio'), urea_total: ureaT,
+    lubes_aditivos: lubes,
     ext_recarga: n('ecc_0'), ext_nuevo: n('ecn_0'), ext_total: extT,
     varios_detalle: variosDesc.join(' | '), varios_total: varios,
     pago_efectivo: n('pago_efectivo'),
