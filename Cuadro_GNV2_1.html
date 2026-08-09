@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Ventas GNV - EDS Av. Boyaca</title>
+<style>
+  :root {
+    --navy-900: #0F172A;
+    --navy-800: #1E293B;
+    --navy-700: #334155;
+    --teal-700: #0F766E;
+    --teal-600: #0D9488;
+    --teal-500: #14B8A6;
+    --teal-100: #CCFBF1;
+    --teal-50: #F0FDFA;
+    --amber-500: #F59E0B;
+    --amber-100: #FEF3C7;
+    --amber-50: #FFFBEB;
+    --emerald-700: #047857;
+    --emerald-600: #059669;
+    --emerald-100: #D1FAE5;
+    --red-600: #DC2626;
+    --red-100: #FEE2E2;
+    --rose-50: #FFF1F2;
+    --blue-700: #1D4ED8;
+    --blue-600: #2563EB;
+    --blue-100: #DBEAFE;
+    --blue-50: #EFF6FF;
+    --purple-600: #9333EA;
+    --purple-100: #F3E8FF;
+    --orange-600: #EA580C;
+    --orange-100: #FFEDD5;
+    --pink-600: #DB2777;
+    --pink-100: #FCE7F3;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-500: #6B7280;
+    --gray-700: #374151;
+    --gray-900: #111827;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(180deg, #ECFEFF 0%, #F0FDFA 100%); color: var(--gray-900); font-size: 13px; min-height: 100vh; }
+  .app { max-width: 100%; }
+
+  /* Header */
+  .app-header {
+    background: linear-gradient(135deg, var(--teal-700), var(--navy-800));
+    color: white; padding: 16px 24px; display: flex;
+    justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 12px rgba(15,118,110,0.2);
+  }
+  .app-title { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+  .app-subtitle { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .selector {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+    color: white; padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 600;
+  }
+  .selector option { background: var(--navy-800); color: white; }
+
+  /* Tabs */
+  .tabs {
+    background: white; display: flex; gap: 0;
+    padding: 0 24px; border-bottom: 1px solid var(--gray-200);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  }
+  .tab {
+    padding: 14px 22px; color: var(--gray-500); cursor: pointer; font-size: 13px;
+    font-weight: 600; border: none; background: transparent; transition: all 0.2s;
+    border-bottom: 3px solid transparent; margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--teal-700); }
+  .tab.active { color: var(--teal-700); border-bottom-color: var(--teal-600); background: var(--teal-50); }
+
+  /* Actions */
+  .actions {
+    background: white; padding: 14px 24px; display: flex; flex-wrap: wrap;
+    gap: 10px; align-items: center; border-bottom: 1px solid var(--gray-200);
+  }
+  .actions-info { font-size: 12px; color: var(--gray-500); margin-right: auto; }
+  .btn {
+    padding: 9px 16px; border: none; border-radius: 8px; cursor: pointer;
+    font-weight: 600; font-size: 12px; display: inline-flex; align-items: center;
+    gap: 6px; transition: all 0.15s; color: white;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+  .btn-price { background: var(--orange-600); }
+  .btn-excel { background: var(--emerald-600); }
+  .btn-backup { background: var(--purple-600); }
+  .btn-restore { background: var(--amber-500); }
+  .btn-clear { background: var(--red-600); padding: 9px 12px; }
+  .btn-secondary { background: var(--gray-500); }
+
+  /* Tabla Cuadro Diario */
+  .table-wrap {
+    background: white; overflow: auto;
+    margin: 0; border-top: 1px solid var(--gray-200);
+  }
+  table.diario {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    font-variant-numeric: tabular-nums; font-size: 12.5px;
+  }
+  table.diario th, table.diario td {
+    padding: 8px 10px; border-right: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--gray-200); text-align: right; white-space: nowrap;
+  }
+  table.diario th {
+    position: sticky; top: 0; z-index: 5; text-align: center; font-weight: 700;
+    color: white; padding: 12px 10px; font-size: 11px; line-height: 1.3;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  table.diario td.day {
+    font-weight: 700; text-align: center; background: var(--gray-50);
+    position: sticky; left: 0; z-index: 3; border-right: 2px solid var(--gray-300);
+  }
+  table.diario th.day { position: sticky; left: 0; z-index: 10; background: var(--navy-800); }
+
+  .h-lect { background: var(--blue-700); }
+  .h-m3 { background: var(--teal-600); }
+  .h-precio { background: var(--orange-600); }
+  .h-venta { background: var(--emerald-600); }
+  .h-medios { background: var(--purple-600); }
+  .h-carros { background: var(--pink-600); }
+  td.c-carros { background: var(--pink-100); font-weight: 700; color: var(--pink-600); text-align: center; }
+  .h-total { background: var(--navy-800); }
+  .h-dif { background: var(--amber-500); color: var(--navy-900) !important; }
+  .h-com { background: var(--gray-700); }
+
+  td.c-lect { background: var(--blue-50); }
+  td.c-m3 { background: var(--teal-50); font-weight: 700; color: var(--teal-700); }
+  td.c-precio { background: var(--amber-50); font-style: italic; color: var(--gray-700); }
+  td.c-venta { background: var(--emerald-100); font-weight: 700; color: var(--emerald-700); font-size: 13px; }
+  td.c-medio { background: white; }
+  td.c-total { background: var(--blue-100); font-weight: 700; color: var(--blue-700); }
+  td.c-dif { font-weight: 700; }
+  td.c-dif.ok { background: var(--emerald-100); color: var(--emerald-700); }
+  td.c-dif.bad { background: var(--red-100); color: var(--red-600); }
+  td.c-dif.empty { background: var(--gray-50); color: var(--gray-500); }
+  td.c-com { background: white; text-align: left; min-width: 180px; white-space: normal; font-size: 12px; color: var(--gray-700); }
+
+  td[contenteditable="true"] { cursor: text; }
+  td[contenteditable="true"]:focus {
+    background: #FFFBEB !important; outline: 2px solid var(--amber-500); outline-offset: -2px;
+  }
+  td[contenteditable="true"]:hover { background: #FEFCE8; }
+
+  table.diario tr:nth-child(even) td:not(.day):not(.c-venta):not(.c-total):not(.c-dif):not(.c-m3) { filter: brightness(0.99); }
+
+  /* Fila total */
+  table.diario tr.total-row td {
+    background: linear-gradient(135deg, var(--navy-800), var(--navy-700)) !important;
+    color: white !important;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 14px 10px;
+  }
+
+  /* Dashboard */
+  .dashboard {
+    padding: 24px;
+    background: linear-gradient(180deg, #F0FDFA 0%, #ECFEFF 100%);
+  }
+  .dash-title { font-size: 22px; font-weight: 800; color: var(--navy-900); letter-spacing: -0.02em; }
+  .dash-sub { font-size: 13px; color: var(--gray-500); margin-bottom: 22px; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+  .kpi {
+    background: white; border-radius: 14px; padding: 18px;
+    box-shadow: 0 4px 12px rgba(15,118,110,0.08); border: 1px solid var(--gray-200);
+    position: relative; overflow: hidden;
+  }
+  .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+  .kpi-1::before { background: linear-gradient(90deg, var(--teal-700), var(--teal-500)); }
+  .kpi-2::before { background: linear-gradient(90deg, var(--emerald-700), var(--emerald-600)); }
+  .kpi-3::before { background: linear-gradient(90deg, var(--orange-600), var(--amber-500)); }
+  .kpi-4::before { background: linear-gradient(90deg, var(--purple-600), var(--pink-600)); }
+  .kpi-lbl { font-size: 11px; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+  .kpi-val { font-size: 26px; font-weight: 800; color: var(--navy-900); margin-top: 6px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .kpi-sub { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+
+  .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 22px; }
+  .panel {
+    background: white; border-radius: 14px; padding: 20px;
+    box-shadow: 0 4px 12px rgba(15,118,110,0.08); border: 1px solid var(--gray-200);
+  }
+  .panel-title {
+    font-size: 12px; font-weight: 700; color: var(--gray-700);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;
+  }
+
+  .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .medio-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 12px; border-radius: 8px; margin-bottom: 6px;
+    background: var(--gray-50); transition: all 0.2s;
+  }
+  .medio-row:hover { background: var(--teal-50); }
+  .medio-name { font-weight: 600; color: var(--gray-700); display: flex; align-items: center; gap: 8px; }
+  .medio-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .medio-val { font-weight: 800; color: var(--navy-900); font-variant-numeric: tabular-nums; }
+  .medio-row.total { background: linear-gradient(90deg, var(--emerald-100), var(--teal-100)); border: 1px solid var(--emerald-600); }
+  .medio-row.total .medio-name, .medio-row.total .medio-val { color: var(--emerald-700); font-size: 14px; }
+
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.7); display: none; align-items: center; justify-content: center; z-index: 100; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: white; border-radius: 14px; padding: 24px; max-width: 600px; width: 92%; max-height: 85vh; overflow: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+  .modal h3 { color: var(--navy-900); margin-bottom: 8px; font-size: 18px; }
+  .modal p { color: var(--gray-700); margin-bottom: 14px; line-height: 1.5; font-size: 13px; }
+  .modal input[type="number"], .modal textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--gray-300);
+    border-radius: 8px; font-size: 14px; margin-bottom: 8px; font-family: inherit;
+  }
+  .modal textarea { font-family: 'SF Mono', Menlo, monospace; font-size: 11px; min-height: 200px; resize: vertical; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--navy-900); color: white; padding: 12px 18px; border-radius: 10px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); z-index: 200; transform: translateY(20px); opacity: 0; transition: all 0.3s; max-width: 360px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--emerald-600); }
+  .toast.error { background: var(--red-600); }
+  .toast.info { background: var(--blue-600); }
+
+  /* Vista anual */
+  .year-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding: 20px; }
+  .month-card {
+    background: white; border-radius: 12px; padding: 16px; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 2px solid var(--gray-200);
+    transition: all 0.2s;
+  }
+  .month-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(15,118,110,0.15); border-color: var(--teal-500); }
+  .month-card.active { border-color: var(--teal-600); background: var(--teal-50); }
+  .month-card.empty { opacity: 0.5; }
+  .month-name { font-weight: 700; color: var(--gray-700); font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .month-stat { margin-top: 10px; }
+  .month-m3 { font-size: 18px; font-weight: 800; color: var(--teal-700); font-variant-numeric: tabular-nums; }
+  .month-venta { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-2col { grid-template-columns: 1fr; }
+    .year-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="app-header">
+    <div>
+      <div class="app-title">Control de Ventas GNV</div>
+      <div class="app-subtitle">EDS Av. Boyaca - Terpel</div>
+    </div>
+    <div class="header-right">
+      <select class="selector" id="yearSelector"></select>
+      <select class="selector" id="monthSelector">
+        <option value="01">Enero</option><option value="02">Febrero</option>
+        <option value="03">Marzo</option><option value="04">Abril</option>
+        <option value="05">Mayo</option><option value="06">Junio</option>
+        <option value="07">Julio</option><option value="08">Agosto</option>
+        <option value="09">Septiembre</option><option value="10">Octubre</option>
+        <option value="11">Noviembre</option><option value="12">Diciembre</option>
+      </select>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="diario">Cuadro Diario</button>
+    <button class="tab" data-tab="dashboard">Dashboard del Mes</button>
+    <button class="tab" data-tab="anual">Vista Anual</button>
+  </nav>
+
+  <div class="actions">
+    <span class="actions-info">Guardado automatico activo - sus datos no se pierden al cerrar la pestana</span>
+    <button class="btn btn-price" onclick="openPriceModal()">Precio del Mes</button>
+    <button class="btn btn-excel" onclick="downloadExcel()">Descargar Excel</button>
+    <button class="btn btn-backup" onclick="downloadBackup()">Backup JSON</button>
+    <button class="btn btn-restore" onclick="openRestoreModal()">Restaurar</button>
+    <button class="btn btn-clear" onclick="clearMonth()" title="Limpiar mes actual">Limpiar</button>
+  </div>
+
+  <main id="content"></main>
+</div>
+
+<!-- Modal Precio -->
+<div class="modal-overlay" id="priceModal">
+  <div class="modal">
+    <h3>Precio del GNV</h3>
+    <p>Establezca el precio en pesos por metro cubico para todo el mes. Si en algun dia tuvo otro precio, edite la celda directamente en el cuadro diario.</p>
+    <input type="number" id="priceInput" placeholder="Ej: 2937" step="1" />
+    <p style="font-size:11px;color:#6B7280">Este precio se aplicara a TODOS los dias del mes que no tengan un precio diferente. Los dias con precio personalizado se conservan.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closePriceModal()">Cancelar</button>
+      <button class="btn btn-price" onclick="applyPrice()">Aplicar al mes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Restaurar -->
+<div class="modal-overlay" id="restoreModal">
+  <div class="modal">
+    <h3>Restaurar desde respaldo</h3>
+    <p>Pegue aqui el contenido del respaldo JSON. Esto reemplazara TODOS los datos guardados.</p>
+    <textarea id="restoreArea" placeholder='{"2026-04":{...}}'></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeRestoreModal()">Cancelar</button>
+      <button class="btn btn-restore" onclick="applyRestore()">Restaurar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ============================================================
+// ESTADO Y CONFIGURACION
+// ============================================================
+const STORAGE_KEY = "gnv_dashboard_v1";
+const MONTH_NAMES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const MONTH_FULL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const MEDIOS = [
+  {key: 'efectivo', name: 'Efectivo', color: '#059669'},
+  {key: 'rumbo', name: 'Rumbo', color: '#2563EB'},
+  {key: 'cliente_eds', name: 'Cliente Propio EDS', color: '#7C3AED'},
+  {key: 'bonos', name: 'Bonos Vive Terpel', color: '#EA580C'},
+  {key: 'nequi', name: 'Nequi', color: '#DB2777'},
+  {key: 'daviplata', name: 'Daviplata', color: '#DC2626'},
+  {key: 'gastos', name: 'Gastos', color: '#9333EA'}
+];
+
+let DATA = {}; // { "YYYY-MM": { precioDefault, dias: { 1: {lect_ini, lect_fin, precio, efectivo, ...}, ... } } }
+let currentYear = new Date().getFullYear();
+let currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+let currentTab = "diario";
+
+// ============================================================
+// PERSISTENCIA
+// ============================================================
+const SEED_DATA = {"2026-04":{"precioDefault":2937,"dias":{"1":{"lect_ini":16505106.1,"lect_fin":16508996,"precio":2937,"efectivo":11291000,"rumbo":118682,"cliente_eds":244945,"bonos":33000,"nequi":0,"carros":517},"2":{"lect_ini":16508996.4,"lect_fin":16511504.7,"precio":2937,"efectivo":6696000,"rumbo":147023,"cliente_eds":178040,"bonos":36000,"nequi":0,"daviplata":0,"carros":327},"3":{"lect_ini":16511504.7,"lect_fin":16513321.8,"precio":2937,"efectivo":5171000,"rumbo":166878,"cliente_eds":0,"bonos":42000,"nequi":0,"daviplata":0,"comentario":"","carros":260},"4":{"lect_ini":16513321.8,"lect_fin":16516035.1,"precio":2937,"efectivo":7789000,"rumbo":134380,"cliente_eds":0,"bonos":15000,"nequi":0,"daviplata":0,"carros":374},"5":{"lect_ini":16516035.1,"lect_fin":16519435.1,"precio":2937,"efectivo":9100000,"rumbo":835603,"cliente_eds":0,"bonos":66000,"nequi":0,"carros":465},"6":{"lect_ini":16519435.1,"lect_fin":16523342.9,"precio":2937,"efectivo":11269000,"rumbo":194162,"cliente_eds":0,"bonos":47000,"nequi":0,"carros":548},"7":{"lect_ini":16523342.9,"lect_fin":16527563.9,"precio":2937,"efectivo":11411000,"rumbo":362423,"cliente_eds":274873,"bonos":24000,"nequi":0,"comentario":"préstamo juan 300.000","carros":528,"gastos":300000},"8":{"lect_ini":16527563.9,"lect_fin":16531748.2,"precio":2937,"efectivo":11763000,"rumbo":170639,"cliente_eds":402395,"bonos":12000,"nequi":0,"daviplata":0,"carros":527},"9":{"lect_ini":16531748.2,"lect_fin":16535961.8,"precio":2937,"efectivo":12060000,"rumbo":324356,"cliente_eds":0,"bonos":0,"nequi":0,"daviplata":0,"comentario":"","carros":558},"10":{"lect_ini":16535961.8,"lect_fin":16540342.8,"precio":2937,"carros":572,"efectivo":11944000,"rumbo":613946,"cliente_eds":256546,"bonos":42000,"nequi":0},"11":{"lect_ini":16540342.8,"lect_fin":16544092.2,"precio":2937,"carros":515,"efectivo":10543000,"rumbo":148844,"cliente_eds":273375,"bonos":39000,"nequi":0},"12":{"lect_ini":16544092.2,"lect_fin":16547800.2,"precio":2937,"carros":503,"efectivo":10530000,"rumbo":25346,"cliente_eds":256664,"bonos":69000,"nequi":0},"13":{"lect_ini":16547800.2,"lect_fin":16551616.4,"precio":2937,"carros":495,"efectivo":10518000,"rumbo":355433,"cliente_eds":276959,"bonos":60000,"nequi":0,"daviplata":0},"14":{"lect_ini":16551616.4,"lect_fin":16556062.6,"precio":2937,"carros":565,"efectivo":12329000,"rumbo":290347,"cliente_eds":353086,"bonos":39000,"nequi":0,"daviplata":0},"15":{"lect_ini":16556062.6,"lect_fin":16559689.8,"precio":2937,"carros":462,"efectivo":9630000,"rumbo":676266,"cliente_eds":198672,"bonos":74000,"nequi":0,"daviplata":0},"16":{"lect_ini":16559689.8,"lect_fin":16563698.3,"precio":2937,"carros":511,"efectivo":11352351,"rumbo":219126,"cliente_eds":283449,"bonos":57000,"nequi":0},"17":{"lect_ini":16563698.3,"lect_fin":16568592,"precio":2937,"carros":586,"efectivo":13893000,"rumbo":494940,"cliente_eds":0,"bonos":44000,"nequi":0,"gastos":37000,"comentario":"resmas de papel"},"18":{"lect_ini":16568592,"lect_fin":16572733.2,"precio":2937,"carros":522,"efectivo":11499000,"rumbo":236983,"cliente_eds":298281,"bonos":32000,"nequi":0,"daviplata":0,"gastos":0,"comentario":""},"19":{"lect_ini":16572733.2,"lect_fin":16576038.1,"precio":2937,"carros":450,"efectivo":9263000,"rumbo":388534,"cliente_eds":0,"bonos":59000,"nequi":0,"daviplata":0},"20":{"lect_ini":16576038.1,"lect_fin":16580229.1,"precio":2937,"carros":511,"efectivo":10781000,"rumbo":1247634,"cliente_eds":0,"bonos":55000,"nequi":90000,"daviplata":0,"gastos":85000,"comentario":""},"21":{"lect_ini":16580229.1,"lect_fin":16584288.2,"precio":2937,"carros":522,"efectivo":11077000,"rumbo":242885,"cliente_eds":318429,"bonos":46000,"nequi":0,"daviplata":0,"gastos":227000,"comentario":""},"22":{"lect_ini":16584288.2,"lect_fin":16587207.2,"precio":2937,"carros":368,"efectivo":7606000,"rumbo":570774,"cliente_eds":291144,"bonos":93000,"nequi":0,"daviplata":0,"gastos":26500,"comentario":""},"23":{"lect_ini":16587207.2,"lect_fin":16591104.7,"precio":2937,"carros":484,"efectivo":11056000,"rumbo":253753,"cliente_eds":0,"bonos":82006,"nequi":0,"daviplata":0,"gastos":0,"comentario":""},"24":{"lect_ini":16591104.7,"lect_fin":16596007.5,"precio":2937,"carros":580,"efectivo":12822399,"rumbo":1154208,"cliente_eds":254755,"bonos":94000,"nequi":70000,"daviplata":0},"25":{"lect_ini":16596007.5,"lect_fin":16599647.9,"precio":2937,"carros":456,"efectivo":9531000,"rumbo":627576,"cliente_eds":287943,"bonos":110000,"nequi":0},"26":{"lect_ini":16599647.9,"lect_fin":16603254.9,"precio":2937,"carros":306,"efectivo":9883000,"rumbo":490125,"cliente_eds":177835,"bonos":37250,"nequi":0},"27":{"lect_ini":16603254.9,"lect_fin":16607531.6,"precio":2937,"carros":547,"efectivo":12308688,"rumbo":402658,"cliente_eds":0,"bonos":177200,"nequi":0},"28":{"lect_ini":16607531.6,"lect_fin":16611972.8,"precio":2937,"carros":574,"efectivo":12016000,"rumbo":226614,"cliente_eds":294140,"bonos":90000,"nequi":0,"gastos":148000,"comentario":"REFRIGERIO CAPACITACION"},"29":{"lect_ini":16611972.8,"lect_fin":16616558.8,"precio":2937,"carros":582,"efectivo":12121616,"rumbo":379986,"cliente_eds":282480,"bonos":85000,"nequi":0,"gastos":600000,"comentario":"PRESTAMO ANGELICA"},"30":{"lect_ini":16616558.8,"lect_fin":16621092.7,"precio":2937,"carros":586,"efectivo":12829531,"rumbo":135334,"cliente_eds":268999,"bonos":82200,"nequi":0}}},"2026-05":{"precioDefault":0,"dias":{"1":{"lect_ini":16621092.7,"lect_fin":16624569.7,"precio":2937,"carros":477,"efectivo":9798000,"rumbo":90194,"cliente_eds":269469,"bonos":50050,"nequi":0,"daviplata":0,"gastos":0},"2":{"lect_ini":16624569.7,"lect_fin":16628684.4,"precio":2937,"carros":518,"efectivo":11131000,"rumbo":571392,"cliente_eds":285270,"bonos":82000,"nequi":0},"3":{"lect_ini":16628684.4,"lect_fin":16632021.8,"precio":2937,"carros":462,"efectivo":9375000,"rumbo":76508,"cliente_eds":297841,"bonos":45000,"nequi":0,"daviplata":0},"4":{"lect_ini":16632021.8,"lect_fin":16636356,"precio":2937,"carros":553,"efectivo":10833000,"rumbo":843357,"cliente_eds":191874,"bonos":65250,"nequi":0,"gastos":780000,"comentario":"préstamo elena 300.000 pago jardinería 480000"},"5":{"lect_ini":16636356,"lect_fin":16640559.8,"precio":2937,"carros":527,"efectivo":11398000,"rumbo":943476,"cliente_eds":0,"bonos":26000,"nequi":10000,"daviplata":0},"6":{"lect_ini":16640559.8,"lect_fin":16645549.3,"precio":2888,"carros":620,"efectivo":12695000,"rumbo":1253047,"cliente_eds":261451,"bonos":116450,"nequi":0,"daviplata":0,"gastos":85400,"comentario":"DESENGRASANTE"},"7":{"lect_ini":16645549.3,"lect_fin":16650042.7,"precio":2877,"carros":587,"efectivo":12162000,"rumbo":384909,"cliente_eds":282061,"bonos":36650,"nequi":0},"8":{"lect_ini":16650042.7,"lect_fin":16655050,"precio":2877,"carros":633,"efectivo":13554945,"rumbo":772759,"cliente_eds":0,"bonos":79000,"nequi":0},"9":{"lect_ini":16655050,"lect_fin":16659460.1,"precio":2877,"carros":563,"efectivo":12113757,"rumbo":487045,"cliente_eds":0,"bonos":87056,"nequi":0},"10":{"lect_ini":16659460.1,"cliente_eds":0,"lect_fin":16662635,"precio":2877,"carros":451,"efectivo":8998063,"rumbo":106750,"bonos":29374,"nequi":0},"11":{"lect_ini":16662635,"lect_fin":16666775.9,"precio":2877,"carros":543,"efectivo":11209283,"rumbo":628102,"cliente_eds":0,"bonos":76000,"nequi":0},"12":{"lect_ini":16666775.9,"lect_fin":16671391.1,"precio":2877,"carros":609,"efectivo":12495000,"rumbo":493803,"cliente_eds":0,"bonos":119850,"nequi":0,"daviplata":0,"gastos":0,"comentario":""},"13":{"lect_ini":16671391.1,"lect_fin":16676097.4,"precio":2877,"carros":621,"efectivo":11827000,"rumbo":506349,"cliente_eds":0,"bonos":145000,"nequi":0,"daviplata":0,"gastos":1005700,"comentario":"PRESTAMO CRISRIAN , PRESTAMO FRANCISCO, CINTA ENMASCARAR"},"14":{"lect_ini":16676097.4,"lect_fin":16680629.2,"precio":2877,"carros":590,"efectivo":11243000,"rumbo":585088,"cliente_eds":232576,"bonos":131000,"nequi":0,"daviplata":0,"gastos":738500,"comentario":"YA PAGO CLAUDIA"},"15":{"lect_ini":16680629.2,"comentario":"ALMUERZO CONFIABLE","lect_fin":16685576.2,"precio":2877,"carros":618,"efectivo":13118000,"rumbo":689065,"cliente_eds":293569,"bonos":52050,"nequi":0,"daviplata":0,"gastos":80000},"16":{"lect_ini":16685576.2,"lect_fin":16689541,"precio":2877,"carros":506,"efectivo":10498000,"rumbo":514148,"cliente_eds":291440,"bonos":47800,"nequi":0},"17":{"lect_ini":16689541,"lect_fin":16692502.2,"precio":2877,"carros":405,"efectivo":8126000,"rumbo":76930,"cliente_eds":315664,"bonos":50000,"nequi":0},"18":{"lect_ini":16692502.2,"lect_fin":16695470.9,"precio":2877,"carros":420,"efectivo":8073000,"rumbo":130987,"cliente_eds":252830,"bonos":88500,"nequi":0,"daviplata":0},"19":{"lect_ini":16695470.9,"lect_fin":16700084.2,"precio":2877,"carros":587,"efectivo":12552000,"rumbo":365982,"cliente_eds":243883,"bonos":60740,"nequi":0,"gastos":10000,"comentario":"PILAS"},"20":{"lect_ini":16700084.2,"lect_fin":16704569.2,"precio":2877,"carros":585,"efectivo":12254000,"rumbo":433618,"cliente_eds":0,"bonos":65000,"nequi":0,"daviplata":0,"gastos":150000,"comentario":""},"21":{"lect_ini":16704569.2,"lect_fin":16709587,"precio":2877,"carros":633,"efectivo":13398000,"rumbo":691081,"cliente_eds":279356,"bonos":62000,"nequi":0,"daviplata":0,"gastos":0},"22":{"lect_fin":16713984,"lect_ini":16709587,"precio":2877,"carros":592,"efectivo":11314000,"rumbo":286745,"cliente_eds":0,"bonos":67650,"nequi":0,"daviplata":0,"gastos":565400,"comentario":""},"23":{"lect_ini":16713984,"lect_fin":16718064,"precio":2877,"carros":530,"efectivo":11424000,"rumbo":137692,"cliente_eds":0,"bonos":122000,"nequi":0,"daviplata":0,"gastos":0},"24":{"lect_ini":16718064,"lect_fin":16721464,"precio":2877,"carros":530,"efectivo":9595000,"rumbo":195549,"cliente_eds":275443,"bonos":81100,"nequi":0,"daviplata":0,"gastos":0},"25":{"lect_ini":16721464,"lect_fin":16725603,"precio":2877,"carros":552,"efectivo":11092000,"rumbo":275957,"cliente_eds":0,"bonos":113750,"nequi":0},"26":{"lect_ini":16725603,"lect_fin":16729952,"precio":2877,"carros":583,"efectivo":12254000,"rumbo":155557,"cliente_eds":0,"bonos":41000,"nequi":0,"daviplata":0,"gastos":0},"27":{"lect_ini":16729952,"lect_fin":16734462,"precio":2877,"carros":560,"efectivo":12305000,"rumbo":204437,"cliente_eds":268251,"bonos":40150,"nequi":0,"daviplata":0},"28":{"lect_ini":16734462,"lect_fin":16739175,"precio":2877,"carros":598,"efectivo":12696000,"rumbo":794909,"cliente_eds":0,"bonos":76100,"nequi":0,"daviplata":0},"29":{"lect_ini":16739175,"lect_fin":16744621,"precio":2877,"carros":641,"efectivo":14198000,"rumbo":906366,"cliente_eds":249867,"bonos":96850,"nequi":0,"daviplata":0,"gastos":190000,"comentario":""},"30":{"lect_ini":16744621,"lect_fin":16748919,"precio":2877,"carros":538,"efectivo":11633000,"rumbo":330449,"cliente_eds":253576,"bonos":94650,"nequi":0},"31":{"lect_ini":16748919,"lect_fin":16752115,"precio":2877,"carros":427,"efectivo":9068000,"rumbo":84467,"cliente_eds":0,"bonos":43050,"nequi":0,"daviplata":0}}},"2026-06":{"precioDefault":2877,"dias":{"1":{"lect_ini":16752115,"lect_fin":16756496,"precio":2877,"carros":564,"efectivo":11829000,"rumbo":554050,"cliente_eds":279155,"bonos":119700,"nequi":0,"daviplata":0,"gastos":0},"2":{"lect_ini":16756496,"lect_fin":16761169,"precio":2877,"carros":598,"efectivo":13133000,"rumbo":214160,"cliente_eds":0,"bonos":90750,"nequi":0,"daviplata":0,"gastos":0,"comentario":""},"3":{"lect_ini":16761169,"lect_fin":16765371,"precio":2877,"carros":538,"efectivo":11946000,"rumbo":81303,"cliente_eds":0,"bonos":68050,"nequi":0,"daviplata":0,"gastos":0},"4":{"lect_ini":16765371,"lect_fin":16770024,"precio":2877,"carros":589,"efectivo":12215000,"rumbo":673241,"cliente_eds":133981,"bonos":43300,"nequi":0,"daviplata":0,"gastos":316000},"5":{"lect_ini":16770024,"lect_fin":16774804,"precio":2877,"carros":588,"efectivo":13108000,"rumbo":300500,"cliente_eds":263964,"bonos":57000,"nequi":0,"daviplata":0,"gastos":0,"comentario":""},"6":{"lect_ini":16774804,"lect_fin":16778839,"precio":2877,"carros":380,"efectivo":11257000,"rumbo":160649,"cliente_eds":0,"bonos":35450,"nequi":0,"daviplata":0,"gastos":135000,"comentario":"PILAS CONTROL Y DESENGRASANTE"},"7":{"lect_ini":16778839,"lect_fin":16781873,"precio":2877,"carros":402,"efectivo":8265436,"rumbo":97155,"cliente_eds":291641,"bonos":0,"nequi":0,"daviplata":0,"gastos":7600,"comentario":"PICAB CAMISETAS"},"8":{"comentario":"","lect_ini":16781873,"efectivo":8092564,"lect_fin":16785053,"precio":2877,"carros":380,"rumbo":686594,"cliente_eds":317102,"bonos":39000,"nequi":0,"daviplata":0,"gastos":0},"9":{"lect_ini":16785053,"lect_fin":16789473,"precio":0,"carros":527,"efectivo":11400000,"rumbo":967274,"cliente_eds":291382,"bonos":24000,"nequi":0,"daviplata":0,"gastos":0,"comentario":""},"10":{"lect_ini":16789473,"lect_fin":16794194,"precio":2877,"carros":587,"efectivo":13015000,"rumbo":504336,"cliente_eds":0,"bonos":60750,"nequi":0,"daviplata":0,"gastos":0},"11":{"lect_ini":16794194,"lect_fin":16798820,"precio":2877,"carros":573,"efectivo":12423451,"rumbo":769190,"cliente_eds":0,"bonos":87800,"nequi":0,"daviplata":0,"gastos":30000,"comentario":"CONACCION CARPETAS"},"12":{"lect_ini":16798820,"lect_fin":16802983,"precio":2877,"carros":553,"efectivo":11536090,"rumbo":381973,"cliente_eds":0,"bonos":58600,"nequi":0,"daviplata":0,"gastos":0,"comentario":""},"13":{"lect_ini":16802983,"lect_fin":16806800,"precio":2877,"carros":471,"efectivo":10353000,"rumbo":584777,"cliente_eds":0,"bonos":44000,"nequi":0,"daviplata":0,"gastos":0},"14":{"lect_ini":16806800,"lect_fin":16809738,"precio":2877,"carros":393,"efectivo":7826000,"rumbo":532617,"cliente_eds":0,"bonos":72000,"nequi":0,"daviplata":0,"gastos":0},"15":{"lect_ini":16809738,"lect_fin":16812931,"precio":2877,"carros":395,"efectivo":7984000,"rumbo":933179,"cliente_eds":227167,"bonos":39000,"nequi":0,"daviplata":0,"gastos":0},"16":{"lect_ini":16812931,"lect_fin":16816823,"precio":2877,"carros":521,"efectivo":10828000,"rumbo":252626,"cliente_eds":0,"nequi":15000,"bonos":6000,"daviplata":0,"gastos":0},"17":{"lect_ini":16816823,"lect_fin":16821133,"precio":2877,"carros":517,"efectivo":11786000,"rumbo":186285,"cliente_eds":305825,"bonos":47250,"nequi":0,"daviplata":0,"gastos":120000,"comentario":"CONTAMINADO"},"18":{"lect_ini":16821133,"lect_fin":16824555,"precio":2877,"carros":416,"efectivo":9435000,"rumbo":158836,"cliente_eds":302574,"bonos":12000,"nequi":0,"daviplata":0,"gastos":0,"comentario":""},"19":{"lect_ini":16824555,"gastos":308600,"comentario":"TALLER 84","lect_fin":16829192,"precio":2877,"carros":570,"efectivo":12056000,"rumbo":690447,"cliente_eds":264425,"bonos":36000,"nequi":0,"daviplata":0},"20":{"comentario":"","lect_ini":16829192,"lect_fin":16832986,"precio":2877,"carros":487,"efectivo":10323000,"rumbo":315229,"cliente_eds":259246,"bonos":18000,"nequi":0,"daviplata":0,"gastos":0},"21":{"lect_ini":16832986,"lect_fin":16836080,"precio":2877,"carros":411,"efectivo":8646000,"rumbo":200580,"cliente_eds":0,"bonos":42000,"nequi":0},"22":{"lect_ini":16836080,"lect_fin":16840118,"precio":2877,"carros":497,"efectivo":10339000,"rumbo":1228071,"cliente_eds":0,"bonos":51000,"nequi":0,"daviplata":0,"gastos":0,"comentario":""},"23":{"lect_ini":16840118,"lect_fin":16844353,"precio":2877,"carros":529,"efectivo":11118000,"rumbo":765537,"cliente_eds":250442,"bonos":0,"nequi":0},"24":{"lect_ini":16844353,"lect_fin":16848654,"precio":2856,"carros":548,"efectivo":11538000,"rumbo":191401,"cliente_eds":497973,"bonos":78000,"nequi":0,"daviplata":0,"gastos":18500,"comentario":""},"25":{"lect_ini":16848654,"lect_fin":16852821,"precio":2827,"carros":535,"efectivo":11168000,"rumbo":132641,"cliente_eds":0,"bonos":21000,"nequi":0,"daviplata":0,"gastos":439000,"comentario":"taller 84"},"26":{"lect_ini":16852821,"lect_fin":16857001,"precio":2827,"carros":520,"efectivo":10905000,"rumbo":741095,"cliente_eds":0,"bonos":93000,"nequi":0,"daviplata":0,"gastos":31868,"comentario":""},"27":{"comentario":"","lect_ini":16857001,"lect_fin":16860381,"precio":2827,"carros":444,"efectivo":9136000,"rumbo":158875,"cliente_eds":287996,"bonos":21000,"nequi":0,"daviplata":0,"gastos":91500},"28":{"lect_ini":16860381,"lect_fin":16863232,"precio":2827,"carros":400,"efectivo":7690000,"rumbo":99847,"cliente_eds":0,"bonos":83000,"nequi":0,"daviplata":0,"gastos":0},"29":{"lect_ini":16863232,"lect_fin":16866104,"precio":2827,"carros":393,"efectivo":7764000,"rumbo":432359,"cliente_eds":170241,"bonos":6000,"nequi":0},"30":{"lect_ini":16866104,"lect_fin":16870278,"precio":2827,"carros":540,"efectivo":9095000,"rumbo":364846,"cliente_eds":242686,"bonos":81000,"nequi":0,"daviplata":0,"gastos":1811000,"comentario":""}}},"2026-07":{"precioDefault":2827,"dias":{"1":{"lect_ini":16870278,"lect_fin":16874646,"precio":0,"carros":585,"efectivo":12113000,"rumbo":201307,"cliente_eds":0,"bonos":27000,"nequi":0,"daviplata":0,"gastos":0},"2":{"lect_ini":16874646,"lect_fin":16878762,"precio":2827,"carros":531,"efectivo":10857000,"rumbo":252928,"cliente_eds":181012,"bonos":60000,"nequi":0,"gastos":480000,"comentario":"jardinería"},"3":{"lect_ini":16878762,"lect_fin":16882657,"precio":2742,"carros":509,"efectivo":10326000,"rumbo":168139,"cliente_eds":0,"bonos":0,"nequi":0,"daviplata":0,"gastos":0},"4":{"lect_ini":16882657,"lect_fin":16886553,"precio":2727,"carros":501,"efectivo":10285000,"rumbo":299314,"cliente_eds":0,"bonos":30000,"nequi":0,"daviplata":0,"gastos":6000,"comentario":"llaves"},"5":{"lect_ini":16886553,"lect_fin":16889723,"precio":2727,"carros":430,"efectivo":8322000,"rumbo":260423,"cliente_eds":0,"bonos":63000,"nequi":0},"6":{"lect_ini":16889723,"lect_fin":16893580,"precio":2727,"carros":506,"efectivo":10059000,"rumbo":105614,"cliente_eds":224677,"bonos":30000,"nequi":0,"daviplata":0,"gastos":150000,"comentario":"PRESTAMO BRAYAN"},"7":{"lect_ini":16893580,"lect_fin":16897696,"precio":2727,"carros":510,"efectivo":10621784,"rumbo":323200,"cliente_eds":243575,"bonos":15000,"nequi":0,"daviplata":0,"gastos":20000,"comentario":"FALTANTE ANGELICA"},"8":{"lect_ini":16897696,"lect_fin":16901965,"precio":2727,"carros":535,"efectivo":11030115,"rumbo":95880,"cliente_eds":0,"bonos":15000,"nequi":0,"gastos":500000,"comentario":"LUIS ALIRIO PRESTAMO"},"9":{"gastos":0,"lect_ini":16901965,"lect_fin":16905861,"precio":2727,"carros":476,"efectivo":10262689,"rumbo":324701,"cliente_eds":0,"bonos":39000,"nequi":0,"daviplata":0},"10":{"lect_ini":16905861,"lect_fin":16910196,"precio":2727,"carros":551,"efectivo":10675354,"rumbo":368988,"cliente_eds":335230,"bonos":42000,"nequi":0,"daviplata":0,"gastos":399950,"comentario":""},"11":{"lect_ini":16910196,"lect_fin":16913951,"precio":2727,"carros":475,"efectivo":9920000,"rumbo":270517,"cliente_eds":0,"bonos":48000,"nequi":0,"daviplata":0,"gastos":0,"comentario":""},"12":{"lect_ini":16913951,"lect_fin":16916937,"precio":2727,"carros":414,"efectivo":8027000,"rumbo":46521,"cliente_eds":0,"bonos":33000,"nequi":0,"daviplata":0,"gastos":0,"comentario":""},"13":{"lect_ini":16916937,"lect_fin":16919982,"precio":2727,"carros":401,"efectivo":8033000,"rumbo":493639,"cliente_eds":0,"bonos":27000,"nequi":0,"daviplata":0},"14":{"lect_ini":16919982,"lect_fin":16924011,"precio":2727,"carros":489,"efectivo":10299000,"rumbo":582401,"cliente_eds":0,"bonos":60000,"nequi":0},"15":{"lect_ini":16924011,"lect_fin":16927976,"precio":2727,"carros":492,"efectivo":10047000,"rumbo":423661,"cliente_eds":313468,"bonos":57000,"nequi":0},"16":{"lect_ini":16927976,"lect_fin":16932184,"precio":2727,"carros":551,"efectivo":10680000,"rumbo":431216,"cliente_eds":273327,"bonos":72000,"nequi":0},"17":{"lect_ini":16932184,"lect_fin":16936688,"precio":2727,"carros":565,"efectivo":11244000,"rumbo":589681,"cliente_eds":263455,"bonos":51000,"nequi":0},"18":{"lect_ini":16936688,"lect_fin":16940734,"precio":2727,"carros":507,"efectivo":10544000,"rumbo":371471,"cliente_eds":261273,"bonos":0},"19":{"lect_ini":16940734,"lect_fin":16943959,"precio":2727,"carros":414,"efectivo":8023000,"rumbo":461952,"cliente_eds":271990,"bonos":36000,"nequi":0},"20":{"lect_ini":16943959,"lect_fin":16947113,"precio":2727,"carros":413,"efectivo":8296000,"rumbo":104333,"cliente_eds":179491,"bonos":21000,"nequi":0},"21":{"lect_ini":16947113,"lect_fin":16951752,"precio":2727,"carros":578,"efectivo":11922000,"rumbo":656820,"cliente_eds":0,"bonos":30000,"nequi":0},"22":{"lect_ini":16951752,"lect_fin":16956393,"precio":2727,"carros":587,"efectivo":11107000,"rumbo":265224,"cliente_eds":248784,"bonos":69000,"nequi":0,"gastos":1000000,"comentario":""},"23":{"lect_ini":16956393,"lect_fin":16961196,"precio":2727,"carros":579,"efectivo":11910000,"rumbo":715149,"cliente_eds":247993,"bonos":27000,"nequi":0,"daviplata":0,"gastos":200000,"comentario":""},"24":{"cliente_eds":265364,"lect_ini":16961196,"lect_fin":16966691,"precio":2727,"carros":589,"efectivo":12989000,"rumbo":1352639,"bonos":39000,"nequi":0,"daviplata":0,"gastos":324834,"comentario":"Manguera de agua"},"25":{"lect_ini":16966691,"comentario":"","lect_fin":16971006,"precio":2727,"carros":535,"efectivo":11361000,"rumbo":88763,"cliente_eds":252820,"bonos":54000,"nequi":0,"daviplata":0,"gastos":0},"26":{"lect_ini":16971006,"lect_fin":16975024,"precio":2727,"carros":518,"efectivo":10289000,"rumbo":655078,"cliente_eds":0,"bonos":21000,"nequi":0,"daviplata":0,"gastos":0},"27":{"lect_ini":16975024,"lect_fin":16979102,"precio":2727,"carros":533,"efectivo":10774000,"rumbo":206158,"cliente_eds":105998,"bonos":36000,"nequi":0,"daviplata":0},"28":{"lect_ini":16979102,"lect_fin":16983335,"precio":2727,"carros":562,"efectivo":10916000,"rumbo":312127,"cliente_eds":246520,"bonos":72000,"nequi":0},"29":{"rumbo":320554,"lect_ini":16983335,"lect_fin":16988062,"precio":2727,"carros":602,"efectivo":13078000,"cliente_eds":277717,"bonos":60000,"nequi":0},"30":{"lect_ini":16988062,"lect_fin":16992646,"precio":2727,"carros":555,"efectivo":10781000,"rumbo":728865,"cliente_eds":0,"bonos":21000,"nequi":0,"daviplata":0},"31":{"lect_ini":16992646,"lect_fin":16997067,"precio":2727,"carros":548,"efectivo":11461000,"rumbo":512508,"cliente_eds":140767,"bonos":45000,"nequi":0}}},"2026-08":{"precioDefault":2727,"dias":{"1":{"lect_ini":16997067,"lect_fin":17000900,"precio":2727,"carros":487,"efectivo":10150000,"rumbo":240682,"cliente_eds":0,"bonos":30000,"nequi":0,"daviplata":0,"gastos":0},"2":{"lect_ini":17000900,"lect_fin":17004414,"precio":2727,"carros":466,"efectivo":8969000,"rumbo":590256,"cliente_eds":0,"bonos":42000,"nequi":0,"daviplata":0},"3":{"lect_fin":17008719,"lect_ini":17004414,"precio":2727,"carros":544,"efectivo":11315000,"rumbo":403675,"cliente_eds":0,"bonos":27000,"nequi":0},"4":{"lect_ini":17008719,"lect_fin":17013204,"precio":2727,"carros":549,"efectivo":11172000,"rumbo":952128,"cliente_eds":0,"bonos":47000,"nequi":0,"daviplata":0,"gastos":0,"comentario":"FALTANTE PAGADO POR RICARDO"},"5":{"lect_ini":17013204},"7":{"daviplata":0},"9":{"gastos":0}}}};
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+  } catch (err) {
+    console.error("Error al guardar:", err);
+    showToast("Error al guardar. Memoria del navegador llena.", "error");
+  }
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    DATA = raw ? JSON.parse(raw) : {};
+  } catch (err) {
+    console.error("Error al cargar:", err);
+    DATA = {};
+  }
+  // Fusion dia por dia con los datos incrustados: se rellena lo que falte,
+  // se conservan intactos los dias que ya existen (tus ediciones).
+  try {
+    for (const mk in SEED_DATA) {
+      const sm = SEED_DATA[mk];
+      if (!DATA[mk]) { DATA[mk] = JSON.parse(JSON.stringify(sm)); continue; }
+      if ((DATA[mk].precioDefault === undefined || DATA[mk].precioDefault === 0) && sm.precioDefault) DATA[mk].precioDefault = sm.precioDefault;
+      if (!DATA[mk].dias) DATA[mk].dias = {};
+      for (const d in (sm.dias || {})) {
+        if (!DATA[mk].dias[d]) DATA[mk].dias[d] = JSON.parse(JSON.stringify(sm.dias[d]));
+      }
+    }
+  } catch (e) { console.error("Error al fusionar:", e); }
+  saveData();
+}
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+function getMonthKey(year, month) { return year + "-" + month; }
+function currentKey() { return getMonthKey(currentYear, currentMonth); }
+
+function ensureMonth(key) {
+  if (!DATA[key]) DATA[key] = { precioDefault: 0, dias: {} };
+  if (!DATA[key].dias) DATA[key].dias = {};
+  if (DATA[key].precioDefault === undefined) DATA[key].precioDefault = 0;
+}
+
+function getDay(key, dia) {
+  ensureMonth(key);
+  return DATA[key].dias[dia] || {};
+}
+
+function setDay(key, dia, field, value) {
+  ensureMonth(key);
+  if (!DATA[key].dias[dia]) DATA[key].dias[dia] = {};
+  DATA[key].dias[dia][field] = value;
+  saveData();
+}
+
+function daysInMonth(year, month) {
+  return new Date(parseInt(year), parseInt(month), 0).getDate();
+}
+
+function fmtMoney(n) {
+  if (!n || n === 0) return "$0";
+  const abs = Math.abs(n);
+  const sign = n < 0 ? "-" : "";
+  return sign + "$" + abs.toLocaleString("es-CO", { maximumFractionDigits: 0 });
+}
+function fmtMoneyEmpty(n) {
+  if (!n || n === 0) return "—";
+  return fmtMoney(n);
+}
+function fmtNumber(n) {
+  if (n === null || n === undefined || n === '') return "";
+  if (n === 0) return "0";
+  return n.toLocaleString("es-CO", { maximumFractionDigits: 3 });
+}
+function fmtNumberEmpty(n) {
+  if (!n || n === 0) return "—";
+  return n.toLocaleString("es-CO", { maximumFractionDigits: 3 });
+}
+function fmtSigned(n) {
+  if (!n) return "$0";
+  const sign = n > 0 ? "+" : "";
+  return sign + fmtMoney(n);
+}
+function parseNum(s) {
+  if (!s && s !== 0) return 0;
+  s = String(s).trim();
+  if (!s) return 0;
+  // Quitar simbolos y separador de miles, manejar coma decimal
+  s = s.replace(/[$\s]/g, '').replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+function escapeHTML(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Calculos por dia
+function m3Dia(dia) {
+  const d = getDay(currentKey(), dia);
+  const fin = parseFloat(d.lect_fin) || 0;
+  const ini = parseFloat(d.lect_ini) || 0;
+  if (fin <= 0 || ini <= 0) return 0;
+  return Math.max(0, fin - ini);
+}
+function precioDia(dia) {
+  const d = getDay(currentKey(), dia);
+  if (d.precio !== undefined && d.precio !== null && d.precio !== '') {
+    const p = parseFloat(d.precio);
+    if (!isNaN(p) && p > 0) return p;
+  }
+  return DATA[currentKey()]?.precioDefault || 0;
+}
+function ventaDia(dia) {
+  return m3Dia(dia) * precioDia(dia);
+}
+function totalMediosDia(dia) {
+  const d = getDay(currentKey(), dia);
+  let t = 0;
+  for (const m of MEDIOS) t += parseFloat(d[m.key]) || 0;
+  return t;
+}
+function difDia(dia) {
+  const v = ventaDia(dia);
+  if (v <= 0) return null; // sin venta = no calcular dif
+  return totalMediosDia(dia) - v;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderTab() {
+  const el = document.getElementById("content");
+  if (currentTab === "diario") el.innerHTML = renderDiario();
+  else if (currentTab === "dashboard") el.innerHTML = renderDashboard();
+  else if (currentTab === "anual") el.innerHTML = renderAnual();
+  attachListeners();
+}
+
+function renderDiario() {
+  const days = daysInMonth(currentYear, currentMonth);
+  const key = currentKey();
+  ensureMonth(key);
+
+  let html = `<div class="table-wrap"><table class="diario">
+    <thead>
+      <tr>
+        <th class="day" rowspan="2">Fecha</th>
+        <th colspan="3" class="h-lect">Lectora (m³)</th>
+        <th rowspan="2" class="h-precio">Precio<br>$/m³</th>
+        <th rowspan="2" class="h-venta">VENTA<br>EN PESOS</th>
+        <th rowspan="2" class="h-carros">Carros<br>Atendidos</th>
+        <th colspan="7" class="h-medios">Medios de Pago</th>
+        <th rowspan="2" class="h-total">TOTAL<br>MEDIOS</th>
+        <th rowspan="2" class="h-dif">DIF.</th>
+        <th rowspan="2" class="h-com">Comentarios</th>
+      </tr>
+      <tr>
+        <th class="h-lect">Lect. Inicial</th>
+        <th class="h-lect">Lect. Final</th>
+        <th class="h-m3">m³ Vendidos</th>`;
+  for (const m of MEDIOS) {
+    html += `<th class="h-medios" title="${m.name}">${m.name.length > 11 ? m.name.split(' ').map((w,i)=>i===0?w:'<br>'+w).join('') : m.name}</th>`;
+  }
+  html += `</tr>
+    </thead>
+    <tbody>`;
+
+  let totales = { lect: 0, m3: 0, venta: 0, medios: {}, totMedios: 0, diasConVenta: 0, carros: 0 };
+  for (const m of MEDIOS) totales.medios[m.key] = 0;
+
+  for (let dia = 1; dia <= days; dia++) {
+    const d = getDay(key, dia);
+    const m3 = m3Dia(dia);
+    const precio = precioDia(dia);
+    const venta = ventaDia(dia);
+    const totMedios = totalMediosDia(dia);
+    const dif = difDia(dia);
+
+    // Acumular totales
+    if (m3 > 0) {
+      totales.m3 += m3;
+      totales.venta += venta;
+      totales.diasConVenta++;
+    }
+    totales.totMedios += totMedios;
+    totales.carros += parseFloat(d.carros) || 0;
+    for (const m of MEDIOS) totales.medios[m.key] += parseFloat(d[m.key]) || 0;
+
+    // Clase para diferencia
+    let difClass = 'empty';
+    let difTxt = '—';
+    if (dif !== null) {
+      if (Math.abs(dif) < 100) { difClass = 'ok'; difTxt = fmtSigned(dif); }
+      else { difClass = 'bad'; difTxt = fmtSigned(dif); }
+    }
+
+    html += `<tr>
+      <td class="day">${dia}</td>
+      <td class="c-lect" contenteditable="true" data-k="lect_ini" data-d="${dia}">${d.lect_ini ? fmtNumber(d.lect_ini) : ''}</td>
+      <td class="c-lect" contenteditable="true" data-k="lect_fin" data-d="${dia}">${d.lect_fin ? fmtNumber(d.lect_fin) : ''}</td>
+      <td class="c-m3">${m3 > 0 ? fmtNumber(m3) : '—'}</td>
+      <td class="c-precio" contenteditable="true" data-k="precio" data-d="${dia}">${d.precio ? fmtMoney(d.precio) : (DATA[key].precioDefault > 0 ? '<span style="color:#9CA3AF">'+fmtMoney(DATA[key].precioDefault)+'</span>' : '')}</td>
+      <td class="c-venta">${venta > 0 ? fmtMoney(venta) : '—'}</td>
+      <td class="c-carros" contenteditable="true" data-k="carros" data-d="${dia}">${d.carros ? Math.round(d.carros).toLocaleString('es-CO') : ''}</td>`;
+    for (const m of MEDIOS) {
+      html += `<td class="c-medio" contenteditable="true" data-k="${m.key}" data-d="${dia}">${d[m.key] ? fmtMoney(d[m.key]) : ''}</td>`;
+    }
+    html += `<td class="c-total">${totMedios > 0 ? fmtMoney(totMedios) : '—'}</td>
+      <td class="c-dif ${difClass}">${difTxt}</td>
+      <td class="c-com" contenteditable="true" data-k="comentario" data-d="${dia}">${escapeHTML(d.comentario || '')}</td>
+    </tr>`;
+  }
+
+  // Fila total
+  html += `<tr class="total-row">
+    <td class="day">TOTAL</td>
+    <td>—</td><td>—</td>
+    <td>${fmtNumber(totales.m3)}</td>
+    <td>${totales.diasConVenta > 0 ? fmtMoney(totales.venta / totales.m3) + '<br><span style="font-size:10px;font-weight:400;opacity:0.8">prom $/m³</span>' : '—'}</td>
+    <td>${fmtMoney(totales.venta)}</td>
+    <td>${totales.carros > 0 ? totales.carros.toLocaleString('es-CO') : '—'}</td>`;
+  for (const m of MEDIOS) html += `<td>${fmtMoney(totales.medios[m.key])}</td>`;
+  html += `<td>${fmtMoney(totales.totMedios)}</td>
+    <td>${fmtSigned(totales.totMedios - totales.venta)}</td>
+    <td></td>
+  </tr>`;
+
+  html += `</tbody></table></div>`;
+  return html;
+}
+
+function renderDashboard() {
+  const days = daysInMonth(currentYear, currentMonth);
+  const key = currentKey();
+  ensureMonth(key);
+
+  let totM3 = 0, totVenta = 0, totMedios = {}, totTodo = 0, diasConDatos = 0;
+  let mejorDia = {dia: 0, m3: 0};
+  let porDia = [];
+  for (const m of MEDIOS) totMedios[m.key] = 0;
+
+  for (let dia = 1; dia <= days; dia++) {
+    const d = getDay(key, dia);
+    const m3 = m3Dia(dia);
+    const venta = ventaDia(dia);
+    porDia.push({dia, m3, venta});
+    if (m3 > 0) {
+      totM3 += m3; totVenta += venta; diasConDatos++;
+      if (m3 > mejorDia.m3) mejorDia = {dia, m3};
+    }
+    for (const m of MEDIOS) {
+      const val = parseFloat(d[m.key]) || 0;
+      totMedios[m.key] += val;
+      totTodo += val;
+    }
+  }
+
+  const dif = totTodo - totVenta;
+  const promDia = diasConDatos > 0 ? totM3 / diasConDatos : 0;
+  const precioProm = totM3 > 0 ? totVenta / totM3 : (DATA[key].precioDefault || 0);
+
+  // Grafico de barras
+  const maxM3 = Math.max(...porDia.map(x => x.m3), 1);
+  let barsHTML = '';
+  porDia.forEach(x => {
+    const h = (x.m3 / maxM3) * 170;
+    const y = 190 - h;
+    const isMax = x.dia === mejorDia.dia && x.m3 > 0;
+    const color = isMax ? '#F59E0B' : (x.m3 > 0 ? '#0D9488' : '#E5E7EB');
+    const barW = 100 / days;
+    barsHTML += `<g>
+      <rect x="${(x.dia-1) * barW}%" y="${y}" width="${barW * 0.85}%" height="${h}" fill="${color}" rx="3">
+        <title>Dia ${x.dia}: ${fmtNumber(x.m3)} m³ - ${fmtMoney(x.venta)}</title>
+      </rect>
+      ${(x.dia % 5 === 0 || x.dia === 1 || x.dia === days) ? `<text x="${(x.dia-0.5) * barW}%" y="205" font-size="10" fill="#6B7280" text-anchor="middle">${x.dia}</text>` : ''}
+    </g>`;
+  });
+
+  // Donut de medios
+  let donutHTML = '';
+  if (totTodo > 0) {
+    const r = 75, cx = 100, cy = 100;
+    let acum = 0;
+    for (const m of MEDIOS) {
+      const val = totMedios[m.key];
+      if (val <= 0) continue;
+      const frac = val / totTodo;
+      const a1 = acum * 2 * Math.PI - Math.PI/2;
+      const a2 = (acum + frac) * 2 * Math.PI - Math.PI/2;
+      const x1 = cx + r * Math.cos(a1);
+      const y1 = cy + r * Math.sin(a1);
+      const x2 = cx + r * Math.cos(a2);
+      const y2 = cy + r * Math.sin(a2);
+      const large = frac > 0.5 ? 1 : 0;
+      donutHTML += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z" fill="${m.color}"><title>${m.name}: ${fmtMoney(val)}</title></path>`;
+      acum += frac;
+    }
+    donutHTML += `<circle cx="${cx}" cy="${cy}" r="42" fill="white"/>`;
+    donutHTML += `<text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="10" fill="#6B7280">TOTAL</text>`;
+    const totalLabel = fmtMoney(totTodo);
+    donutHTML += `<text x="${cx}" y="${cy + 8}" text-anchor="middle" font-size="11" font-weight="700" fill="#0F172A">${totalLabel.length > 14 ? totalLabel.substring(0,14)+'...' : totalLabel}</text>`;
+    donutHTML += `<text x="${cx}" y="${cy + 22}" text-anchor="middle" font-size="9" fill="#9CA3AF">en medios</text>`;
+  } else {
+    donutHTML = `<text x="100" y="100" text-anchor="middle" font-size="12" fill="#9CA3AF">Sin datos aún</text>`;
+  }
+
+  const difColor = Math.abs(dif) < 100 ? '#059669' : (dif > 0 ? '#059669' : '#DC2626');
+  const difSig = dif >= 0 ? '+' : '';
+
+  // Lista de medios
+  let mediosListHTML = '';
+  for (const m of MEDIOS) {
+    const val = totMedios[m.key];
+    const pct = totTodo > 0 ? (val / totTodo * 100).toFixed(1) : 0;
+    mediosListHTML += `<div class="medio-row">
+      <div class="medio-name"><span class="medio-dot" style="background:${m.color}"></span>${m.name}</div>
+      <div style="text-align:right">
+        <div class="medio-val">${fmtMoney(val)}</div>
+        <div style="font-size:10px;color:#9CA3AF;margin-top:2px">${pct}%</div>
+      </div>
+    </div>`;
+  }
+  mediosListHTML += `<div class="medio-row total">
+    <div class="medio-name">TOTAL MEDIOS</div>
+    <div class="medio-val">${fmtMoney(totTodo)}</div>
+  </div>`;
+
+  return `<div class="dashboard">
+    <div class="dash-title">${MONTH_FULL[parseInt(currentMonth)-1]} ${currentYear}</div>
+    <div class="dash-sub">${diasConDatos} dia(s) con datos · Precio promedio del mes: ${fmtMoney(precioProm)}/m³</div>
+
+    <div class="kpi-grid">
+      <div class="kpi kpi-1">
+        <div class="kpi-lbl">Metros Cúbicos</div>
+        <div class="kpi-val">${fmtNumber(totM3)}</div>
+        <div class="kpi-sub">Promedio: ${fmtNumber(promDia)} m³/dia</div>
+      </div>
+      <div class="kpi kpi-2">
+        <div class="kpi-lbl">Venta Total</div>
+        <div class="kpi-val">${fmtMoney(totVenta)}</div>
+        <div class="kpi-sub">${diasConDatos > 0 ? fmtMoney(totVenta/diasConDatos) : '$0'}/dia</div>
+      </div>
+      <div class="kpi kpi-3">
+        <div class="kpi-lbl">Total Medios Pago</div>
+        <div class="kpi-val">${fmtMoney(totTodo)}</div>
+        <div class="kpi-sub" style="color:${difColor};font-weight:700">${difSig}${fmtMoney(dif)} dif.</div>
+      </div>
+      <div class="kpi kpi-4">
+        <div class="kpi-lbl">Mejor Día</div>
+        <div class="kpi-val">${mejorDia.dia > 0 ? 'Día '+mejorDia.dia : '—'}</div>
+        <div class="kpi-sub">${mejorDia.m3 > 0 ? fmtNumber(mejorDia.m3)+' m³' : 'Sin datos'}</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Metros Cúbicos por Día</div>
+        <svg style="width:100%;height:220px" viewBox="0 0 1000 220" preserveAspectRatio="none">
+          <line x1="0" y1="190" x2="1000" y2="190" stroke="#E2E8F0" stroke-width="1"/>
+          ${barsHTML}
+        </svg>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Composición Medios de Pago</div>
+        <svg style="width:100%;height:200px" viewBox="0 0 200 200">
+          ${donutHTML}
+        </svg>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Detalle de Medios de Pago</div>
+      <div class="grid-2col">
+        <div>${mediosListHTML.split('</div></div>').slice(0,3).join('</div></div>')+'</div></div>'}</div>
+        <div>${mediosListHTML.split('</div></div>').slice(3).join('</div></div>')}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderAnual() {
+  let html = `<div class="dashboard"><div class="dash-title">Resumen Anual ${currentYear}</div>
+  <div class="dash-sub">Vista comparativa de los 12 meses. Haga clic en un mes para abrirlo.</div>`;
+
+  // Acumulados del año
+  let totAnoM3 = 0, totAnoVenta = 0, mesesConDatos = 0, mejorMes = {m: 0, m3: 0};
+  const datosMeses = [];
+
+  for (let m = 1; m <= 12; m++) {
+    const mm = String(m).padStart(2, '0');
+    const key = currentYear + '-' + mm;
+    const days = daysInMonth(currentYear, mm);
+    let m3 = 0, venta = 0;
+    if (DATA[key]) {
+      for (let dia = 1; dia <= days; dia++) {
+        const d = DATA[key].dias?.[dia] || {};
+        const fin = parseFloat(d.lect_fin) || 0;
+        const ini = parseFloat(d.lect_ini) || 0;
+        if (fin > 0 && ini > 0) {
+          const dM3 = Math.max(0, fin - ini);
+          m3 += dM3;
+          let p = parseFloat(d.precio) || DATA[key].precioDefault || 0;
+          venta += dM3 * p;
+        }
+      }
+    }
+    datosMeses.push({m, mm, m3, venta});
+    if (m3 > 0) {
+      totAnoM3 += m3; totAnoVenta += venta; mesesConDatos++;
+      if (m3 > mejorMes.m3) mejorMes = {m, m3};
+    }
+  }
+
+  // KPIs anuales
+  html += `<div class="kpi-grid">
+    <div class="kpi kpi-1">
+      <div class="kpi-lbl">Metros Cúbicos del Año</div>
+      <div class="kpi-val">${fmtNumber(totAnoM3)}</div>
+      <div class="kpi-sub">${mesesConDatos} mes(es) con datos</div>
+    </div>
+    <div class="kpi kpi-2">
+      <div class="kpi-lbl">Venta Total del Año</div>
+      <div class="kpi-val">${fmtMoney(totAnoVenta)}</div>
+      <div class="kpi-sub">${mesesConDatos > 0 ? fmtMoney(totAnoVenta/mesesConDatos) : '$0'}/mes prom.</div>
+    </div>
+    <div class="kpi kpi-3">
+      <div class="kpi-lbl">Mejor Mes</div>
+      <div class="kpi-val">${mejorMes.m > 0 ? MONTH_FULL[mejorMes.m-1] : '—'}</div>
+      <div class="kpi-sub">${mejorMes.m3 > 0 ? fmtNumber(mejorMes.m3)+' m³' : 'Sin datos'}</div>
+    </div>
+    <div class="kpi kpi-4">
+      <div class="kpi-lbl">Promedio mensual</div>
+      <div class="kpi-val">${mesesConDatos > 0 ? fmtNumber(totAnoM3/mesesConDatos) : '0'}</div>
+      <div class="kpi-sub">m³/mes</div>
+    </div>
+  </div>`;
+
+  // Grafico anual
+  const maxMes = Math.max(...datosMeses.map(x => x.m3), 1);
+  let barsHTML = '';
+  datosMeses.forEach((x, i) => {
+    const h = (x.m3 / maxMes) * 160;
+    const y = 180 - h;
+    const isMax = x.m === mejorMes.m && x.m3 > 0;
+    const color = isMax ? '#F59E0B' : (x.m3 > 0 ? '#0D9488' : '#E5E7EB');
+    const barW = 100 / 12;
+    barsHTML += `<g>
+      <rect x="${i * barW + 0.5}%" y="${y}" width="${barW * 0.78}%" height="${h}" fill="${color}" rx="4">
+        <title>${MONTH_FULL[i]}: ${fmtNumber(x.m3)} m³ - ${fmtMoney(x.venta)}</title>
+      </rect>
+      <text x="${i * barW + barW/2}%" y="200" font-size="11" fill="#6B7280" text-anchor="middle" font-weight="600">${MONTH_NAMES[i]}</text>
+    </g>`;
+  });
+
+  html += `<div class="panel" style="margin-bottom:22px">
+    <div class="panel-title">Metros cúbicos por mes — ${currentYear}</div>
+    <svg style="width:100%;height:220px" viewBox="0 0 1000 220" preserveAspectRatio="none">
+      <line x1="0" y1="180" x2="1000" y2="180" stroke="#E2E8F0" stroke-width="1"/>
+      ${barsHTML}
+    </svg>
+  </div>`;
+
+  // Grid de meses
+  html += `<div class="panel"><div class="panel-title">Meses del año (clic para abrir)</div><div class="year-grid" style="padding:0">`;
+  datosMeses.forEach((x, i) => {
+    const isCurrent = x.mm === currentMonth;
+    const empty = x.m3 === 0;
+    html += `<div class="month-card ${isCurrent ? 'active' : ''} ${empty ? 'empty' : ''}" onclick="jumpToMonth('${x.mm}')">
+      <div class="month-name">${MONTH_FULL[i]}</div>
+      <div class="month-stat">
+        <div class="month-m3">${fmtNumber(x.m3)} m³</div>
+        <div class="month-venta">${fmtMoney(x.venta)}</div>
+      </div>
+    </div>`;
+  });
+  html += `</div></div></div>`;
+
+  return html;
+}
+
+function jumpToMonth(mm) {
+  currentMonth = mm;
+  document.getElementById("monthSelector").value = mm;
+  currentTab = "diario";
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('[data-tab="diario"]').classList.add('active');
+  renderTab();
+}
+
+// ============================================================
+// EDICION DE CELDAS
+// ============================================================
+function attachListeners() {
+  document.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
+    cell.addEventListener('focus', () => {
+      if (cell.dataset.k === 'comentario') {
+        setTimeout(() => document.execCommand('selectAll', false, null), 10);
+        return;
+      }
+      // Limpiar formato visual al entrar
+      const raw = cell.textContent.replace(/[^\d\-.,]/g,'').replace(/\./g,'').replace(',','.');
+      cell.textContent = (raw === "0" || raw === "") ? "" : raw;
+      setTimeout(() => document.execCommand('selectAll', false, null), 10);
+    });
+
+    cell.addEventListener('blur', () => {
+      const dia = parseInt(cell.dataset.d);
+      const k = cell.dataset.k;
+      if (k === 'comentario') {
+        setDay(currentKey(), dia, k, cell.textContent.trim());
+        return;
+      }
+      const val = parseNum(cell.textContent);
+      setDay(currentKey(), dia, k, val);
+      
+      // Si edito Lect. Final, copiar al siguiente dia como Lect. Inicial
+      // SOLO si el siguiente dia esta vacio (no sobrescribir si ya tiene valor)
+      if (k === 'lect_fin' && val > 0) {
+        const days = daysInMonth(currentYear, currentMonth);
+        if (dia < days) {
+          const sigDia = getDay(currentKey(), dia + 1);
+          if (!sigDia.lect_ini || parseFloat(sigDia.lect_ini) === 0) {
+            setDay(currentKey(), dia + 1, 'lect_ini', val);
+          }
+        }
+      }
+      
+      renderTab();
+    });
+
+    cell.addEventListener('keydown', e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        // Saltar a la siguiente celda editable de la MISMA FILA
+        const currentD = cell.dataset.d;
+        const todasEnFila = Array.from(document.querySelectorAll(
+          `td[contenteditable="true"][data-d="${currentD}"]`
+        ));
+        const idx = todasEnFila.indexOf(cell);
+        cell.blur();
+        if (idx >= 0 && idx < todasEnFila.length - 1) {
+          setTimeout(() => {
+            const nuevaFila = Array.from(document.querySelectorAll(
+              `td[contenteditable="true"][data-d="${currentD}"]`
+            ));
+            if (nuevaFila[idx + 1]) nuevaFila[idx + 1].focus();
+          }, 50);
+        }
+      }
+      if (e.key === "Escape") cell.blur();
+      if (e.key === "Tab") {
+        // Tab estándar funciona por defecto, pero blur primero
+      }
+    });
+  });
+}
+
+// ============================================================
+// MODALES Y ACCIONES
+// ============================================================
+function showToast(msg, kind="info") {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.className = "toast " + kind;
+  setTimeout(()=>t.classList.add("show"), 10);
+  setTimeout(()=>t.classList.remove("show"), 3500);
+}
+
+function openPriceModal() {
+  ensureMonth(currentKey());
+  document.getElementById("priceInput").value = DATA[currentKey()].precioDefault || '';
+  document.getElementById("priceModal").classList.add("show");
+  setTimeout(()=>document.getElementById("priceInput").focus(), 100);
+}
+function closePriceModal() { document.getElementById("priceModal").classList.remove("show"); }
+function applyPrice() {
+  const val = parseFloat(document.getElementById("priceInput").value) || 0;
+  if (val <= 0) { showToast("Ingrese un precio valido", "error"); return; }
+  ensureMonth(currentKey());
+  DATA[currentKey()].precioDefault = val;
+  saveData();
+  renderTab();
+  closePriceModal();
+  showToast("Precio del mes establecido en " + fmtMoney(val) + "/m³", "success");
+}
+
+function openRestoreModal() {
+  document.getElementById("restoreArea").value = "";
+  document.getElementById("restoreModal").classList.add("show");
+}
+function closeRestoreModal() { document.getElementById("restoreModal").classList.remove("show"); }
+function applyRestore() {
+  const text = document.getElementById("restoreArea").value.trim();
+  if (!text) { showToast("Pegue el respaldo antes de restaurar", "error"); return; }
+  try {
+    const parsed = JSON.parse(text);
+    DATA = parsed;
+    saveData();
+    renderTab();
+    closeRestoreModal();
+    showToast("Datos restaurados correctamente", "success");
+  } catch (err) {
+    showToast("JSON invalido: " + err.message, "error");
+  }
+}
+
+function clearMonth() {
+  if (!confirm(`¿Borrar todos los datos de ${MONTH_FULL[parseInt(currentMonth)-1]} ${currentYear}? Esta accion no se puede deshacer.`)) return;
+  delete DATA[currentKey()];
+  saveData();
+  renderTab();
+  showToast("Mes limpiado", "info");
+}
+
+function downloadBackup() {
+  const json = JSON.stringify(DATA, null, 2);
+  const blob = new Blob([json], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const fname = `Backup_GNV_${new Date().toISOString().slice(0,10)}.json`;
+  a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Respaldo descargado`, "success");
+}
+
+function downloadExcel() {
+  const wb = XLSX.utils.book_new();
+  const key = currentKey();
+  ensureMonth(key);
+  const days = daysInMonth(currentYear, currentMonth);
+  const mName = MONTH_FULL[parseInt(currentMonth)-1];
+
+  // Hoja 1: Cuadro Diario
+  const h1 = [["Fecha","Lect. Inicial","Lect. Final","m³ Vendidos","Precio $/m³","VENTA EN PESOS",
+    "Carros Atendidos",
+    "Efectivo","Rumbo","Cliente Propio EDS","Bonos Vive Terpel","Nequi","Daviplata","Gastos",
+    "TOTAL MEDIOS","DIFERENCIA","Comentarios"]];
+  let totM3 = 0, totVenta = 0, totCarros = 0, totMedios = {efectivo:0,rumbo:0,cliente_eds:0,bonos:0,nequi:0,daviplata:0,gastos:0}, totMed = 0;
+
+  for (let dia = 1; dia <= days; dia++) {
+    const d = getDay(key, dia);
+    const m3 = m3Dia(dia);
+    const precio = precioDia(dia);
+    const venta = ventaDia(dia);
+    const totMediosD = totalMediosDia(dia);
+    const dif = venta > 0 ? totMediosD - venta : 0;
+    totM3 += m3; totVenta += venta; totMed += totMediosD;
+    for (const m of MEDIOS) totMedios[m.key] += parseFloat(d[m.key]) || 0;
+    totCarros += parseFloat(d.carros) || 0;
+    h1.push([dia + ' ' + MONTH_NAMES[parseInt(currentMonth)-1],
+      parseFloat(d.lect_ini) || 0,
+      parseFloat(d.lect_fin) || 0,
+      m3, precio, venta,
+      parseFloat(d.carros) || 0,
+      parseFloat(d.efectivo) || 0,
+      parseFloat(d.rumbo) || 0,
+      parseFloat(d.cliente_eds) || 0,
+      parseFloat(d.bonos) || 0,
+      parseFloat(d.nequi) || 0,
+      parseFloat(d.daviplata) || 0,
+      parseFloat(d.gastos) || 0,
+      totMediosD, dif, d.comentario || '']);
+  }
+  h1.push(['TOTAL', '', '', totM3, totM3 > 0 ? totVenta/totM3 : 0, totVenta, totCarros,
+    totMedios.efectivo, totMedios.rumbo, totMedios.cliente_eds, totMedios.bonos, totMedios.nequi, totMedios.daviplata, totMedios.gastos,
+    totMed, totMed - totVenta, '']);
+  const ws1 = XLSX.utils.aoa_to_sheet(h1);
+
+  // Formato
+  const range = XLSX.utils.decode_range(ws1['!ref']);
+  for (let R = 1; R <= range.e.r; R++) {
+    for (let C = 1; C <= range.e.c - 1; C++) {
+      const cell = ws1[XLSX.utils.encode_cell({r:R, c:C})];
+      if (cell && typeof cell.v === 'number') {
+        if (C === 3) cell.z = '#,##0.000;(#,##0.000);"-"'; // m3
+        else if (C === 6) cell.z = '#,##0;(#,##0);"-"';    // carros (entero)
+        else cell.z = '$#,##0;($#,##0);"-"';
+      }
+    }
+  }
+  ws1['!cols'] = [{wch:12},{wch:14},{wch:14},{wch:13},{wch:12},{wch:18},{wch:12},
+    {wch:14},{wch:14},{wch:18},{wch:18},{wch:14},{wch:14},{wch:14},
+    {wch:16},{wch:14},{wch:25}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Cuadro Diario');
+
+  // Hoja 2: Resumen del mes
+  const h2 = [
+    ['RESUMEN MENSUAL — ' + mName + ' ' + currentYear, ''],
+    [],
+    ['INDICADORES', ''],
+    ['Metros cúbicos vendidos', totM3],
+    ['Venta total en pesos', totVenta],
+    ['Precio promedio $/m³', totM3 > 0 ? totVenta/totM3 : 0],
+    ['Carros atendidos', totCarros],
+    ['Días con venta', Object.keys(DATA[key].dias || {}).filter(d => m3Dia(d) > 0).length],
+    [],
+    ['MEDIOS DE PAGO', ''],
+    ['Efectivo', totMedios.efectivo],
+    ['Rumbo', totMedios.rumbo],
+    ['Cliente Propio EDS', totMedios.cliente_eds],
+    ['Bonos Vive Terpel', totMedios.bonos],
+    ['Nequi', totMedios.nequi],
+    ['Daviplata', totMedios.daviplata],
+    ['Gastos', totMedios.gastos],
+    ['TOTAL MEDIOS', totMed],
+    [],
+    ['CUADRE', ''],
+    ['Venta', totVenta],
+    ['Total Medios', totMed],
+    ['Diferencia', totMed - totVenta]
+  ];
+  const ws2 = XLSX.utils.aoa_to_sheet(h2);
+  for (let R = 0; R <= 23; R++) {
+    const cell = ws2[XLSX.utils.encode_cell({r:R, c:1})];
+    if (cell && typeof cell.v === 'number') {
+      if (R === 3) cell.z = '#,##0.000';
+      else if (R === 6) cell.z = '#,##0';  // carros
+      else cell.z = '$#,##0;($#,##0);"-"';
+    }
+  }
+  ws2['!cols'] = [{wch:30},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Resumen');
+
+  // Hoja 3: Resumen Anual
+  const h3 = [['Mes','m³ Vendidos','Venta Total','Precio Prom.']];
+  let totA_m3 = 0, totA_v = 0;
+  for (let m = 1; m <= 12; m++) {
+    const mm = String(m).padStart(2, '0');
+    const k = currentYear + '-' + mm;
+    const ds = daysInMonth(currentYear, mm);
+    let m3 = 0, v = 0;
+    if (DATA[k]) {
+      for (let dia = 1; dia <= ds; dia++) {
+        const d = DATA[k].dias?.[dia] || {};
+        const fin = parseFloat(d.lect_fin) || 0;
+        const ini = parseFloat(d.lect_ini) || 0;
+        if (fin > 0 && ini > 0) {
+          const dm = Math.max(0, fin - ini);
+          m3 += dm;
+          let p = parseFloat(d.precio) || DATA[k].precioDefault || 0;
+          v += dm * p;
+        }
+      }
+    }
+    totA_m3 += m3; totA_v += v;
+    h3.push([MONTH_FULL[m-1], m3, v, m3 > 0 ? v/m3 : 0]);
+  }
+  h3.push(['TOTAL ' + currentYear, totA_m3, totA_v, totA_m3 > 0 ? totA_v/totA_m3 : 0]);
+  const ws3 = XLSX.utils.aoa_to_sheet(h3);
+  for (let R = 1; R <= 13; R++) {
+    for (let C = 1; C <= 3; C++) {
+      const cell = ws3[XLSX.utils.encode_cell({r:R, c:C})];
+      if (cell && typeof cell.v === 'number') {
+        if (C === 1) cell.z = '#,##0.000';
+        else cell.z = '$#,##0;($#,##0);"-"';
+      }
+    }
+  }
+  ws3['!cols'] = [{wch:15},{wch:15},{wch:18},{wch:15}];
+  XLSX.utils.book_append_sheet(wb, ws3, 'Anual ' + currentYear);
+
+  const fname = `GNV_${mName}_${currentYear}.xlsx`;
+  XLSX.writeFile(wb, fname);
+  showToast(`Descargando ${fname}`, "success");
+}
+
+// ============================================================
+// INICIALIZACION
+// ============================================================
+function setupYearSelector() {
+  const sel = document.getElementById("yearSelector");
+  const ahora = new Date().getFullYear();
+  // Anos disponibles: del 2024 al 2030 + cualquiera con datos
+  const anosConDatos = new Set();
+  for (const k in DATA) anosConDatos.add(k.split('-')[0]);
+  const todos = new Set();
+  for (let y = 2024; y <= 2030; y++) todos.add(String(y));
+  for (const a of anosConDatos) todos.add(a);
+  const arr = Array.from(todos).sort();
+  sel.innerHTML = arr.map(a => `<option value="${a}">${a}</option>`).join('');
+  sel.value = String(currentYear);
+}
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    currentTab = t.dataset.tab;
+    renderTab();
+  };
+});
+
+document.getElementById("monthSelector").onchange = (e) => {
+  currentMonth = e.target.value;
+  ensureMonth(currentKey());
+  renderTab();
+};
+document.getElementById("yearSelector").onchange = (e) => {
+  currentYear = parseInt(e.target.value);
+  ensureMonth(currentKey());
+  renderTab();
+};
+
+(function init() {
+  loadData();
+  setupYearSelector();
+  document.getElementById("monthSelector").value = currentMonth;
+  ensureMonth(currentKey());
+  renderTab();
+  showToast("Cuadro GNV listo. Sus datos se guardan automaticamente.", "success");
+})();
+</script>
+</body>
+</html>

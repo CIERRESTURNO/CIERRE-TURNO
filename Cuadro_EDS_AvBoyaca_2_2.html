@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Ventas EDS Av. Boyaca - Terpel</title>
+</head>
+<body>
+<style>
+  :root {
+    --navy-900: #0F172A;
+    --navy-800: #1E293B;
+    --navy-700: #334155;
+    --wine: #7F1D1D;
+    --wine-light: #991B1B;
+    --purple: #6B21A8;
+    --purple-dark: #4C1D95;
+    --red-600: #DC2626;
+    --amber-500: #F59E0B;
+    --amber-100: #FEF3C7;
+    --emerald-600: #059669;
+    --emerald-700: #047857;
+    --emerald-100: #D1FAE5;
+    --blue-600: #2563EB;
+    --blue-100: #DBEAFE;
+    --blue-50: #EFF6FF;
+    --rose-100: #FEE2E2;
+    --rose-50:  #FEF2F2;
+    --purple-100: #EDE9FE;
+    --purple-50: #F5F3FF;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-500: #6B7280;
+    --gray-700: #374151;
+    --gray-900: #111827;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #F1F5F9; color: var(--gray-900); font-size: 13px; }
+  .app { max-width: 100%; margin: 0 auto; }
+  
+  /* Header */
+  .app-header {
+    background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
+    color: white; padding: 14px 20px; display: flex;
+    justify-content: space-between; align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .app-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .app-title::before { content: ""; font-size: 22px; }
+  .month-selector {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer;
+  }
+  
+  /* Tabs */
+  .tabs {
+    background: var(--navy-800); display: flex; gap: 2px;
+    padding: 0 20px; border-bottom: 3px solid var(--wine);
+  }
+  .tab {
+    padding: 12px 20px; color: #CBD5E1; cursor: pointer; font-size: 13px;
+    font-weight: 500; border: none; background: transparent; transition: all 0.2s;
+  }
+  .tab:hover { background: rgba(255,255,255,0.08); color: white; }
+  .tab.active { background: white; color: var(--navy-900); font-weight: 700; border-radius: 6px 6px 0 0; }
+  
+  /* Legend & Actions */
+  .legend {
+    background: #FFFBEB; border-bottom: 1px solid var(--amber-500);
+    padding: 8px 20px; font-size: 12px; color: var(--gray-700);
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: middle; }
+  
+  .actions {
+    background: white; padding: 12px 20px; display: flex; flex-wrap: wrap;
+    gap: 10px; border-bottom: 1px solid var(--gray-200);
+  }
+  .btn {
+    padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer;
+    font-weight: 600; font-size: 12px; display: inline-flex; align-items: center;
+    gap: 6px; transition: all 0.15s; color: white;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+  .btn-pos { background: var(--wine); }
+  .btn-credi { background: var(--blue-600); }
+  .btn-excel { background: var(--emerald-600); }
+  .btn-backup { background: var(--purple); }
+  .btn-restore { background: var(--amber-500); }
+  .btn-clear { background: var(--red-600); }
+  .btn-small { padding: 6px 10px; font-size: 11px; }
+  
+  .status-badge {
+    display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; margin-left: 6px;
+  }
+  .status-ok { background: var(--emerald-100); color: var(--emerald-700); }
+  .status-empty { background: var(--gray-100); color: var(--gray-500); }
+  
+  /* Summary cards */
+  .cards {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+    padding: 12px 20px; background: white;
+  }
+  .card {
+    background: white; border: 1px solid var(--gray-200); border-radius: 8px;
+    padding: 10px 14px; border-left: 4px solid;
+  }
+  .card-ventas { border-left-color: var(--navy-700); }
+  .card-medios { border-left-color: var(--emerald-600); }
+  .card-dif { border-left-color: var(--red-600); }
+  .card-gal { border-left-color: var(--purple); }
+  .card-ticket { border-left-color: var(--amber-500); }
+  .card-label { font-size: 10px; color: var(--gray-500); text-transform: uppercase; font-weight: 600; letter-spacing: 0.04em; }
+  .card-value { font-size: 16px; font-weight: 700; color: var(--navy-900); font-variant-numeric: tabular-nums; margin-top: 2px; }
+  
+  /* Table */
+  .table-wrap {
+    background: white; overflow: auto; max-height: calc(100vh - 330px);
+    border-top: 1px solid var(--gray-200);
+  }
+  table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    font-variant-numeric: tabular-nums; font-size: 12px;
+  }
+  th, td {
+    padding: 6px 8px; border-right: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--gray-200); text-align: right; white-space: nowrap;
+  }
+  th { position: sticky; top: 0; z-index: 5; text-align: center; font-weight: 700;
+       color: white; padding: 10px 8px; font-size: 11px; line-height: 1.3; }
+  thead tr:first-child th { top: 0; }
+  thead tr:nth-child(2) th { top: 36px; }
+  td.day { font-weight: 700; text-align: center; background: var(--gray-50);
+           position: sticky; left: 0; z-index: 3; border-right: 2px solid var(--gray-300); }
+  th.day { position: sticky; left: 0; z-index: 10; background: var(--navy-900); }
+  
+  .h-vino { background: var(--wine); }
+  .h-wine-light { background: var(--wine-light); }
+  .h-purple { background: var(--purple); }
+  .h-purple-dark { background: var(--purple-dark); }
+  .h-navy { background: var(--navy-900); }
+  .h-amber { background: var(--amber-500); }
+  .h-emerald { background: var(--emerald-700); }
+  .h-red { background: var(--red-600); }
+  .h-blue { background: var(--blue-600); }
+  
+  .c-corriente { background: var(--rose-50); }
+  .c-extra { background: var(--rose-100); }
+  .c-bio { background: var(--purple-50); }
+  .c-pos { background: var(--blue-50); font-weight: 700; color: var(--navy-900); }
+  .c-efpos { background: var(--amber-100); color: var(--gray-500); font-style: italic; }
+  .c-txns { background: var(--amber-100); font-weight: 700; color: var(--gray-700); }
+  .c-ticket { background: var(--amber-100); font-weight: 700; color: var(--emerald-700); }
+  .c-medio { background: var(--rose-50); }
+  .c-total { background: var(--emerald-100); font-weight: 700; color: var(--emerald-700); }
+  .c-dif { background: var(--amber-100); font-weight: 700; }
+  .c-dif.neg { color: var(--red-600); }
+  .c-dif.pos { color: var(--emerald-700); }
+  .c-info { background: var(--purple-50); color: var(--purple-dark); }
+  
+  td[contenteditable="true"] { cursor: text; }
+  td[contenteditable="true"]:focus { background: #FEF9C3 !important; outline: 2px solid var(--amber-500); outline-offset: -2px; }
+  td[contenteditable="true"]:hover { background: #FFFBEB; }
+  
+  tr:nth-child(even) td:not(.day):not(.c-pos):not(.c-total):not(.c-dif):not(.c-ticket) { filter: brightness(0.98); }
+  
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(15,23,42,0.7);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: white; border-radius: 12px; padding: 24px;
+    max-width: 700px; width: 92%; max-height: 85vh; overflow: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+  .modal h3 { color: var(--navy-900); margin-bottom: 8px; font-size: 18px; }
+  .modal p { color: var(--gray-700); margin-bottom: 12px; line-height: 1.5; }
+  .modal textarea {
+    width: 100%; min-height: 200px; padding: 10px; border: 1px solid var(--gray-300);
+    border-radius: 6px; font-family: 'SF Mono', Menlo, monospace; font-size: 11px;
+    resize: vertical;
+  }
+  .modal-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
+  .btn-secondary { background: var(--gray-500); }
+  
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 20px; right: 20px; background: var(--navy-900);
+    color: white; padding: 12px 18px; border-radius: 8px; font-size: 13px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25); z-index: 200;
+    transform: translateY(20px); opacity: 0; transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--emerald-600); }
+  .toast.error { background: var(--red-600); }
+  .toast.info { background: var(--blue-600); }
+  
+  /* Resumen mensual */
+  .resumen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; background: white; }
+  .resumen-box { border: 1px solid var(--gray-200); border-radius: 8px; overflow: hidden; }
+  .resumen-box h4 { padding: 10px 14px; font-size: 13px; color: white; }
+  .resumen-box table { font-size: 13px; }
+  .resumen-box td { padding: 8px 12px; text-align: left; }
+  .resumen-box td:last-child { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .resumen-box tr.total { background: var(--emerald-100); font-weight: 700; }
+  
+  @media (max-width: 900px) {
+    .cards { grid-template-columns: repeat(2, 1fr); }
+    .resumen-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="app">
+  <header class="app-header">
+    <div class="app-title">EDS Av. Boyacá · Terpel</div>
+    <div>
+      <select class="month-selector" id="monthSelector">
+        <option value="2026-01">Ene 2026</option>
+        <option value="2026-02">Feb 2026</option>
+        <option value="2026-03">Mar 2026</option>
+        <option value="2026-04" selected>Abr 2026</option>
+        <option value="2026-05">May 2026</option>
+        <option value="2026-06">Jun 2026</option>
+        <option value="2026-07">Jul 2026</option>
+        <option value="2026-08">Ago 2026</option>
+        <option value="2026-09">Sep 2026</option>
+        <option value="2026-10">Oct 2026</option>
+        <option value="2026-11">Nov 2026</option>
+        <option value="2026-12">Dic 2026</option>
+      </select>
+    </div>
+  </header>
+  
+  <nav class="tabs">
+    <button class="tab active" data-tab="diario">Cuadro Diario</button>
+    <button class="tab" data-tab="ventas"> Ventas Detalle</button>
+    <button class="tab" data-tab="credi">Credibanco</button>
+    <button class="tab" data-tab="resumen">Dashboard</button>
+  </nav>
+  
+  <div class="legend">
+    <span><span class="dot" style="background:var(--blue-600)"></span>POS Terpel</span>
+    <span><span class="dot" style="background:var(--wine)"></span>App Promotores</span>
+    <span><span class="dot" style="background:var(--purple-dark)"></span>Informativos</span>
+    <span style="margin-left:auto;color:var(--gray-500)">Guardado automatico activo - sus datos estan seguros</span>
+  </div>
+  
+  <div class="actions">
+    <label class="btn btn-pos" style="cursor:pointer"><input type="file" id="posFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handlePOSFile(event)">Cargar POS Terpel (Excel) <span id="pos-status" class="status-badge status-empty">—</span></label>
+    <label class="btn btn-credi" style="cursor:pointer"><input type="file" id="crediFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleCrediFile(event)">Cargar Credibanco (Excel) <span id="credi-status" class="status-badge status-empty">—</span></label>
+    <span style="flex:1"></span>
+    <button class="btn btn-excel" onclick="downloadExcel()">Descargar Excel</button>
+    <button class="btn btn-backup" onclick="downloadBackup()">Backup JSON</button>
+    <button class="btn btn-restore" onclick="openRestoreModal()">Restaurar</button>
+    <button class="btn btn-clear btn-small" onclick="clearMonth()" title="Limpiar mes actual">Limpiar</button>
+  </div>
+  
+  <div class="cards">
+    <div class="card card-ventas"><div class="card-label">Ventas POS</div><div class="card-value" id="c-ventas">$0</div></div>
+    <div class="card card-medios"><div class="card-label">Total Medios</div><div class="card-value" id="c-medios">$0</div></div>
+    <div class="card card-dif"><div class="card-label">Diferencia</div><div class="card-value" id="c-dif">$0</div></div>
+    <div class="card card-gal"><div class="card-label">Galones Totales</div><div class="card-value" id="c-gal">0,00</div></div>
+    <div class="card card-ticket"><div class="card-label">Ticket Promedio</div><div class="card-value" id="c-ticket">$0</div></div>
+  </div>
+  <div class="cards" style="grid-template-columns: repeat(3, 1fr); padding-top: 0;">
+    <div class="card" style="border-left-color: var(--wine)"><div class="card-label">Gal. Corriente</div><div class="card-value" id="c-gal-corr">0,00</div></div>
+    <div class="card" style="border-left-color: var(--wine-light)"><div class="card-label">Gal. Extra</div><div class="card-value" id="c-gal-extra">0,00</div></div>
+    <div class="card" style="border-left-color: var(--purple)"><div class="card-label">Gal. Bioacem</div><div class="card-value" id="c-gal-bio">0,00</div></div>
+  </div>
+  
+  <main id="content"></main>
+</div>
+
+<!-- Modal Pegar -->
+<div class="modal-overlay" id="pasteModal">
+  <div class="modal">
+    <h3 id="pasteTitle">Pegar datos</h3>
+    <p id="pasteHelp">Pegue aquí el contenido de su reporte.</p>
+    <textarea id="pasteArea" placeholder="Pegue aquí (Cmd+V)..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closePasteModal()">Cancelar</button>
+      <button class="btn btn-excel" id="pasteApply">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Restaurar -->
+<div class="modal-overlay" id="restoreModal">
+  <div class="modal">
+    <h3>Restaurar desde respaldo</h3>
+    <p>Pegue aquí el texto completo del respaldo JSON. Esto <strong>reemplazará</strong> todos los datos del mes actual.</p>
+    <textarea id="restoreArea" placeholder='{"2026-04":{"V":...}}'></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeRestoreModal()">Cancelar</button>
+      <button class="btn btn-restore" onclick="applyRestore()">Restaurar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ============================================================
+// ESTADO Y DATOS INICIALES (Abril 2026 — datos actuales de Pivi)
+// ============================================================
+const INITIAL_DATA = {"2026-04":{"V":{"1":{"corriente":{"gal":7689.073,"precio":15390,"gal2":1080.068,"precio2":14990},"extra":{"gal":988.781,"precio":22150,"gal2":118.001,"precio2":20470},"bio":{"gal":2173.084,"precio":11060,"gal2":429.727,"precio2":10960}},"2":{"corriente":{"gal":7346.311,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":893.295,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":1079.69,"precio":11060,"gal2":0,"precio2":0}},"3":{"corriente":{"gal":4486.999,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":679.209,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":632.72,"precio":11060,"gal2":0,"precio2":0}},"4":{"corriente":{"gal":5624.436,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":791.306,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":1700.847,"precio":11060,"gal2":0,"precio2":0}},"5":{"corriente":{"gal":6179.761,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":736.945,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":949.395,"precio":11060,"gal2":0,"precio2":0}},"6":{"corriente":{"gal":7071.826,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":730.916,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3482.874,"precio":11060,"gal2":0,"precio2":0}},"7":{"corriente":{"gal":7042.249,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":802.13,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3044.392,"precio":11060,"gal2":0,"precio2":0}},"8":{"corriente":{"gal":6960.308,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":844.856,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3307.209,"precio":11060,"gal2":0,"precio2":0}},"9":{"corriente":{"gal":7625.559,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":904.93,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3538.578,"precio":11060,"gal2":0,"precio2":0}},"10":{"corriente":{"gal":7714.97,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":998.215,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":2912.796,"precio":11060,"gal2":0,"precio2":0}},"11":{"corriente":{"gal":9342.957,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":1120.826,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":1908.386,"precio":11060,"gal2":0,"precio2":0}},"12":{"corriente":{"gal":7854.288,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":1162.012,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":1255.643,"precio":11060,"gal2":0,"precio2":0}},"13":{"corriente":{"gal":6584.999,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":782.275,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3447.586,"precio":11060,"gal2":0,"precio2":0}},"14":{"corriente":{"gal":7215.883,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":948.896,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3291.948,"precio":11060,"gal2":0,"precio2":0}},"15":{"corriente":{"gal":7112.308,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":963.225,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3352.002,"precio":11060,"gal2":0,"precio2":0}},"16":{"corriente":{"gal":7554.423,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":1007.726,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":2832.504,"precio":11060,"gal2":0,"precio2":0}},"17":{"corriente":{"gal":8398.49,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":1004.475,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3551.178,"precio":11060,"gal2":0,"precio2":0}},"18":{"corriente":{"gal":9247.145,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":1211.063,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":2277.081,"precio":11060,"gal2":0,"precio2":0}},"19":{"corriente":{"gal":7438.24,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":1035.265,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":1450.503,"precio":11060,"gal2":0,"precio2":0}},"20":{"corriente":{"gal":7013.187,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":866.717,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3341.588,"precio":11060,"gal2":0,"precio2":0}},"21":{"corriente":{"gal":6946.81,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":923.243,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3391.484,"precio":11060,"gal2":0,"precio2":0}},"22":{"corriente":{"gal":6809.996000000001,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":884.986000000001,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3634.4730000000022,"precio":11060,"gal2":0,"precio2":0}},"23":{"corriente":{"gal":7039.369999999996,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":940.1320000000005,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3759.7619999999997,"precio":11060,"gal2":0,"precio2":0}},"24":{"corriente":{"gal":7992.767000000003,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":1065.2640000000008,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3142.871999999997,"precio":11060,"gal2":0,"precio2":0}},"25":{"corriente":{"gal":9440.51599999999,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":1156.5320000000002,"precio":22150,"gal2":49.652,"precio2":10890},"bio":{"gal":3.617,"precio":11060,"gal2":1951.6950000000015,"precio2":10890}},"26":{"corriente":{"gal":7829.189999999998,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":1036.4280000000008,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":1194.8000000000006,"precio":10890,"gal2":0,"precio2":0}},"27":{"corriente":{"gal":7373.013999999993,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":911.1379999999997,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3874.8080000000014,"precio":10890,"gal2":0,"precio2":0}},"28":{"corriente":{"gal":7619.343000000019,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":979.0109999999997,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3112.2599999999998,"precio":10890,"gal2":0,"precio2":0}},"29":{"corriente":{"gal":7756.047999999992,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":968.0570000000001,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3816.4439999999995,"precio":10890,"gal2":0,"precio2":0}},"30":{"corriente":{"gal":9129.272999999986,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":1418.7870000000005,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3522.2040000000034,"precio":10890,"gal2":0,"precio2":0}}},"D":{"1":{"ef_pos":161913049,"txns":2621,"rumbo":16415412,"miempresa":7748823,"appterpel":105000,"prosegur":63105000,"clientes":142066,"bonos":504000,"pruebas":5455,"alcaparros":142066,"urearumbo":455799},"2":{"ef_pos":133838076,"txns":1997,"rumbo":8351296,"miempresa":803008,"prosegur":52112000,"clientes":0,"bonos":672000,"pruebas":2525,"urearumbo":115063},"3":{"ef_pos":84481786,"txns":1402,"rumbo":5242206,"appterpel":165027,"miempresa":728507,"prosegur":33361000,"clientes":0,"bonos":347001,"pruebas":7414},"4":{"ef_pos":105849503,"txns":1899,"rumbo":10854172,"miempresa":3860804,"appterpel":410886,"prosegur":43801000,"bonos":740000,"pruebas":7230,"urearumbo":130270},"5":{"ef_pos":112784134,"txns":1949,"rumbo":5393454,"miempresa":2334679,"prosegur":49989000,"bonos":487000,"pruebas":2547,"urearumbo":66230},"6":{"ef_pos":129890235,"txns":2557,"rumbo":20692755,"miempresa":10468482,"prosegur":61701000,"clientes":242236,"bonos":994000,"pruebas":5394,"moneda":29718,"alcaparros":242236,"urearumbo":151589},"7":{"ef_pos":126638766,"txns":2550,"rumbo":17956498,"miempresa":13468185,"appterpel":194992,"prosegur":58240000,"bonos":554000,"pruebas":5437,"urearumbo":134221},"8":{"ef_pos":126955817,"txns":2539,"miempresa":10715260,"rumbo":22547255,"appterpel":76950,"prosegur":57056000,"clientes":163517,"bonos":740000,"pruebas":5264,"alcaparros":140571,"autocom":23000,"urearumbo":22141},"9":{"ef_pos":137540267,"txns":2658,"rumbo":23331778,"miempresa":14330499,"appterpel":121489,"clientes":0,"prosegur":62882000,"bonos":515004,"pruebas":5483,"urearumbo":190927},"10":{"ef_pos":140234503,"txns":2675,"rumbo":19055651,"miempresa":11640139,"appterpel":548466,"prosegur":59383000,"bonos":638000,"pruebas":5405,"moneda":30000,"alcaparros":0,"urearumbo":323206},"11":{"ef_pos":168044940,"txns":2846,"rumbo":13416879,"miempresa":6527015,"appterpel":80000,"prosegur":66094000,"bonos":794000,"pruebas":5389,"urearumbo":147963},"12":{"ef_pos":147353602,"txns":2330,"rumbo":7940107,"miempresa":3752427,"appterpel":134001,"prosegur":59211000,"bonos":517000,"pruebas":2392},"13":{"ef_pos":122433761,"txns":2513,"rumbo":24191835,"miempresa":9420918,"prosegur":54380000,"clientes":464719,"bonos":310000,"pruebas":5611,"alcaparros":464719,"urearumbo":115695},"14":{"ef_pos":133335393,"txns":2599,"rumbo":24002296,"miempresa":10014128,"appterpel":23000,"prosegur":62050000,"bonos":347000,"pruebas":5335,"urearumbo":216202},"15":{"ef_pos":133987275,"txns":2548,"miempresa":12942336,"rumbo":19589434,"appterpel":64323,"prosegur":58395000,"daviplata":356010,"clientes":194313,"pruebas":5392,"urearumbo":94132,"bonos":514000,"alcaparros":194313},"16":{"ef_pos":138710509,"txns":2687,"rumbo":19987731,"miempresa":9306029,"appterpel":213630,"prosegur":58508000,"gpcuenta":40000,"gpbolsillo":321007,"clientes":240345,"bonos":439999,"pruebas":5613,"alcaparros":240345,"urearumbo":60073},"17":{"ef_pos":151042087,"txns":2771,"miempresa":11388226,"rumbo":25673031,"appterpel":45676,"gpcuenta":566148,"gpbolsillo":0,"clientes":147684,"bonos":674000,"daviplata":0,"prosegur":62150000,"pruebas":5483,"recogida":61079000,"gnv":11775000,"urearumbo":51574},"18":{"ef_pos":171557442,"txns":2869,"rumbo":13428291,"miempresa":6804502,"appterpel":120000,"prosegur":67910000,"gpcuenta":241560,"gpbolsillo":306781,"clientes":0,"bonos":588000,"pruebas":3875,"urearumbo":297173},"19":{"ef_pos":137023657,"txns":2290,"miempresa":3242854,"rumbo":9961028,"appterpel":65170,"autocom":0,"prosegur":55981000,"gpcuenta":130780,"gpbolsillo":360040,"clientes":0,"bonos":518000,"pruebas":2547,"urearumbo":67355},"20":{"ef_pos":131918478,"txns":2594,"rumbo":20718177,"miempresa":9555902,"appterpel":30000,"prosegur":58355000,"gpcuenta":370796,"gpbolsillo":166763,"bonos":807000,"pruebas":5503,"moneda":15390,"clientes":144930,"recogida":183727000,"gnv":37508000,"urearumbo":306395},"21":{"ef_pos":129686432,"txns":2530,"rumbo":19907451,"miempresa":13688741,"appterpel":293680,"prosegur":52471000,"gpcuenta":324007,"clientes":122213,"bonos":646000,"pruebas":5272,"urearumbo":157909},"22":{"txns":2570,"prosegur":52759179,"gpcuenta":0,"gpbolsillo":237616,"clientes":332474,"rumbo":23829123,"ef_pos":164597043,"miempresa":10154014,"appterpel":96216,"bonos":959000,"pruebas":166551,"terminales_map":{"1":"000BE8B9","2":"000BE8BE","3":"000BE8BI","4":"000BE8BN","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"alcaparros":308474,"sylvia":24000,"otro":0,"recogida":0,"gnv":0,"urearumbo":206649,"comentario":"SALTOS DE MANGUERA"},"23":{"txns":2573,"ef_pos":170733708,"rumbo":26937367,"miempresa":11916868,"terminales_map":{"1":"000BE8B9","2":"000BE8BE","3":"000BE8BI","4":"000BE8BN","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":52111000,"gpbolsillo":0,"clientes":583769,"appterpel":40000,"bonos":824000,"daviplata":0,"bancolombia":0,"nequi":0,"moneda":0,"pruebas":5125,"alcaparros":583769,"autocom":0,"sylvia":0,"otro":0,"recogida":46554000,"gnv":8347000,"urearumbo":147441,"comentario":"SALTOS DE MANGUERA"},"24":{"gpbolsillo":352842,"txns":2712,"ef_pos":181355281,"miempresa":10778142,"rumbo":20424326,"appterpel":150000,"prosegur":62047000,"gpcuenta":182800,"terminales_map":{"1":"000BE8B0","2":"000BE8B9","3":"000BE8BE","4":"000BE8BI","5":"000BE8BN","6":"000BE8BU","7":"000BEARZ","8":"000BH3MS","9":"000BH3MT","10":"000BH77T"},"clientes":171408,"bonos":1013000,"daviplata":0,"bancolombia":0,"nequi":0,"moneda":0,"pruebas":5461,"alcaparros":171408,"recogida":75521000,"gnv":17526000,"urearumbo":140104},"25":{"txns":2911,"ef_pos":192730755,"rumbo":11209814,"miempresa":6397396,"appterpel":110038,"terminales_map":{"1":"000BE8B0","2":"000BE8B9","3":"000BE8BE","4":"000BE8BN","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"prosegur":67638000,"gpcuenta":92340,"gpbolsillo":339755,"clientes":0,"bonos":1749000,"daviplata":0,"bancolombia":0,"nequi":0,"moneda":0,"pruebas":5285,"alcaparros":0,"urearumbo":101066},"26":{"txns":2317,"ef_pos":156449937,"rumbo":7958042,"miempresa":3014445,"appterpel":309659,"sylvia":0,"terminales_map":{"1":"000BE8B0","2":"000BE8B9","3":"000BE8BE","4":"000BE8BN","5":"000BE8BQ","6":"000BEARZ","7":"000BH3MS","8":"000BH77T"},"prosegur":59889000,"gpcuenta":0,"gpbolsillo":526050,"clientes":0,"bonos":790000,"daviplata":0,"bancolombia":0,"nequi":0,"moneda":0,"pruebas":2525,"alcaparros":0,"urearumbo":91479,"comentario":""},"27":{"txns":2616,"ef_pos":175840568,"rumbo":27757703,"miempresa":11714143,"appterpel":343721,"recogida":183058000,"gnv":11779000,"urearumbo":133888,"comentario":"GASTOS SON MONEDA","sylvia":0,"prosegur":60208000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"gpcuenta":237781,"gpbolsillo":517038,"clientes":316376,"bonos":1102000,"daviplata":0,"pruebas":5488,"alcaparros":316376,"autocom":0,"gastos":132670},"28":{"txns":2618,"ef_pos":172830257,"miempresa":11946515,"rumbo":23049956,"appterpel":150000,"prosegur":59239000,"bonos":1282000,"daviplata":0,"gpcuenta":740134,"urearumbo":247704,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"recogida":46943000,"gnv":485000,"comentario":"NC Y RUMBO DE DIEGO"},"29":{"txns":2677,"ef_pos":182360006,"rumbo":20331920,"miempresa":14390100,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"gpcuenta":871716,"bonos":761000,"nequi":100000,"urearumbo":359185,"comentario":"","prosegur":54009212,"clientes":144587,"pruebas":5398,"gastos":50000,"alcaparros":144587,"recogida":47655000,"gnv":9875000},"30":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"txns":2874,"ef_pos":210273910,"rumbo":21599164,"miempresa":12431511,"appterpel":223909,"prosegur":62534640,"gpbolsillo":140018,"bonos":380849,"nequi":120000,"pruebas":5148,"urearumbo":88301,"comentario":""}},"C":{"1":{"1":{"t":0,"v":32778226},"3":{"t":0,"v":34092078},"8":{"t":0,"v":32660340}},"2":{"1":{"t":0,"v":22084901},"3":{"t":0,"v":24876450},"8":{"t":0,"v":35879655}},"3":{"1":{"t":0,"v":16299700},"3":{"t":0,"v":13636386},"8":{"t":0,"v":21282028}},"4":{"1":{"t":0,"v":14245885},"3":{"t":0,"v":26315637},"8":{"t":0,"v":22780281}},"5":{"1":{"t":0,"v":19685715},"3":{"t":0,"v":26413482},"8":{"t":0,"v":17442648}},"6":{"1":{"t":0,"v":9464854},"3":{"t":0,"v":28515442},"8":{"t":0,"v":31538630}},"7":{"1":{"t":0,"v":16095668},"3":{"t":0,"v":24309107},"8":{"t":0,"v":28998054}},"8":{"1":{"t":0,"v":19480921},"3":{"t":0,"v":25299141},"8":{"t":0,"v":26354109}},"9":{"1":{"t":0,"v":24047434},"3":{"t":0,"v":25140842},"8":{"t":0,"v":26099229}},"10":{"1":{"t":0,"v":26059990},"3":{"t":0,"v":30471632},"8":{"t":0,"v":25219528}},"11":{"1":{"t":0,"v":25160700},"3":{"t":0,"v":42782172},"8":{"t":0,"v":34986114}},"12":{"1":{"t":0,"v":24620687},"3":{"t":0,"v":37878221},"8":{"t":0,"v":26329330}},"13":{"1":{"t":0,"v":14062100},"3":{"t":0,"v":23032964},"8":{"t":0,"v":31135345}},"14":{"1":{"t":0,"v":24538190},"3":{"t":0,"v":26626208},"8":{"t":0,"v":20919997}},"15":{"1":{"t":0,"v":20848450},"3":{"t":0,"v":28986020},"8":{"t":0,"v":25849223}},"16":{"1":{"t":0,"v":12601763},"3":{"t":0,"v":29614396},"8":{"t":0,"v":38873024}},"17":{"1":{"t":0,"v":14876821},"3":{"t":0,"v":32416552},"8":{"t":0,"v":42616577}},"18":{"1":{"t":0,"v":22170553},"3":{"t":0,"v":20221745},"8":{"t":0,"v":64752018}},"19":{"1":{"t":0,"v":17246917},"3":{"t":0,"v":16108275},"8":{"t":0,"v":49849664}},"20":{"1":{"t":0,"v":19791599},"3":{"t":0,"v":13840664},"8":{"t":0,"v":40270711}},"21":{"1":{"t":0,"v":26661854},"3":{"t":0,"v":8008731},"8":{"t":0,"v":42710243}},"22":{"1":{"t":0,"v":8072696},"3":{"t":0,"v":8865021},"8":{"t":0,"v":19424011}},"23":{"1":{"t":0,"v":18399743},"2":{"t":0,"v":11774962},"3":{"t":0,"v":15381053},"4":{"t":0,"v":10847965},"5":{"t":0,"v":1687962},"6":{"t":0,"v":17150365},"7":{"t":0,"v":3343040}},"24":{"1":{"t":0,"v":8807031},"2":{"t":0,"v":16463459},"3":{"t":0,"v":12319135},"4":{"t":0,"v":4601803},"5":{"t":0,"v":15826520},"6":{"t":0,"v":784668},"7":{"t":0,"v":795279},"8":{"t":0,"v":19167710},"9":{"t":0,"v":101},"10":{"t":0,"v":7454953}},"25":{"1":{"t":0,"v":15957998},"2":{"t":0,"v":18974404},"3":{"t":0,"v":20580376},"4":{"t":0,"v":14583905},"5":{"t":0,"v":1432296},"6":{"t":0,"v":26829568},"7":{"t":0,"v":6242616}},"26":{"1":{"t":0,"v":15447948},"2":{"t":0,"v":9407654},"3":{"t":0,"v":13575931},"4":{"t":0,"v":15914830},"5":{"t":0,"v":8186363},"6":{"t":0,"v":1496181},"7":{"t":0,"v":17383871},"8":{"t":0,"v":2598172}},"27":{"1":{"t":0,"v":14941479},"2":{"t":0,"v":9818442},"3":{"t":0,"v":12853802},"4":{"t":0,"v":12471781},"5":{"t":0,"v":1657379},"6":{"t":0,"v":5686075},"7":{"t":0,"v":15766207}},"28":{"1":{"t":0,"v":15232603},"2":{"t":0,"v":14576562},"3":{"t":0,"v":10865158},"4":{"t":0,"v":7384160},"5":{"t":0,"v":2002173},"6":{"t":0,"v":10754855},"7":{"t":0,"v":15276865}},"29":{"1":{"t":0,"v":9469706},"2":{"t":0,"v":13373519},"3":{"t":0,"v":4364041},"4":{"t":0,"v":9837270},"5":{"t":0,"v":1410536},"6":{"t":0,"v":10808383},"7":{"t":0,"v":11967551}},"30":{"1":{"t":0,"v":20361659},"2":{"t":0,"v":22939866},"3":{"t":0,"v":16158626},"4":{"t":0,"v":25016231},"5":{"t":0,"v":2056233},"6":{"t":0,"v":2040330},"7":{"t":0,"v":24273705}}},"P":{}},"2026-05":{"V":{"1":{"corriente":{"gal":9888.526999999982,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":1436.0830000000012,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":1890.2510000000004,"precio":10890,"gal2":0,"precio2":0}},"2":{"corriente":{"gal":8203.786999999995,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":976.0829999999996,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":2361.2730000000024,"precio":10890,"gal2":0,"precio2":0}},"3":{"corriente":{"gal":7211.3430000000035,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":864.096,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":1015.61,"precio":10890,"gal2":0,"precio2":0}},"4":{"corriente":{"gal":7155.7469999999885,"precio":15390,"gal2":0,"precio2":0},"extra":{"gal":863.6880000000004,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":4056.0450000000014,"precio":10890,"gal2":0,"precio2":0}},"5":{"corriente":{"gal":7187.835999999979,"precio":15790,"gal2":1.56,"precio2":15390},"extra":{"gal":822.9569999999998,"precio":22150,"gal2":70.308,"precio2":11090},"bio":{"gal":2578.680999999999,"precio":11090,"gal2":0,"precio2":0}},"6":{"corriente":{"gal":7090.424999999982,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":737.2680000000004,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3614.7859999999982,"precio":11090,"gal2":0,"precio2":0}},"7":{"corriente":{"gal":7331.308999999976,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":812.1160000000002,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3250.882,"precio":11090,"gal2":0,"precio2":0}},"8":{"corriente":{"gal":7479.142999999968,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1051.4889999999996,"precio":22150,"gal2":0,"precio2":0},"bio":{"gal":3721.867999999997,"precio":11090,"gal2":0,"precio2":0}},"9":{"corriente":{"gal":9410.622999999949,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1173.63,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":2492.586999999999,"precio":11090,"gal2":0,"precio2":0}},"10":{"corriente":{"gal":7493.595000000002,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1097.0290000000005,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":987.772,"precio":11090,"gal2":0,"precio2":0}},"11":{"corriente":{"gal":6923.1199999999635,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":779.6509999999996,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3611.315999999998,"precio":11090,"gal2":0,"precio2":0}},"12":{"corriente":{"gal":7251.902999999989,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":945.2059999999998,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3218.0550000000003,"precio":11090,"gal2":0,"precio2":0}},"13":{"corriente":{"gal":7365.627999999989,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":930.4209999999999,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3546.955000000001,"precio":11090,"gal2":0,"precio2":0}},"14":{"corriente":{"gal":7820.910999999982,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1018.2689999999999,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3070.915,"precio":11090,"gal2":0,"precio2":0}},"15":{"corriente":{"gal":8490.318999999958,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1138.3350000000012,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3165.4179999999988,"precio":11090,"gal2":0,"precio2":0}},"16":{"corriente":{"gal":10177.809999999936,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1344.7280000000005,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":2380.628999999999,"precio":11090,"gal2":0,"precio2":0}},"17":{"corriente":{"gal":7385.498000000002,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1044.433,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":1307.3449999999996,"precio":11090,"gal2":0,"precio2":0}},"18":{"corriente":{"gal":6005.48399999997,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":863.4120000000001,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":1330.6580000000001,"precio":11090,"gal2":0,"precio2":0}},"19":{"corriente":{"gal":7085.7169999999805,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":828.0570000000006,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3889.468999999998,"precio":11090,"gal2":0,"precio2":0}},"20":{"corriente":{"gal":7642.437999999981,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1123.6830000000007,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3715.559999999996,"precio":11090,"gal2":0,"precio2":0}},"21":{"corriente":{"gal":6788.31299999999,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":891.7380000000003,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3806.738,"precio":11090,"gal2":0,"precio2":0}},"22":{"corriente":{"gal":7348.6099999999915,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1070.0430000000001,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3992.562999999996,"precio":11090,"gal2":0,"precio2":0}},"23":{"corriente":{"gal":9004.425999999932,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1251.0930000000021,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":1978.744000000001,"precio":11090,"gal2":0,"precio2":0}},"24":{"corriente":{"gal":7349.516000000006,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1160.4330000000014,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":1490.104000000001,"precio":11090,"gal2":0,"precio2":0}},"25":{"corriente":{"gal":6998.634999999978,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":983.0359999999998,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":4050.613999999998,"precio":11090,"gal2":0,"precio2":0}},"26":{"corriente":{"gal":7148.418999999981,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1012.3439999999996,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3261.711,"precio":11090,"gal2":0,"precio2":0}},"27":{"corriente":{"gal":7147.053999999984,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":848.0500000000004,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3250.6560000000013,"precio":11090,"gal2":0,"precio2":0}},"28":{"corriente":{"gal":7252.927999999985,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":884.1270000000003,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3500.5,"precio":11090,"gal2":0,"precio2":0}},"29":{"corriente":{"gal":8189.896999999995,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1045.254000000001,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":3872.1269999999986,"precio":11090,"gal2":0,"precio2":0}},"30":{"corriente":{"gal":9682.015999999956,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1145.0140000000006,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":2186.766000000001,"precio":11090,"gal2":0,"precio2":0}},"31":{"corriente":{"gal":7912.551999999992,"precio":15790,"gal2":0,"precio2":0},"extra":{"gal":1184.8179999999998,"precio":22630,"gal2":0,"precio2":0},"bio":{"gal":902.4450000000002,"precio":11090,"gal2":0,"precio2":0}}},"D":{"1":{"txns":2779,"ef_pos":204569910,"rumbo":9483964,"miempresa":3880009,"appterpel":247924,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"prosegur":58955000,"gpcuenta":190796,"gpbolsillo":488487,"bonos":763000,"nequi":80000,"comentario":"credibanco +152.500","recogida":123850000,"gnv":27706000,"urearumbo":31931},"2":{"txns":2474,"ef_pos":173582205,"rumbo":13766174,"miempresa":7007167,"appterpel":762295,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"prosegur":62493000,"gpcuenta":10000,"gpbolsillo":50000,"bonos":823050,"pruebas":3701,"urearumbo":248840,"comentario":""},"3":{"txns":2156,"ef_pos":141174629,"rumbo":8285171,"miempresa":2519530,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"prosegur":52364000,"gpcuenta":236538,"gpbolsillo":335025,"bonos":391500,"pruebas":10596},"4":{"txns":2594,"ef_pos":173419849,"rumbo":22727361,"miempresa":15595809,"appterpel":100000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"prosegur":59818000,"gpbolsillo":682367,"clientes":415078,"bonos":707750,"pruebas":5392,"urearumbo":80593,"recogida":173201000,"gnv":32382000},"5":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"txns":2579,"ef_pos":161125609,"rumbo":20660557,"miempresa":10230747,"appterpel":181443,"prosegur":56342000,"gpcuenta":156179,"gpbolsillo":296367,"bonos":496000,"pruebas":5485,"comentario":"+34.089 CREDIBANCO MENOS 435.837 RUMBO FUERA SISTEMA","urearumbo":215640,"recogida":59307000,"gnv":10983000},"6":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"txns":2566,"ef_pos":168376747,"rumbo":26313737,"miempresa":11564734,"appterpel":362462,"prosegur":62972000,"gpcuenta":117370,"gpbolsillo":296452,"clientes":149416,"bonos":418000,"pruebas":5384,"gastos":11842,"comentario":"+25.000 CREDIBANCO","urearumbo":254179,"recogida":78440000,"gnv":14686000},"7":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"comentario":"+23248 CREDIBANCO","txns":2632,"ef_pos":169801698,"rumbo":19661158,"miempresa":12358417,"appterpel":70043,"prosegur":60811000,"gpcuenta":124394,"clientes":245743,"bonos":458500,"pruebas":5283,"urearumbo":213246,"recogida":57203000,"gnv":13555000},"8":{"comentario":"","terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"txns":2685,"ef_pos":182661649,"rumbo":24111427,"miempresa":10563336,"appterpel":395376,"prosegur":63131000,"gpbolsillo":513910,"clientes":152565,"bonos":487000,"pruebas":5373,"gastos":11970,"recogida":73768000,"gnv":13624000,"urearumbo":113934},"9":{"comentario":"+120.000 CREDIBANCO","txns":2956,"ef_pos":202795509,"rumbo":15854316,"miempresa":7317544,"appterpel":90000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"prosegur":67398000,"gpcuenta":218944,"bonos":665450,"pruebas":5564,"urearumbo":324087},"10":{"txns":2395,"ef_pos":154103300,"rumbo":6951319,"miempresa":3610712,"appterpel":230023,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"prosegur":56486000,"comentario":"+100.000 CREDIBANCO","gpcuenta":100000,"gpbolsillo":246582,"bonos":722000,"pruebas":2535,"gastos":7927,"recogida":158442000,"gnv":2052000},"11":{"comentario":"","txns":2569,"ef_pos":167008714,"rumbo":23141191,"miempresa":12014315,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"prosegur":60845000,"gpcuenta":295005,"gpbolsillo":273751,"clientes":370495,"bonos":170000,"pruebas":5627,"recogida":25019000,"gnv":88000,"urearumbo":219255},"12":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"txns":2625,"ef_pos":171586176,"rumbo":21783839,"miempresa":10880662,"appterpel":40000,"prosegur":60112000,"gpcuenta":90000,"gpbolsillo":577948,"bonos":479100,"pruebas":5635,"recogida":200304000,"gnv":3994000,"urearumbo":71943,"comentario":""},"13":{"txns":2638,"ef_pos":176694985,"rumbo":22883629,"miempresa":12709722,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BEARZ","6":"000BH3MS","7":"000BH77T"},"prosegur":62930000,"gpcuenta":752141,"gpbolsillo":308337,"clientes":145856,"bonos":645000,"pruebas":5503,"gastos":590000,"comentario":"+24190 credibanco","recogida":83344000,"gnv":17759000,"urearumbo":201347},"14":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BEARZ","7":"000BH3MS","8":"000BH77T"},"txns":2767,"ef_pos":180592529,"rumbo":21719669,"miempresa":10599812,"appterpel":284921,"prosegur":65442000,"gpcuenta":185000,"gpbolsillo":40000,"clientes":236993,"bonos":734000,"pruebas":5361,"recogida":33392000,"gnv":4956000,"urearumbo":213560,"comentario":""},"15":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":2837,"ef_pos":194927020,"rumbo":22851041,"miempresa":9819250,"appterpel":228654,"prosegur":62116000,"gpcuenta":170058,"gpbolsillo":358104,"clientes":408416,"bonos":485000,"pruebas":5280,"comentario":"+227000 credibanco","urearumbo":236408},"16":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":3061,"ef_pos":217538982,"rumbo":15152490,"miempresa":5422618,"appterpel":718470,"prosegur":75697000,"gpcuenta":333036,"gpbolsillo":682313,"bonos":951000,"pruebas":5552,"comentario":"+158384 credibanco"},"17":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":2206,"ef_pos":154750434,"rumbo":9391373,"miempresa":2448308,"appterpel":429058,"prosegur":54398000,"gpbolsillo":591365,"bonos":572000,"pruebas":2625,"urearumbo":203152,"comentario":""},"18":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":2005,"ef_pos":129121569,"rumbo":9934100,"miempresa":2583305,"appterpel":267537,"recogida":171446000,"gnv":30578000,"urearumbo":19299,"comentario":"","prosegur":47996000,"gpcuenta":138068,"gpbolsillo":10000,"bonos":637000,"pruebas":2580,"gastos":20000},"19":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":2636,"ef_pos":173756222,"rumbo":25546669,"miempresa":17031540,"appterpel":374630,"prosegur":61425000,"gpcuenta":261972,"gpbolsillo":110530,"bonos":626000,"pruebas":5573,"comentario":"+295.525 CREDIBANCO","urearumbo":25900,"recogida":48111000,"gnv":10454000},"20":{"txns":2737,"ef_pos":187308388,"rumbo":23050293,"miempresa":13515671,"appterpel":120075,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":60960000,"gpcuenta":315202,"gpbolsillo":595134,"clientes":121169,"bonos":902000,"pruebas":5564,"comentario":"+17006 CREDIBANCO","alcaparros":121169,"recogida":97507000,"gnv":19157000,"urearumbo":292933},"21":{"txns":2500,"ef_pos":169584404,"rumbo":22677484,"miempresa":12116713,"appterpel":303931,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":61275000,"gpcuenta":144530,"gpbolsillo":1304881,"clientes":285301,"bonos":817050,"pruebas":5366,"nequi":250000,"urearumbo":313890,"comentario":"","alcaparros":285301,"recogida":67323000,"gnv":13698000},"22":{"comentario":"+50000gopass","txns":2702,"ef_pos":184527009,"rumbo":20122436,"miempresa":12961025,"appterpel":51791,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":65280000,"gpcuenta":150000,"gpbolsillo":435119,"clientes":150868,"bonos":592000,"nequi":200000,"pruebas":5521,"urearumbo":246283,"recogida":60559000,"gnv":5849000},"23":{"txns":2921,"ef_pos":192436060,"rumbo":13993579,"miempresa":6378394,"appterpel":625985,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":67561000,"gpcuenta":320061,"gpbolsillo":731797,"bonos":535150,"pruebas":5494,"comentario":"+228.405CREDIBANDO","urearumbo":120857},"24":{"txns":2369,"ef_pos":158834045,"rumbo":11403338,"miempresa":4933039,"appterpel":437021,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"comentario":"","prosegur":59077000,"gpbolsillo":179257,"bonos":509000,"pruebas":60050,"urearumbo":148618},"25":{"txns":2692,"ef_pos":177675938,"rumbo":28412286,"miempresa":13275522,"appterpel":257863,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":61290000,"clientes":81844,"bonos":424500,"pruebas":5521,"urearumbo":166948,"comentario":"","recogida":197329000,"gnv":33859000},"26":{"comentario":"+50.000 CREDIBANCO","txns":2670,"ef_pos":171955487,"rumbo":18253859,"miempresa":11252259,"appterpel":281928,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":56824000,"bonos":814000,"pruebas":5294,"recogida":25273000,"gnv":6360000},"27":{"txns":2633,"ef_pos":168093145,"rumbo":19195016,"miempresa":12135498,"appterpel":276944,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":57367000,"gpcuenta":155000,"gpbolsillo":110002,"clientes":150891,"bonos":523500,"pruebas":5459,"comentario":"+37.000 CREDIBANCO","urearumbo":128016,"recogida":69949000,"gnv":14694000},"28":{"txns":2624,"ef_pos":173351871,"rumbo":21344665,"miempresa":9417818,"appterpel":83029,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":63252000,"gpcuenta":414210,"gpbolsillo":242329,"bonos":649000,"pruebas":5416,"comentario":"","urearumbo":398375,"recogida":41187000,"gnv":9901000},"29":{"txns":2891,"ef_pos":195914733,"rumbo":23543040,"miempresa":12252663,"appterpel":20038,"prosegur":64819000,"clientes":149582,"bonos":525000,"pruebas":2580,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"recogida":63990000,"gnv":15083000,"urearumbo":200166,"comentario":""},"30":{"txns":2973,"ef_pos":203041730,"rumbo":14740524,"miempresa":9123543,"appterpel":115000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":66609000,"gpcuenta":192780,"bonos":820650,"recogida":88356000,"gnv":18780000,"urearumbo":37000,"comentario":"+42.000 CREDIBANCO"},"31":{"txns":2437,"ef_pos":161759129,"rumbo":7145622,"miempresa":2014469,"appterpel":344615,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":50523000,"bonos":1061300,"gpbolsillo":336911,"recogida":42623000,"gnv":8293000,"urearumbo":84138,"comentario":""}},"C":{"1":{"1":{"t":0,"v":23383167},"2":{"t":0,"v":16029624},"3":{"t":0,"v":26942967},"4":{"t":0,"v":13060002},"5":{"t":0,"v":1473230},"6":{"t":0,"v":18921435},"7":{"t":0,"v":30849320}},"2":{"1":{"t":0,"v":19780034},"2":{"t":0,"v":15774804},"3":{"t":0,"v":12967459},"4":{"t":0,"v":17998418},"5":{"t":0,"v":1748975},"6":{"t":0,"v":2331834},"7":{"t":0,"v":18047729}},"3":{"1":{"t":0,"v":11243985},"2":{"t":0,"v":14811302},"3":{"t":0,"v":14825326},"4":{"t":0,"v":8206464},"5":{"t":0,"v":1425798},"6":{"t":0,"v":7066490},"7":{"t":0,"v":19872367}},"4":{"1":{"t":0,"v":12458076},"2":{"t":0,"v":14429169},"3":{"t":0,"v":6832537},"4":{"t":0,"v":20006062},"5":{"t":0,"v":1464000},"6":{"t":0,"v":765134},"7":{"t":0,"v":17040234}},"5":{"1":{"t":0,"v":14020603},"2":{"t":0,"v":11889631},"3":{"t":0,"v":11120327},"4":{"t":0,"v":8273782},"5":{"t":0,"v":1879774},"6":{"t":0,"v":9919995},"7":{"t":0,"v":15555021}},"6":{"1":{"t":0,"v":11486930},"2":{"t":0,"v":13157694},"3":{"t":0,"v":14315010},"4":{"t":0,"v":8835200},"5":{"t":0,"v":1760039},"6":{"t":0,"v":6868436},"7":{"t":0,"v":9736956}},"7":{"1":{"t":0,"v":17759278},"2":{"t":0,"v":10057587},"3":{"t":0,"v":9980541},"4":{"t":0,"v":4959990},"5":{"t":0,"v":1652197},"6":{"t":0,"v":14168280},"7":{"t":0,"v":17538972}},"8":{"1":{"t":0,"v":12801762},"2":{"t":0,"v":15100589},"3":{"t":0,"v":14100510},"4":{"t":0,"v":6758298},"5":{"t":0,"v":2217320},"6":{"t":0,"v":13050562},"7":{"t":0,"v":19425179}},"9":{"1":{"t":0,"v":15194606},"2":{"t":0,"v":15734316},"3":{"t":0,"v":22082797},"4":{"t":0,"v":24515857},"5":{"t":0,"v":2317414},"6":{"t":0,"v":20889266},"7":{"t":0,"v":10933456}},"10":{"1":{"t":0,"v":15701071},"2":{"t":0,"v":11009918},"3":{"t":0,"v":20228985},"4":{"t":0,"v":18342104},"5":{"t":0,"v":1163756},"6":{"t":0,"v":17141683},"7":{"t":0,"v":1632491}},"11":{"1":{"t":0,"v":10834228},"2":{"t":0,"v":8184231},"3":{"t":0,"v":13692650},"4":{"t":0,"v":11249155},"5":{"t":0,"v":1575573},"6":{"t":0,"v":12506541},"7":{"t":0,"v":11746209}},"12":{"1":{"t":0,"v":2426775},"2":{"t":0,"v":16524248},"3":{"t":0,"v":17359649},"4":{"t":0,"v":17464472},"5":{"t":0,"v":1603474},"6":{"t":0,"v":12542021},"7":{"t":0,"v":9654969}},"13":{"1":{"t":0,"v":8817055},"2":{"t":0,"v":9825419},"3":{"t":0,"v":16334083},"4":{"t":0,"v":15060677},"5":{"t":0,"v":1811037},"6":{"t":0,"v":11538377},"7":{"t":0,"v":12310948}},"14":{"1":{"t":0,"v":17210205},"2":{"t":0,"v":2411373},"3":{"t":0,"v":15901225},"4":{"t":0,"v":18695013},"5":{"t":0,"v":1367914},"6":{"t":0,"v":340051},"7":{"t":0,"v":14272655},"8":{"t":0,"v":11109600}},"15":{"1":{"t":0,"v":6944126},"2":{"t":0,"v":17642039},"3":{"t":0,"v":20092558},"4":{"t":0,"v":18657204},"5":{"t":0,"v":2343610},"6":{"t":0,"v":14559798},"7":{"t":0,"v":18251061}},"16":{"1":{"t":0,"v":10590259},"2":{"t":0,"v":21159924},"3":{"t":0,"v":25838663},"4":{"t":0,"v":24850545},"5":{"t":0,"v":1508906},"6":{"t":0,"v":19802907},"7":{"t":0,"v":14942000}},"17":{"1":{"t":0,"v":8233629},"2":{"t":0,"v":11783788},"3":{"t":0,"v":19818567},"4":{"t":0,"v":15080322},"5":{"t":0,"v":1399145},"6":{"t":0,"v":17393031},"7":{"t":0,"v":13282161}},"18":{"1":{"t":0,"v":9179366},"2":{"t":0,"v":5929761},"3":{"t":0,"v":14100552},"4":{"t":0,"v":13241627},"5":{"t":0,"v":1534781},"6":{"t":0,"v":12120706},"7":{"t":0,"v":11427055}},"19":{"1":{"t":0,"v":12772519},"2":{"t":0,"v":6509475},"3":{"t":0,"v":11572760},"4":{"t":0,"v":13642442},"5":{"t":0,"v":2397482},"6":{"t":0,"v":9029435},"7":{"t":0,"v":12742254}},"20":{"1":{"t":0,"v":4462948},"2":{"t":0,"v":19866896},"3":{"t":0,"v":19439106},"4":{"t":0,"v":13682050},"5":{"t":0,"v":1982276},"6":{"t":0,"v":15534609},"7":{"t":0,"v":12761934}},"21":{"1":{"t":0,"v":11278290},"2":{"t":0,"v":7970845},"3":{"t":0,"v":13827950},"4":{"t":0,"v":13957154},"5":{"t":0,"v":2246904},"6":{"t":0,"v":14278437},"7":{"t":0,"v":6831002}},"22":{"1":{"t":0,"v":9748386},"2":{"t":0,"v":13549564},"3":{"t":0,"v":20234528},"4":{"t":0,"v":13496021},"5":{"t":0,"v":1677199},"6":{"t":0,"v":10061594},"7":{"t":0,"v":15753443}},"23":{"1":{"t":0,"v":15928593},"2":{"t":0,"v":12510935},"3":{"t":0,"v":21908968},"4":{"t":0,"v":20215583},"5":{"t":0,"v":2144130},"6":{"t":0,"v":12094853},"7":{"t":0,"v":17641454}},"24":{"1":{"t":0,"v":8236481},"2":{"t":0,"v":5678184},"3":{"t":0,"v":22879536},"4":{"t":0,"v":14615725},"5":{"t":0,"v":1363788},"6":{"t":0,"v":14076231},"7":{"t":0,"v":15342250}},"25":{"1":{"t":0,"v":13943929},"2":{"t":0,"v":5254463},"3":{"t":0,"v":14838545},"4":{"t":0,"v":15376654},"5":{"t":0,"v":1586305},"6":{"t":0,"v":13421868},"7":{"t":0,"v":9446043}},"26":{"1":{"t":0,"v":13169826},"2":{"t":0,"v":9749900},"3":{"t":0,"v":12443424},"4":{"t":0,"v":19392974},"5":{"t":0,"v":2196586},"6":{"t":0,"v":14172647},"7":{"t":0,"v":13467396}},"27":{"1":{"t":0,"v":14170580},"2":{"t":0,"v":15389535},"3":{"t":0,"v":14550700},"4":{"t":0,"v":14772463},"5":{"t":0,"v":2569097},"6":{"t":0,"v":9309492},"7":{"t":0,"v":7453164}},"28":{"1":{"t":0,"v":12963820},"2":{"t":0,"v":9268010},"3":{"t":0,"v":14550097},"4":{"t":0,"v":16333997},"5":{"t":0,"v":1692581},"6":{"t":0,"v":12732282},"7":{"t":0,"v":10317760}},"29":{"1":{"t":0,"v":13097033},"2":{"t":0,"v":13632064},"3":{"t":0,"v":24520399},"4":{"t":0,"v":13826065},"5":{"t":0,"v":2355270},"6":{"t":0,"v":15061094},"7":{"t":0,"v":12097200}},"30":{"1":{"t":0,"v":16545394},"2":{"t":0,"v":18214814},"3":{"t":0,"v":21675046},"4":{"t":0,"v":23362826},"5":{"t":0,"v":1774414},"6":{"t":0,"v":19057295},"7":{"t":0,"v":10808796}},"31":{"1":{"t":0,"v":18261566},"2":{"t":0,"v":20244637},"3":{"t":0,"v":21914247},"4":{"t":0,"v":20372791},"5":{"t":0,"v":1904096},"6":{"t":0,"v":16848212},"7":{"t":0,"v":610713}}},"P":{"1":{"OSCAR MAURICIO GIRALDO BALLESTEROS":{"corriente":{"gal":535221,"valor":11042409},"extra":{"gal":87092,"valor":2508039},"bio":{"gal":80623,"valor":1160929},"txns":194},"JOHAN SANTIAGO MARTINEZ ALDANA":{"corriente":{"gal":523387,"valor":11704709},"extra":{"gal":55193,"valor":1340344},"bio":{"gal":157533,"valor":2107553},"txns":215},"JUAN DAVID ALVARADO PUENTES":{"corriente":{"gal":456225,"valor":9350146},"extra":{"gal":74228,"valor":1811203},"bio":{"gal":147570,"valor":2209982},"txns":176},"LEIDY YISELA CARRENO PRIETO":{"corriente":{"gal":535419,"valor":12517418},"extra":{"gal":118529,"valor":2853010},"bio":{"gal":30278,"valor":1031570},"txns":243},"LUIS ALIRIO CUELLAR":{"corriente":{"gal":400892,"valor":9277733},"extra":{"gal":25380,"valor":1476553},"bio":{"gal":231940,"valor":2579826},"txns":191},"DIEGO FERNANDO ARDILA ALFEREZ":{"corriente":{"gal":513380,"valor":10869018},"extra":{"gal":74617,"valor":1918274},"bio":{"gal":114744,"valor":1293069},"txns":189},"WILMER MARTINEZ MARTINEZ":{"corriente":{"gal":354351,"valor":8709985},"extra":{"gal":103997,"valor":2303540},"bio":{"gal":173023,"valor":2122763},"txns":200},"LUIS ALBERTO VELEZ ESCALONA":{"corriente":{"gal":633851,"valor":13313487},"extra":{"gal":128959,"valor":3689678},"bio":{"gal":66339,"valor":965460},"txns":244},"JUAN LUIS PEREZ HERNADEZ":{"corriente":{"gal":695342,"valor":14397969},"extra":{"gal":146500,"valor":3666532},"bio":{"gal":113957,"valor":1393952},"txns":245},"DILAN ANDRES PEREZ PEREZ":{"corriente":{"gal":586660,"valor":13320882},"extra":{"gal":128981,"valor":3284846},"bio":{"gal":116490,"valor":1508985},"txns":235},"SHIRLEY VANESA CASRTILLO CARRILLO":{"corriente":{"gal":450290,"valor":9473475},"extra":{"gal":18944,"valor":847165},"bio":{"gal":123836,"valor":1435589},"txns":185},"ANDRES FELIPE PEDROZO SUAREZ":{"corriente":{"gal":623201,"valor":13449312},"extra":{"gal":140317,"valor":3571264},"bio":{"gal":69766,"valor":759738},"txns":225},"YANETH ROMERO MONROY":{"corriente":{"gal":719253,"valor":15020017},"extra":{"gal":85954,"valor":2538362},"bio":{"gal":167827,"valor":2015218},"txns":237}},"2":{"JUAN DAVID ALVARADO PUENTES":{"corriente":{"gal":125278,"valor":2871728},"extra":{"gal":18210,"valor":627579},"bio":{"gal":135543,"valor":1519566},"txns":76},"JOHAN SANTIAGO MARTINEZ ALDANA":{"corriente":{"gal":308197,"valor":7312135},"extra":{"gal":47455,"valor":1282143},"bio":{"gal":187193,"valor":3171510},"txns":170},"OSCAR MAURICIO GIRALDO BALLESTEROS":{"corriente":{"gal":338828,"valor":7309725},"extra":{"gal":37931,"valor":840208},"bio":{"gal":106428,"valor":1517701},"txns":128},"DIEGO FERNANDO ARDILA ALFEREZ":{"corriente":{"gal":583123,"valor":12702898},"extra":{"gal":65634,"valor":1568552},"bio":{"gal":63960,"valor":696515},"txns":226},"BRAYAM ENRIQUE GALAN RODRIGUEZ":{"corriente":{"gal":569627,"valor":13026508},"extra":{"gal":70869,"valor":2300158},"bio":{"gal":225185,"valor":2452238},"txns":252},"LEIDY YISELA CARRENO PRIETO":{"corriente":{"gal":621803,"valor":13278229},"extra":{"gal":87833,"valor":2156973},"bio":{"gal":148424,"valor":1779605},"txns":231},"LUIS ALBERTO VELEZ ESCALONA":{"corriente":{"gal":408986,"valor":10396363},"extra":{"gal":127661,"valor":3355894},"bio":{"gal":50624,"valor":605294},"txns":237},"SHIRLEY VANESA CASRTILLO CARRILLO":{"corriente":{"gal":288775,"valor":7249786},"extra":{"gal":45109,"valor":1481807},"bio":{"gal":54217,"valor":1030175},"txns":178},"YANETH ROMERO MONROY":{"corriente":{"gal":448644,"valor":10172921},"extra":{"gal":52214,"valor":1210530},"bio":{"gal":162733,"valor":2181218},"txns":185},"WILMER MARTINEZ MARTINEZ":{"corriente":{"gal":507125,"valor":11698741},"extra":{"gal":45579,"valor":1767656},"bio":{"gal":281751,"valor":3209661},"txns":214},"ANDRES FELIPE PEDROZO SUAREZ":{"corriente":{"gal":521396,"valor":11576039},"extra":{"gal":75609,"valor":2050504},"bio":{"gal":249019,"valor":3305136},"txns":234},"DILAN ANDRES PEREZ PEREZ":{"corriente":{"gal":343060,"valor":7636841},"extra":{"gal":59884,"valor":1749791},"bio":{"gal":206053,"valor":2781868},"txns":158},"LUIS ALIRIO CUELLAR":{"corriente":{"gal":520215,"valor":11016355},"extra":{"gal":48901,"valor":1228136},"bio":{"gal":109596,"valor":1463518},"txns":185}},"3":{"JUAN DAVID ALVARADO PUENTES":{"corriente":{"gal":283668,"valor":6434851},"extra":{"gal":32058,"valor":893466},"bio":{"gal":130839,"valor":1424836},"txns":126},"OSCAR MAURICIO GIRALDO BALLESTEROS":{"corriente":{"gal":199274,"valor":4849781},"extra":{"gal":16083,"valor":410274},"bio":{"gal":25441,"valor":754543},"txns":111},"JOHAN SANTIAGO MARTINEZ ALDANA":{"corriente":{"gal":234634,"valor":6303056},"extra":{"gal":11486,"valor":254457},"bio":{"gal":52450,"valor":723489},"txns":130},"LUIS ALIRIO CUELLAR":{"corriente":{"gal":501889,"valor":11641553},"extra":{"gal":54512,"valor":1273804},"bio":{"gal":56692,"valor":671370},"txns":230},"LEIDY YISELA CARRENO PRIETO":{"corriente":{"gal":471328,"valor":10458008},"extra":{"gal":138785,"valor":3401979},"bio":{"gal":50690,"valor":551999},"txns":216},"BRAYAM ENRIQUE GALAN RODRIGUEZ":{"corriente":{"gal":556619,"valor":11392815},"extra":{"gal":53800,"valor":1278555},"bio":{"gal":105738,"valor":1151461},"txns":194},"WILMER MARTINEZ MARTINEZ":{"corriente":{"gal":373594,"valor":8824122},"extra":{"gal":80027,"valor":1826583},"bio":{"gal":85498,"valor":996327},"txns":192},"LUIS ALBERTO VELEZ ESCALONA":{"corriente":{"gal":385476,"valor":8985699},"extra":{"gal":72320,"valor":1655855},"bio":{"gal":29152,"valor":317449},"txns":172},"YANETH ROMERO MONROY":{"corriente":{"gal":423489,"valor":9659875},"extra":{"gal":64301,"valor":1837545},"bio":{"gal":86535,"valor":1087985},"txns":181},"SHIRLEY VANESA CASRTILLO CARRILLO":{"corriente":{"gal":395715,"valor":8765493},"extra":{"gal":99750,"valor":2393266},"bio":{"gal":33778,"valor":421819},"txns":161},"ANDRES FELIPE PEDROZO SUAREZ":{"corriente":{"gal":402556,"valor":8627345},"extra":{"gal":90422,"valor":2135591},"bio":{"gal":106195,"valor":1374035},"txns":177},"JUAN LUIS PEREZ HERNADEZ":{"corriente":{"gal":266475,"valor":5944180},"extra":{"gal":18249,"valor":458214},"bio":{"gal":25475,"valor":277423},"txns":114},"DILAN ANDRES PEREZ PEREZ":{"corriente":{"gal":428871,"valor":9088508},"extra":{"gal":54597,"valor":1319950},"bio":{"gal":63120,"valor":1307068},"txns":152}},"4":{"OSCAR ANDRES RIVEROS AFRICANO":{"corriente":{"gal":58421,"valor":1640505},"extra":{"gal":25990,"valor":575655},"bio":{"gal":17697,"valor":192720},"txns":45},"GLADYS ELENA TOLOZA PUENTES":{"corriente":{"gal":68138,"valor":1848851},"extra":{"gal":22996,"valor":509366},"bio":{"gal":24706,"valor":323444},"txns":49},"FRANCISCO DONADO LUNA":{"corriente":{"gal":73314,"valor":1748068},"extra":{"gal":21298,"valor":582398},"bio":{"gal":72297,"valor":1516207},"txns":40},"WILMER MARTINEZ MARTINEZ":{"corriente":{"gal":352355,"valor":8002830},"extra":{"gal":33809,"valor":920537},"bio":{"gal":231637,"valor":2522514},"txns":218},"BRAYAM ENRIQUE GALAN RODRIGUEZ":{"corriente":{"gal":273248,"valor":7213810},"extra":{"gal":66772,"valor":2169349},"bio":{"gal":159536,"valor":1941185},"txns":215},"SHIRLEY VANESA CASRTILLO CARRILLO":{"corriente":{"gal":416528,"valor":9627140},"extra":{"gal":79837,"valor":1768370},"bio":{"gal":331078,"valor":3757719},"txns":207},"LUIS ALBERTO VELEZ ESCALONA":{"corriente":{"gal":416180,"valor":8765777},"extra":{"gal":62122,"valor":1796666},"bio":{"gal":178014,"valor":2434749},"txns":203},"LEIDY YISELA CARRENO PRIETO":{"corriente":{"gal":527123,"valor":12390581},"extra":{"gal":40606,"valor":1295496},"bio":{"gal":307955,"valor":4105930},"txns":317},"YANETH ROMERO MONROY":{"corriente":{"gal":258403,"valor":6110535},"extra":{"gal":29375,"valor":1222387},"bio":{"gal":314576,"valor":3884996},"txns":168},"DILAN ANDRES PEREZ PEREZ":{"corriente":{"gal":613881,"valor":12193494},"extra":{"gal":62491,"valor":1701111},"bio":{"gal":484663,"valor":5612034},"txns":249},"ANDRES FELIPE PEDROZO SUAREZ":{"corriente":{"gal":364513,"valor":8545690},"extra":{"gal":77410,"valor":2085057},"bio":{"gal":140550,"valor":2384429},"txns":212},"JUAN LUIS PEREZ HERNADEZ":{"corriente":{"gal":396031,"valor":8661129},"extra":{"gal":49857,"valor":1499667},"bio":{"gal":534634,"valor":6431960},"txns":213},"LUIS ALIRIO CUELLAR":{"corriente":{"gal":521443,"valor":11099796},"extra":{"gal":58936,"valor":1393975},"bio":{"gal":255436,"valor":3621010},"txns":204},"OSCAR MAURICIO GIRALDO BALLESTEROS":{"corriente":{"gal":176021,"valor":3665809},"extra":{"gal":3621,"valor":257228},"bio":{"gal":154381,"valor":1841739},"txns":75},"JUAN DAVID ALVARADO PUENTES":{"corriente":{"gal":166929,"valor":4184642},"extra":{"gal":29247,"valor":647814},"bio":{"gal":142850,"valor":1772829},"txns":80},"JOHAN SANTIAGO MARTINEZ ALDANA":{"corriente":{"gal":36642,"valor":802659},"extra":{"gal":11650,"valor":258040},"bio":{"gal":99395,"valor":1125932},"txns":24}}}},"2026-06":{"V":{"1":{"corriente":{"gal":7449.736000000002,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":997.3199999999999,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":3273.7479999999996,"precio":11130,"gal2":0,"precio2":0}},"2":{"corriente":{"gal":7416.7220000000225,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":915.9389999999999,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":3426.9249999999984,"precio":11130,"gal2":0,"precio2":0}},"3":{"corriente":{"gal":6951.61300000001,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":820.185,"precio":22780,"gal2":0,"precio2":0},"bio":{"gal":3536.754999999998,"precio":11130,"gal2":0,"precio2":0}},"4":{"corriente":{"gal":7270.63500000002,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":951.073,"precio":22780,"gal2":0,"precio2":0},"bio":{"gal":3701.809,"precio":11130,"gal2":0,"precio2":0}},"5":{"corriente":{"gal":7829.9510000000155,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1122.891,"precio":22780,"gal2":0,"precio2":0},"bio":{"gal":3319.6899999999996,"precio":11130,"gal2":0,"precio2":0}},"6":{"corriente":{"gal":9536.535999999993,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1409.9370000000006,"precio":22780,"gal2":0,"precio2":0},"bio":{"gal":2416.3379999999997,"precio":11130,"gal2":0,"precio2":0}},"7":{"corriente":{"gal":6711.348000000023,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":953.6899999999997,"precio":22780,"gal2":0,"precio2":0},"bio":{"gal":1036.2249999999997,"precio":11130,"gal2":0,"precio2":0}},"8":{"corriente":{"gal":6123.9380000000165,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":645.1729999999998,"precio":22780,"gal2":0,"precio2":0},"bio":{"gal":1067.33,"precio":11130,"gal2":0,"precio2":0}},"9":{"corriente":{"gal":6777.086000000004,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":852.7349999999999,"precio":22780,"gal2":0,"precio2":0},"bio":{"gal":3588.012000000001,"precio":11130,"gal2":0,"precio2":0}},"10":{"corriente":{"gal":7474.783000000018,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":914.0990000000002,"precio":22780,"gal2":0,"precio2":0},"bio":{"gal":4065.0970000000016,"precio":11130,"gal2":0,"precio2":0}},"11":{"corriente":{"gal":7222.808000000034,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":820.4139999999996,"precio":22780,"gal2":0,"precio2":0},"bio":{"gal":3595.503999999998,"precio":11130,"gal2":0,"precio2":0}},"12":{"corriente":{"gal":8059.255000000004,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1135.661,"precio":22780,"gal2":0,"precio2":0},"bio":{"gal":3327.298999999999,"precio":11130,"gal2":0,"precio2":0}},"13":{"corriente":{"gal":9402.356000000025,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1568.445,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":2277.4599999999987,"precio":11130,"gal2":0,"precio2":0}},"14":{"corriente":{"gal":6788.503000000019,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":958.0690000000002,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":997.1850000000003,"precio":11130,"gal2":0,"precio2":0}},"15":{"corriente":{"gal":6290.486000000021,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":732.9279999999997,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":1382.6620000000003,"precio":11130,"gal2":0,"precio2":0}},"16":{"corriente":{"gal":7050.413000000012,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":843.018,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":3718.1470000000004,"precio":11130,"gal2":0,"precio2":0}},"17":{"corriente":{"gal":6667.685000000022,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":890.2639999999997,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":2497.943,"precio":11130,"gal2":0,"precio2":0}},"18":{"corriente":{"gal":6630.908000000007,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":902.5440000000002,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":3798.7849999999994,"precio":11130,"gal2":0,"precio2":0}},"19":{"corriente":{"gal":8008.082000000027,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1040.8559999999998,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":3019.0309999999986,"precio":11130,"gal2":0,"precio2":0}},"20":{"corriente":{"gal":8918.698000000017,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1087.9360000000001,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":2232.5670000000005,"precio":11130,"gal2":0,"precio2":0}},"21":{"corriente":{"gal":7278.205000000019,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":923.2489999999998,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":945.3830000000003,"precio":11130,"gal2":0,"precio2":0}},"22":{"corriente":{"gal":6745.220000000016,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":826.9299999999996,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":2975.151999999998,"precio":11130,"gal2":0,"precio2":0}},"23":{"corriente":{"gal":6379.679000000007,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":846.5130000000001,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":2977.6979999999994,"precio":11130,"gal2":0,"precio2":0}},"24":{"corriente":{"gal":7048.7810000000245,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":951.167,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":2943.0959999999977,"precio":11130,"gal2":0,"precio2":0}},"25":{"corriente":{"gal":8235.691000000015,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1227.8950000000002,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":2640.139000000001,"precio":11130,"gal2":0,"precio2":0}},"26":{"corriente":{"gal":9014.173000000012,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1331.5500000000002,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":3281.724,"precio":11130,"gal2":0,"precio2":0}},"27":{"corriente":{"gal":9189.346000000001,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1219.4439999999993,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":2081.288999999999,"precio":11130,"gal2":0,"precio2":0}},"28":{"corriente":{"gal":6646.985000000013,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":816.4889999999996,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":1308.644,"precio":11130,"gal2":0,"precio2":0}},"29":{"corriente":{"gal":5428.7590000000155,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":718.9999999999999,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":1048.114,"precio":11130,"gal2":0,"precio2":0}},"30":{"corriente":{"gal":6676.836999999997,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":908.1049999999999,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":2951.76,"precio":11130,"gal2":0,"precio2":0}}},"D":{"1":{"txns":2652,"ef_pos":176798972,"rumbo":21400625,"miempresa":13240047,"appterpel":367405,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":59617000,"gpcuenta":120039,"bonos":1054000,"pruebas":5549,"recogida":81073000,"gnv":15310000,"urearumbo":11241,"comentario":""},"2":{"txns":2531,"ef_pos":176150845,"rumbo":20724591,"miempresa":9341513,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":57297000,"gpcuenta":160000,"gpbolsillo":67072,"clientes":124322,"bonos":693000,"pruebas":5590,"recogida":29128000,"gnv":7828000,"urearumbo":409623,"appterpel":276897},"3":{"txns":2513,"ef_pos":168096178,"rumbo":23170543,"miempresa":8491311,"appterpel":55000,"prosegur":60621000,"gpcuenta":140000,"gpbolsillo":217647,"bonos":198500,"pruebas":5521,"gastos":44220,"recogida":74021000,"gnv":17102000,"urearumbo":123701,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"}},"4":{"txns":2626,"ef_pos":177964368,"rumbo":20903539,"miempresa":14842061,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":63257000,"gpcuenta":197046,"gpbolsillo":200016,"bonos":816500,"pruebas":5223,"nequi":47000,"recogida":43559000,"gnv":8949000,"urearumbo":142668,"comentario":""},"5":{"txns":2581,"ef_pos":186479330,"rumbo":20753082,"miempresa":9038178,"appterpel":244755,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":63690000,"gpcuenta":945215,"clientes":171135,"bonos":356000,"recogida":94195000,"gnv":16996000,"urearumbo":164529},"6":{"txns":2948,"ef_pos":209980889,"rumbo":16182109,"miempresa":10421005,"appterpel":360014,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":71176000,"gpcuenta":130012,"gpbolsillo":803955,"bonos":1146000,"pruebas":4025,"gastos":20000,"urearumbo":524214,"comentario":"POLICIA 20000 CTE"},"7":{"txns":2028,"ef_pos":139502151,"rumbo":6041935,"miempresa":1617439,"appterpel":144401,"prosegur":51305501,"gpcuenta":95518,"gpbolsillo":235044,"bonos":575200,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BN","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"comentario":"27249+CREDIBANCO"},"8":{"txns":1821,"ef_pos":123520393,"rumbo":5405338,"miempresa":3050673,"appterpel":30000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BN","5":"000BE8BQ","6":"000BE8BU","7":"000BH3MS","8":"000BH77T"},"prosegur":41676840,"gpbolsillo":536530,"bonos":668900,"comentario":"","recogida":127223000,"gnv":25620000},"9":{"txns":2454,"ef_pos":166645092,"rumbo":21124804,"miempresa":14856234,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":61331000,"gpcuenta":45939,"gpbolsillo":70000,"clientes":86391,"bonos":379300,"nequi":20000,"urearumbo":237952,"comentario":"ES EL QR BANCOLOMBIA?","pruebas":7342},"10":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":2717,"ef_pos":184397393,"rumbo":27418522,"miempresa":16981619,"appterpel":48978,"prosegur":60616000,"clientes":100893,"bonos":549000,"pruebas":8662,"gastos":79562,"recogida":94995000,"gnv":17497000,"urearumbo":426474,"comentario":""},"11":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":2635,"ef_pos":173048108,"rumbo":19709932,"miempresa":11735651,"appterpel":60000,"prosegur":61097000,"bonos":357750,"pruebas":5546,"comentario":"FALTANTE RICARDO GNV","recogida":97395000,"gnv":3188000,"urearumbo":298070},"12":{"txns":2816,"ef_pos":190485641,"rumbo":20364196,"miempresa":12556533,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":68436000,"gpcuenta":100000,"gpbolsillo":332418,"clientes":90821,"nequi":440013,"pruebas":5615,"bonos":482200,"comentario":"FALTANTE DE 120.00 EN CREDIBANCO BREB","gastos":226320,"recogida":28877000,"gnv":335000,"urearumbo":226320},"13":{"txns":2882,"ef_pos":209465417,"rumbo":12904596,"miempresa":7338830,"appterpel":201280,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":70863000,"gpcuenta":161039,"gpbolsillo":844095,"bonos":1003000,"pruebas":5595,"urearumbo":208827,"comentario":"+120000 de rumbo","recogida":115013000,"gnv":7772000},"14":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":2092,"ef_pos":140110548,"rumbo":6818658,"miempresa":2793520,"appterpel":100000,"prosegur":50587000,"gpcuenta":150053,"gpbolsillo":160833,"bonos":430245,"pruebas":5635,"urearumbo":135341,"comentario":"","recogida":30021000,"gnv":5271000},"15":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":1993,"ef_pos":131453577,"rumbo":9373055,"miempresa":3074548,"appterpel":482708,"prosegur":45534000,"gpcuenta":326345,"gpbolsillo":172000,"bonos":891000,"pruebas":5421,"comentario":"","urearumbo":174127,"recogida":40855000,"gnv":6056000},"16":{"terminales_map":{"1":"000BE8B0","2":"000BE8BI","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH77T"},"txns":2647,"ef_pos":171954552,"rumbo":24059976,"miempresa":14043478,"appterpel":30000,"prosegur":56013000,"bonos":465550,"pruebas":5568,"urearumbo":75342,"comentario":"","recogida":45430000,"gnv":9054000},"17":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":2424,"ef_pos":153376975,"rumbo":11834673,"miempresa":11271856,"appterpel":118145,"prosegur":52215000,"gpcuenta":383038,"gpbolsillo":675405,"bonos":465000,"pruebas":5479,"gastos":150000,"urearumbo":261088,"comentario":"TAnqueo contaminado","recogida":59285000,"gnv":12027000},"18":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":2443,"ef_pos":167549667,"rumbo":20240568,"miempresa":14010471,"appterpel":122447,"comentario":"+20089 CREDIBANCO +APPTERPEL 55009","prosegur":60671000,"gpcuenta":250035,"gpbolsillo":613691,"clientes":236078,"bonos":384000,"pruebas":5561,"nequi":55009,"urearumbo":664782,"recogida":2813000,"gnv":700000},"19":{"txns":2673,"ef_pos":183781348,"rumbo":20572252,"miempresa":11867959,"appterpel":397691,"prosegur":63584000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"gpcuenta":205315,"gpbolsillo":132236,"bonos":775000,"nequi":76000,"pruebas":5545,"recogida":133515000,"gnv":26518000,"urearumbo":149601,"comentario":"SOBRAN 2.000 000 DE CARLOS EFECTIVO"},"20":{"comentario":"","txns":2819,"ef_pos":190503843,"rumbo":17765045,"miempresa":6347604,"appterpel":135014,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":61711000,"gpcuenta":375200,"gpbolsillo":808244,"bonos":704850,"pruebas":5498,"urearumbo":306635},"21":{"txns":2289,"ef_pos":146503641,"rumbo":8287446,"miempresa":3749523,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":49533000,"gpcuenta":17500,"gpbolsillo":427752,"bonos":537000,"pruebas":45291,"recogida":95683000,"gnv":17781000,"urearumbo":115124,"comentario":"SOBRAN CCO 1.500.021 ESTAN RESTADOS","appterpel":0},"22":{"comentario":"70034 de cred. de mas","txns":2467,"ef_pos":158491312,"rumbo":22207595,"miempresa":11079403,"appterpel":40082,"prosegur":55534000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"gpcuenta":275979,"gpbolsillo":243276,"bonos":330000,"pruebas":5436,"recogida":70708000,"gnv":13716000,"urearumbo":272096},"23":{"comentario":"","txns":2419,"ef_pos":153173518,"rumbo":18468924,"miempresa":10741689,"prosegur":54540000,"gpbolsillo":452614,"bonos":339000,"pruebas":5459,"terminales_map":{"1":"000BE8B0","2":"000BE8BI","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH77T"},"nequi":100000,"recogida":71401000,"gnv":14119000,"urearumbo":328443},"24":{"txns":2555,"ef_pos":165734819,"rumbo":22384485,"miempresa":9651177,"appterpel":130000,"prosegur":58335000,"gpcuenta":374110,"gpbolsillo":669187,"bonos":515000,"recogida":53423000,"gnv":11676000,"urearumbo":282880,"comentario":"=32151 de credibanco restado","terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"clientes":84599,"pruebas":5566},"25":{"txns":2774,"ef_pos":187375282,"rumbo":16366055,"miempresa":10089795,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":67127000,"gpcuenta":225170,"gpbolsillo":441994,"bonos":464000,"recogida":64176000,"gnv":12849000,"urearumbo":114345,"comentario":""},"26":{"comentario":"SOBRAN 100.000 RUMBO","txns":2803,"ef_pos":209170507,"rumbo":22151756,"miempresa":9798076,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":67967000,"gpcuenta":50000,"clientes":113960,"bonos":682000,"recogida":56136000,"gnv":10334000,"urearumbo":233905},"27":{"txns":2700,"ef_pos":196060748,"rumbo":11437404,"miempresa":6768866,"appterpel":0,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":67171000,"nequi":20000,"pruebas":6986,"bonos":325000,"urearumbo":227304},"28":{"txns":1954,"ef_pos":138152450,"rumbo":8381447,"miempresa":2668440,"appterpel":35000,"terminales_map":{"1":"000BE8B0","2":"000BE8BI","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH77T"},"prosegur":48845000,"gpbolsillo":134940,"bonos":639000,"pruebas":5548,"recogida":155094000,"gnv":26407000,"urearumbo":90229,"comentario":""},"29":{"txns":1753,"ef_pos":113775224,"rumbo":5796813,"miempresa":3046448,"appterpel":376327,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"urearumbo":156225,"comentario":"","prosegur":42500000,"gpcuenta":26000,"bonos":801550},"30":{"txns":2434,"ef_pos":158973653,"rumbo":16951483,"miempresa":10661926,"appterpel":261671,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"urearumbo":107732,"comentario":"","prosegur":56225000,"gpcuenta":115021,"bonos":580000,"pruebas":5631,"recogida":44043000,"gnv":7936000}},"C":{"1":{"1":{"t":0,"v":15677895},"2":{"t":0,"v":14074721},"3":{"t":0,"v":17274093},"4":{"t":0,"v":2859820},"5":{"t":0,"v":1827343},"6":{"t":0,"v":15170068},"7":{"t":0,"v":16535916}},"2":{"1":{"t":0,"v":13392678},"2":{"t":0,"v":18093357},"3":{"t":0,"v":16972805},"4":{"t":0,"v":2615110},"5":{"t":0,"v":1902834},"6":{"t":0,"v":14397179},"7":{"t":0,"v":16418898}},"3":{"1":{"t":0,"v":12203679},"2":{"t":0,"v":3602941},"3":{"t":0,"v":12904428},"4":{"t":0,"v":16428787},"5":{"t":0,"v":1806615},"6":{"t":0,"v":14398538},"7":{"t":0,"v":13836750}},"4":{"1":{"t":0,"v":7665266},"2":{"t":0,"v":13697939},"3":{"t":0,"v":15923654},"4":{"t":0,"v":15268914},"5":{"t":0,"v":1767142},"6":{"t":0,"v":16181028},"7":{"t":0,"v":7308430}},"5":{"1":{"t":0,"v":13478039},"2":{"t":0,"v":2115987},"3":{"t":0,"v":15198576},"4":{"t":0,"v":23548811},"5":{"t":0,"v":2352284},"6":{"t":0,"v":15497137},"7":{"t":0,"v":18754241}},"6":{"1":{"t":0,"v":22703553},"2":{"t":0,"v":14264080},"3":{"t":0,"v":25173988},"4":{"t":0,"v":19163331},"5":{"t":0,"v":1869200},"6":{"t":0,"v":14230818},"7":{"t":0,"v":12269381}},"7":{"1":{"t":0,"v":9583734},"2":{"t":0,"v":1216944},"3":{"t":0,"v":19576856},"4":{"t":0,"v":15946451},"5":{"t":0,"v":932606},"6":{"t":0,"v":16054714},"7":{"t":0,"v":16201969}},"8":{"1":{"t":0,"v":13700158},"2":{"t":0,"v":13066959},"3":{"t":0,"v":4239961},"4":{"t":0,"v":11737214},"5":{"t":0,"v":16998222},"6":{"t":0,"v":1241157},"7":{"t":0,"v":10494426},"8":{"t":0,"v":671660}},"9":{"1":{"t":0,"v":10580602},"2":{"t":0,"v":7887911},"3":{"t":0,"v":11863793},"4":{"t":0,"v":17224092},"5":{"t":0,"v":1100945},"6":{"t":0,"v":12656732},"7":{"t":0,"v":7404684}},"10":{"1":{"t":0,"v":10763649},"2":{"t":0,"v":1578410},"3":{"t":0,"v":13028885},"4":{"t":0,"v":19079941},"5":{"t":0,"v":2036786},"6":{"t":0,"v":13456052},"7":{"t":0,"v":18558332}},"11":{"1":{"t":0,"v":16358808},"2":{"t":0,"v":1620057},"3":{"t":0,"v":17518676},"4":{"t":0,"v":11644685},"5":{"t":0,"v":2154330},"6":{"t":0,"v":12008623},"7":{"t":0,"v":18529461}},"12":{"1":{"t":0,"v":12945458},"2":{"t":0,"v":6648019},"3":{"t":0,"v":22700589},"4":{"t":0,"v":14264608},"5":{"t":0,"v":1761789},"6":{"t":0,"v":15760484},"7":{"t":0,"v":13674551}},"13":{"1":{"t":0,"v":19056790},"2":{"t":0,"v":14717465},"3":{"t":0,"v":30044036},"4":{"t":0,"v":18217839},"5":{"t":0,"v":1747038},"6":{"t":0,"v":15983406},"7":{"t":0,"v":16230344}},"14":{"1":{"t":0,"v":11579181},"2":{"t":0,"v":45000},"3":{"t":0,"v":17618176},"4":{"t":0,"v":18233947},"5":{"t":0,"v":1351649},"6":{"t":0,"v":12990382},"7":{"t":0,"v":17227159}},"15":{"1":{"t":0,"v":12492449},"2":{"t":0,"v":7345725},"3":{"t":0,"v":15469535},"4":{"t":0,"v":16343078},"5":{"t":0,"v":1338981},"6":{"t":0,"v":12268612},"7":{"t":0,"v":6354408}},"16":{"1":{"t":0,"v":12671906},"2":{"t":0,"v":15188984},"3":{"t":0,"v":15954779},"4":{"t":0,"v":1804529},"5":{"t":0,"v":12647840},"6":{"t":0,"v":18971656}},"17":{"1":{"t":0,"v":11511434},"2":{"t":0,"v":7171781},"3":{"t":0,"v":18635180},"4":{"t":0,"v":16161642},"5":{"t":0,"v":1808411},"6":{"t":0,"v":12398753},"7":{"t":0,"v":8945958}},"18":{"1":{"t":0,"v":14038941},"2":{"t":0,"v":13099651},"3":{"t":0,"v":13617140},"4":{"t":0,"v":17231097},"5":{"t":0,"v":1568805},"6":{"t":0,"v":8388778},"7":{"t":0,"v":2954833}},"19":{"1":{"t":0,"v":14667291},"2":{"t":0,"v":10548691},"3":{"t":0,"v":15190026},"4":{"t":0,"v":20600874},"5":{"t":0,"v":1982755},"6":{"t":0,"v":11421644},"7":{"t":0,"v":13740618}},"20":{"1":{"t":0,"v":19083175},"2":{"t":0,"v":16846341},"3":{"t":0,"v":19017132},"4":{"t":0,"v":17702764},"5":{"t":0,"v":1690250},"6":{"t":0,"v":16052516},"7":{"t":0,"v":12337726}},"21":{"1":{"t":0,"v":13304200},"2":{"t":0,"v":8158302},"3":{"t":0,"v":17315772},"4":{"t":0,"v":18703598},"5":{"t":0,"v":1541266},"6":{"t":0,"v":14205146},"7":{"t":0,"v":11994062}},"22":{"1":{"t":0,"v":11320145},"2":{"t":0,"v":6338755},"3":{"t":0,"v":7302402},"4":{"t":0,"v":16543049},"5":{"t":0,"v":1643872},"6":{"t":0,"v":12678579},"7":{"t":0,"v":12921621}},"23":{"1":{"t":0,"v":11284794},"2":{"t":0,"v":14431947},"3":{"t":0,"v":16178974},"4":{"t":0,"v":1781560},"5":{"t":0,"v":9650523},"6":{"t":0,"v":15226421}},"24":{"1":{"t":0,"v":9238542},"2":{"t":0,"v":17547386},"3":{"t":0,"v":10196264},"4":{"t":0,"v":8958689},"5":{"t":0,"v":2128031},"6":{"t":0,"v":12204172},"7":{"t":0,"v":13355094}},"25":{"1":{"t":0,"v":13156536},"2":{"t":0,"v":23994323},"3":{"t":0,"v":16432199},"4":{"t":0,"v":6486709},"5":{"t":0,"v":1556646},"6":{"t":0,"v":17228393},"7":{"t":0,"v":13891941}},"26":{"1":{"t":0,"v":13139660},"2":{"t":0,"v":4909292},"3":{"t":0,"v":27504297},"4":{"t":0,"v":24345078},"5":{"t":0,"v":1941911},"6":{"t":0,"v":18845589},"7":{"t":0,"v":17852113}},"27":{"1":{"t":0,"v":16601287},"2":{"t":0,"v":3726833},"3":{"t":0,"v":26157234},"4":{"t":0,"v":21830200},"5":{"t":0,"v":1434689},"6":{"t":0,"v":19001518},"7":{"t":0,"v":21591067}},"28":{"1":{"t":0,"v":16775791},"2":{"t":0,"v":16243171},"3":{"t":0,"v":14768618},"4":{"t":0,"v":945489},"5":{"t":0,"v":10890623},"6":{"t":0,"v":17789234}},"29":{"1":{"t":0,"v":9469706},"2":{"t":0,"v":13373519},"3":{"t":0,"v":4364041},"4":{"t":0,"v":9837270},"5":{"t":0,"v":1410536},"6":{"t":0,"v":10808383},"7":{"t":0,"v":11967551}},"30":{"1":{"t":0,"v":13534119},"2":{"t":0,"v":13885907},"3":{"t":0,"v":11413638},"4":{"t":0,"v":5254428},"5":{"t":0,"v":1518643},"6":{"t":0,"v":12556672},"7":{"t":0,"v":16139977}}}},"2026-07":{"V":{"1":{"corriente":{"gal":10214.248999999914,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1533.489,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":1929.7279999999996,"precio":11130,"gal2":0,"precio2":0}},"2":{"corriente":{"gal":8748.308999999914,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1233.0879999999986,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":1051.47,"precio":11130,"gal2":0,"precio2":0}},"3":{"corriente":{"gal":7096.040000000007,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":877.1090000000002,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":3107.4639999999995,"precio":11130,"gal2":0,"precio2":0}},"4":{"corriente":{"gal":8719.798000000019,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1068.1499999999999,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":2260.1159999999995,"precio":11130,"gal2":0,"precio2":0}},"5":{"corriente":{"gal":7208.787000000032,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":969.7670000000002,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":1039.9440000000004,"precio":11130,"gal2":0,"precio2":0}},"6":{"corriente":{"gal":6708.237000000012,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":791.8700000000003,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":3397.3429999999994,"precio":11130,"gal2":0,"precio2":0}},"7":{"corriente":{"gal":6323.5990000000165,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":715.3599999999999,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":2645.043999999999,"precio":11130,"gal2":0,"precio2":0}},"8":{"corriente":{"gal":6860.186000000005,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":873.8699999999999,"precio":22490,"gal2":0,"precio2":0},"bio":{"gal":3205.4369999999985,"precio":11130,"gal2":0,"precio2":0}},"9":{"corriente":{"gal":7463.8420000000315,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1077.8560000000007,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3006.0209999999993,"precio":11130,"gal2":0,"precio2":0}},"10":{"corriente":{"gal":7360.102000000016,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1328.6410000000005,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3393.403999999999,"precio":11130,"gal2":0,"precio2":0}},"11":{"corriente":{"gal":9056.824000000008,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1191.1480000000006,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":2010.59,"precio":11130,"gal2":0,"precio2":0}},"12":{"corriente":{"gal":7163.428000000025,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1113.002,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":1186.5750000000005,"precio":11130,"gal2":0,"precio2":0}},"13":{"corriente":{"gal":6201.1760000000195,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":846.0640000000002,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":1124.282,"precio":11130,"gal2":0,"precio2":0}},"14":{"corriente":{"gal":6334.247000000017,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":895.9579999999999,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3190.5709999999985,"precio":11130,"gal2":0,"precio2":0}},"15":{"corriente":{"gal":6808.2760000000035,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":936.1810000000005,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3213.8640000000005,"precio":11130,"gal2":0,"precio2":0}},"16":{"corriente":{"gal":7291.755000000027,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1118.883,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3462.0470000000005,"precio":11130,"gal2":0,"precio2":0}},"17":{"corriente":{"gal":8250.599000000013,"precio":15830,"gal2":0,"precio2":0},"extra":{"gal":1384.2410000000004,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3703.0499999999975,"precio":11130,"gal2":0,"precio2":0}},"18":{"corriente":{"gal":9771.913999999913,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1498.4639999999993,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":2424.9839999999995,"precio":11130,"gal2":0,"precio2":0}},"19":{"corriente":{"gal":6665.885999999941,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":904.858,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":952.5630000000001,"precio":11130,"gal2":0,"precio2":0}},"20":{"corriente":{"gal":6099.0389999999725,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":781.9589999999996,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":1740.4189999999999,"precio":11130,"gal2":0,"precio2":0}},"21":{"corriente":{"gal":6.484,"precio":15830,"gal2":7392.093999999948,"precio2":15690},"extra":{"gal":897.9969999999997,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3343.0309999999995,"precio":11130,"gal2":0,"precio2":0}},"22":{"corriente":{"gal":7436.68999999993,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1001.4019999999998,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":2989.8619999999996,"precio":11130,"gal2":0,"precio2":0}},"23":{"corriente":{"gal":7347.584999999938,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1090.2889999999995,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3392.5410000000006,"precio":11130,"gal2":0,"precio2":0}},"24":{"corriente":{"gal":8066.690999999945,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1209.9060000000002,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3517.3140000000017,"precio":11130,"gal2":0,"precio2":0}},"25":{"corriente":{"gal":9327.439999999917,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1416.5039999999997,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":1996.0929999999983,"precio":11130,"gal2":0,"precio2":0}},"26":{"corriente":{"gal":8313.573999999937,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1238.4780000000005,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":1310.857,"precio":11130,"gal2":0,"precio2":0}},"27":{"corriente":{"gal":7304.012999999954,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":992.7640000000001,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3312.953,"precio":11130,"gal2":0,"precio2":0}},"28":{"corriente":{"gal":7772.0869999999195,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":942.4699999999995,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3921.654999999999,"precio":11130,"gal2":0,"precio2":0}},"29":{"corriente":{"gal":7568.3399999999365,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":996.6440000000001,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":2991.8859999999995,"precio":11130,"gal2":0,"precio2":0}},"30":{"corriente":{"gal":7157.364999999928,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1091.3789999999997,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3687.393999999999,"precio":11130,"gal2":0,"precio2":0}},"31":{"corriente":{"gal":8228.284999999929,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1211.4740000000004,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3449.7660000000024,"precio":11130,"gal2":0,"precio2":0}}},"D":{"1":{"txns":3059,"ef_pos":214079850,"rumbo":14397471,"miempresa":5585866,"appterpel":130007,"prosegur":57631000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"gpbolsillo":30000,"bonos":769000,"pruebas":5282,"recogida":77128000,"gnv":14856000,"urearumbo":443021,"comentario":""},"2":{"txns":2564,"ef_pos":174967918,"rumbo":7993403,"miempresa":2974464,"appterpel":114145,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":60667000,"gpcuenta":111997,"gpbolsillo":218671,"bonos":635000,"pruebas":5626,"gastos":16599,"recogida":51121000,"gnv":10844000,"urearumbo":172475,"comentario":"CTE6 GLS MAS"},"3":{"txns":2470,"ef_pos":166645885,"rumbo":19439964,"miempresa":11701060,"appterpel":70079,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":59905000,"gpcuenta":605639,"gpbolsillo":263341,"bonos":727000,"pruebas":5627,"gastos":150000,"recogida":45533000,"gnv":9259000,"urearumbo":243458,"comentario":""},"4":{"txns":2699,"ef_pos":187216438,"rumbo":16102867,"miempresa":7211535,"appterpel":151839,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":65263000,"gpcuenta":239999,"gpbolsillo":422470,"bonos":321000,"pruebas":5438,"comentario":"+11gls cte"},"5":{"txns":2234,"ef_pos":147503769,"rumbo":5437006,"miempresa":4352845,"appterpel":687703,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"urearumbo":57470,"comentario":"-11gls cte","recogida":161060000,"gnv":29277000,"prosegur":54564000,"gpcuenta":120000,"bonos":688000,"pruebas":5576,"gastos":5576},"6":{"comentario":"","txns":2457,"ef_pos":161815987,"rumbo":18093351,"miempresa":12444582,"appterpel":196689,"prosegur":56803000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"gpbolsillo":100000,"bonos":801000,"pruebas":5555,"recogida":19167000,"gnv":2464000,"urearumbo":374502},"7":{"comentario":"","terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"txns":2253,"ef_pos":145633537,"rumbo":17246855,"miempresa":10319681,"appterpel":138567,"prosegur":52621000,"gpcuenta":130499,"gpbolsillo":99000,"bonos":725000,"pruebas":5514,"urearumbo":14514,"recogida":84625000,"gnv":12168000},"8":{"txns":2461,"ef_pos":163929029,"rumbo":20411527,"miempresa":11286921,"appterpel":180010,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":54363000,"gpcuenta":370283,"gpbolsillo":79150,"bonos":632000,"pruebas":5500,"urearumbo":447946,"recogida":26702000,"gnv":487000},"9":{"txns":2586,"ef_pos":174345469,"rumbo":16364189,"miempresa":11753535,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"comentario":"Son 360.000 menos de credibanco","prosegur":61129000,"gpcuenta":90000,"gpbolsillo":788950,"bonos":631000,"pruebas":10246,"gastos":111300,"urearumbo":215283,"recogida":49462000,"gnv":895000},"10":{"txns":2664,"ef_pos":182304217,"rumbo":25570447,"miempresa":11060264,"appterpel":20000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH3MT","8":"000BH77T"},"prosegur":63584000,"gpcuenta":205000,"gpbolsillo":319147,"bonos":509000,"pruebas":5475,"recogida":61909000,"gnv":1022000,"urearumbo":224233,"comentario":""},"11":{"txns":2748,"ef_pos":190872762,"rumbo":9346999,"miempresa":8398781,"appterpel":130043,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":66717000,"gpcuenta":148618,"gpbolsillo":194172,"bonos":829000,"pruebas":5444,"comentario":"","urearumbo":81332},"12":{"txns":2184,"ef_pos":150080386,"rumbo":5526187,"miempresa":3323691,"appterpel":188344,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":52221000,"gpcuenta":451773,"gpbolsillo":401675,"bonos":629000,"pruebas":5592,"recogida":182486000,"gnv":21404000,"urearumbo":68097,"comentario":""},"13":{"txns":1989,"ef_pos":128524005,"rumbo":10198490,"miempresa":1517774,"appterpel":507276,"terminales_map":{"1":"000BE8B0","2":"000BE8BI","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH77T"},"prosegur":45376000,"gpcuenta":190034,"gpbolsillo":515680,"bonos":506000,"pruebas":5574,"gastos":9941,"urearumbo":203385},"14":{"txns":2501,"ef_pos":154680940,"rumbo":21598073,"miempresa":8650188,"appterpel":31090,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":52642000,"gpcuenta":194869,"gpbolsillo":358233,"bonos":542000,"pruebas":2383,"urearumbo":104644,"comentario":"","recogida":47733000,"gnv":9324000},"15":{"txns":2486,"ef_pos":163317769,"rumbo":20753528,"miempresa":10649286,"appterpel":100431,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":57284000,"gpcuenta":120000,"bonos":418000,"pruebas":4974,"recogida":92651000,"gnv":18413000,"urearumbo":133549,"comentario":"salto lectura"},"16":{"txns":2604,"ef_pos":177562266,"rumbo":20938321,"miempresa":12107801,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"recogida":13719000,"gnv":2190000,"urearumbo":746000,"prosegur":59654000,"gpcuenta":66000,"gpbolsillo":662477,"bonos":746000,"pruebas":5369,"gastos":150000,"comentario":"salto lectura"},"17":{"txns":2843,"ef_pos":201019177,"rumbo":23689927,"miempresa":11969652,"appterpel":70000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"comentario":"","prosegur":65578000,"gpcuenta":523338,"gpbolsillo":545870,"bonos":1044000,"pruebas":5241,"urearumbo":184197,"recogida":60218000,"gnv":11301000},"18":{"txns":2927,"ef_pos":211912638,"rumbo":15990949,"miempresa":6079445,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":72952000,"gpcuenta":342808,"gpbolsillo":150897,"bonos":1224000,"pruebas":5386,"gastos":150000,"urearumbo":328025},"19":{"txns":2050,"ef_pos":134271909,"rumbo":8351921,"miempresa":1972691,"appterpel":99000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":52363000,"gpcuenta":20000,"bonos":503000,"pruebas":5430,"urearumbo":219350,"comentario":""},"20":{"txns":2001,"ef_pos":131554896,"rumbo":12856594,"miempresa":2596994,"appterpel":333891,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BI","4":"000BE8BQ","5":"000BE8BU","6":"000BH3MS","7":"000BH77T"},"prosegur":48749000,"gpcuenta":140000,"gpbolsillo":463808,"bonos":805000,"pruebas":5479,"urearumbo":193278,"comentario":"","recogida":163872000,"gnv":26770000},"21":{"txns":2647,"ef_pos":172228631,"rumbo":20972040,"miempresa":13835345,"appterpel":64086,"prosegur":57795000,"gpcuenta":158092,"gpbolsillo":625545,"bonos":921000,"pruebas":3778,"urearumbo":88855,"comentario":"","terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH77T"},"recogida":49144000,"gnv":8896000},"22":{"txns":2687,"ef_pos":171075987,"rumbo":15784053,"miempresa":11374510,"appterpel":30000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH77T"},"prosegur":61536000,"gpcuenta":226900,"gpbolsillo":130196,"bonos":971000,"pruebas":5159,"urearumbo":436129},"23":{"recogida":119594000,"gnv":23950000,"txns":2645,"ef_pos":176034705,"rumbo":23564806,"miempresa":9264272,"appterpel":237610,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":58149000,"gpcuenta":384310,"gpbolsillo":650548,"bonos":586000,"pruebas":97417,"urearumbo":276410,"comentario":"cruce al otro dia"},"24":{"txns":2785,"ef_pos":191228585,"rumbo":22742811,"miempresa":14533235,"appterpel":480263,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":62172000,"gpcuenta":229328,"gpbolsillo":128956,"bonos":680000,"pruebas":1804,"recogida":56085000,"gnv":12997000,"urearumbo":410348,"comentario":""},"25":{"txns":3028,"ef_pos":198436352,"rumbo":11589771,"miempresa":5890285,"appterpel":62760,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":68324000,"gpcuenta":255087,"gpbolsillo":555941,"bonos":1104000,"pruebas":5215,"urearumbo":50832,"comentario":""},"26":{"txns":2493,"ef_pos":171147126,"rumbo":8556407,"miempresa":2250211,"appterpel":446552,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"comentario":"salto d lectura menos 665.318","prosegur":63735000,"gpcuenta":40000,"gpbolsillo":563718,"bonos":774000,"pruebas":6692,"recogida":158764000,"gnv":31063000,"urearumbo":109052},"27":{"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"comentario":"","txns":2732,"ef_pos":172408726,"rumbo":19789661,"miempresa":10498585,"prosegur":62012000,"gpcuenta":100024,"gpbolsillo":110174,"bonos":410000,"pruebas":7470,"recogida":35270000,"gnv":6015000,"urearumbo":139113},"28":{"txns":2789,"ef_pos":185466688,"rumbo":24488376,"miempresa":14408795,"appterpel":262140,"prosegur":64967000,"gpcuenta":352229,"gpbolsillo":147549,"bonos":538000,"pruebas":5125,"recogida":61835000,"gnv":11871000,"urearumbo":396105,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"}},"29":{"txns":2685,"ef_pos":173064124,"rumbo":17908299,"miempresa":9956981,"appterpel":131576,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":60005000,"gpcuenta":191295,"gpbolsillo":414277,"bonos":772000,"pruebas":5616,"recogida":67240000,"gnv":11732000,"urearumbo":231072,"comentario":""},"30":{"txns":2670,"ef_pos":176354931,"rumbo":24630403,"miempresa":10630671,"appterpel":330035,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":59602000,"gpcuenta":84663,"gpbolsillo":100000,"bonos":293000,"pruebas":5285,"recogida":60110000,"gnv":12914000,"urearumbo":258657,"comentario":""},"31":{"txns":2920,"ef_pos":193044926,"rumbo":22224275,"miempresa":8763781,"appterpel":40000,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":65741000,"gpcuenta":150000,"gpbolsillo":284818,"bonos":274000,"pruebas":5341,"recogida":67351000,"gnv":13784000}},"C":{"1":{"1":{"t":0,"v":28644346},"2":{"t":0,"v":26211948},"3":{"t":0,"v":11603506},"4":{"t":0,"v":22600105},"5":{"t":0,"v":1666032},"6":{"t":0,"v":29945798},"7":{"t":0,"v":4460824}},"2":{"1":{"t":0,"v":22719554},"2":{"t":0,"v":3308192},"3":{"t":0,"v":10739856},"4":{"t":0,"v":22325785},"5":{"t":0,"v":1374964},"6":{"t":0,"v":20945002},"7":{"t":0,"v":23064731}},"3":{"1":{"t":0,"v":5603784},"2":{"t":0,"v":3939321},"3":{"t":0,"v":2565980},"4":{"t":0,"v":3329196},"5":{"t":0,"v":242278},"6":{"t":0,"v":1688635},"7":{"t":0,"v":3457920}},"4":{"1":{"t":0,"v":16554995},"2":{"t":0,"v":18651507},"3":{"t":0,"v":16990013},"4":{"t":0,"v":2920153},"5":{"t":0,"v":1459130},"6":{"t":0,"v":15445034},"7":{"t":0,"v":25573462}},"5":{"1":{"t":0,"v":12783552},"2":{"t":0,"v":7818646},"3":{"t":0,"v":18448665},"4":{"t":0,"v":10068707},"5":{"t":0,"v":1170679},"6":{"t":0,"v":15247664},"7":{"t":0,"v":15855284}},"6":{"1":{"t":0,"v":12322073},"2":{"t":0,"v":9152601},"3":{"t":0,"v":11352620},"4":{"t":0,"v":9881444},"5":{"t":0,"v":1682068},"6":{"t":0,"v":13820607},"7":{"t":0,"v":15206664}},"7":{"1":{"t":0,"v":10751559},"2":{"t":0,"v":1801354},"3":{"t":0,"v":13830422},"4":{"t":0,"v":13098693},"5":{"t":0,"v":1582601},"6":{"t":0,"v":10887989},"7":{"t":0,"v":12235128}},"8":{"1":{"t":0,"v":13027668},"2":{"t":0,"v":16014220},"3":{"t":0,"v":16829591},"4":{"t":0,"v":16258287},"5":{"t":0,"v":1496088},"6":{"t":0,"v":10853065},"7":{"t":0,"v":2426800}},"9":{"1":{"t":0,"v":14006864},"2":{"t":0,"v":4663601},"3":{"t":0,"v":18258431},"4":{"t":0,"v":16149343},"5":{"t":0,"v":2018529},"6":{"t":0,"v":15015904},"7":{"t":0,"v":13554720}},"10":{"1":{"t":0,"v":15371953},"2":{"t":0,"v":10197710},"3":{"t":0,"v":16303950},"4":{"t":0,"v":16962674},"5":{"t":0,"v":1235795},"6":{"t":0,"v":9504193},"7":{"t":0,"v":10500},"8":{"t":0,"v":11325762}},"11":{"1":{"t":0,"v":16918605},"2":{"t":0,"v":9911844},"3":{"t":0,"v":16756582},"4":{"t":0,"v":18535814},"5":{"t":0,"v":1606040},"6":{"t":0,"v":24042079},"7":{"t":0,"v":17454210}},"12":{"1":{"t":0,"v":9304413},"2":{"t":0,"v":8325057},"3":{"t":0,"v":9917465},"4":{"t":0,"v":22494475},"5":{"t":0,"v":949635},"6":{"t":0,"v":19039252},"7":{"t":0,"v":16838517}},"13":{"1":{"t":0,"v":13765886},"2":{"t":0,"v":14758362},"3":{"t":0,"v":14878793},"4":{"t":0,"v":1146993},"5":{"t":0,"v":10316380},"6":{"t":0,"v":14993022}},"14":{"1":{"t":0,"v":3205349},"2":{"t":0,"v":7977758},"3":{"t":0,"v":17620258},"4":{"t":0,"v":14539641},"5":{"t":0,"v":2132854},"6":{"t":0,"v":11015998},"7":{"t":0,"v":14157555}},"15":{"1":{"t":0,"v":14558928},"2":{"t":0,"v":14689038},"3":{"t":0,"v":2866704},"4":{"t":0,"v":14652960},"5":{"t":0,"v":1688924},"6":{"t":0,"v":12556013},"7":{"t":0,"v":13104160}},"16":{"1":{"t":0,"v":16303199},"2":{"t":0,"v":7524174},"3":{"t":0,"v":8657827},"4":{"t":0,"v":15041238},"5":{"t":0,"v":1436572},"6":{"t":0,"v":14269963},"7":{"t":0,"v":20885212}},"17":{"1":{"t":0,"v":17178660},"2":{"t":0,"v":18906040},"3":{"t":0,"v":4899985},"4":{"t":0,"v":18515511},"5":{"t":0,"v":1789853},"6":{"t":0,"v":15129428},"7":{"t":0,"v":20301591}},"18":{"1":{"t":0,"v":20410979},"2":{"t":0,"v":22592451},"3":{"t":0,"v":20317886},"4":{"t":0,"v":20512098},"5":{"t":0,"v":1476546},"6":{"t":0,"v":1875840},"7":{"t":0,"v":28573555}},"19":{"1":{"t":0,"v":17969826},"2":{"t":0,"v":3987563},"3":{"t":0,"v":16190730},"4":{"t":0,"v":14029811},"5":{"t":0,"v":1038788},"6":{"t":0,"v":150000},"7":{"t":0,"v":17462722}},"20":{"1":{"t":0,"v":19023924},"2":{"t":0,"v":12261752},"3":{"t":0,"v":7278483},"4":{"t":0,"v":5203308},"5":{"t":0,"v":1682579},"6":{"t":0,"v":8417851},"7":{"t":0,"v":11741631}},"21":{"1":{"t":0,"v":14603696},"2":{"t":0,"v":12354126},"3":{"t":0,"v":13035347},"4":{"t":0,"v":1585914},"5":{"t":0,"v":17956765},"6":{"t":0,"v":18311125}},"22":{"1":{"t":0,"v":18249664},"2":{"t":0,"v":15959808},"3":{"t":0,"v":9974542},"4":{"t":0,"v":1574034},"5":{"t":0,"v":18802348},"6":{"t":0,"v":16582712}},"23":{"1":{"t":0,"v":15784876},"2":{"t":0,"v":9784152},"3":{"t":0,"v":15658533},"4":{"t":0,"v":1568062},"5":{"t":0,"v":11868058},"6":{"t":0,"v":10774886},"7":{"t":0,"v":17119389}},"24":{"1":{"t":0,"v":20719008},"2":{"t":0,"v":12631974},"3":{"t":0,"v":12925096},"4":{"t":0,"v":233045},"5":{"t":0,"v":5086127},"6":{"t":0,"v":22326370},"7":{"t":0,"v":16754235}},"25":{"1":{"t":0,"v":22755103},"2":{"t":0,"v":17092087},"3":{"t":0,"v":20610668},"4":{"t":0,"v":16846532},"5":{"t":0,"v":2150327},"6":{"t":0,"v":13758850},"7":{"t":0,"v":17997125}},"26":{"1":{"t":0,"v":14042509},"2":{"t":0,"v":20539640},"3":{"t":0,"v":2437790},"4":{"t":0,"v":15075454},"5":{"t":0,"v":1638151},"6":{"t":0,"v":13273243},"7":{"t":0,"v":26506995}},"27":{"1":{"t":0,"v":14223280},"2":{"t":0,"v":8927261},"3":{"t":0,"v":18317161},"4":{"t":0,"v":1562630},"5":{"t":0,"v":1661719},"6":{"t":0,"v":18092544},"7":{"t":0,"v":16325379}},"28":{"1":{"t":0,"v":20047630},"2":{"t":0,"v":13785018},"3":{"t":0,"v":14038405},"4":{"t":0,"v":18435174},"5":{"t":0,"v":1946760},"6":{"t":0,"v":886629},"7":{"t":0,"v":10867077}},"29":{"1":{"t":0,"v":15508704},"2":{"t":0,"v":13540212},"3":{"t":0,"v":16546597},"4":{"t":0,"v":7274708},"5":{"t":0,"v":1991283},"6":{"t":0,"v":11165972},"7":{"t":0,"v":17772756}},"30":{"1":{"t":0,"v":15840217},"2":{"t":0,"v":10626197},"3":{"t":0,"v":16190570},"4":{"t":0,"v":16050654},"5":{"t":0,"v":1780310},"6":{"t":0,"v":1196875},"7":{"t":0,"v":18936020}},"31":{"1":{"t":0,"v":2427483},"2":{"t":0,"v":12777210},"3":{"t":0,"v":17238542},"4":{"t":0,"v":14984059},"5":{"t":0,"v":1870965},"6":{"t":0,"v":23741202},"7":{"t":0,"v":22376333}}}},"2026-08":{"V":{"1":{"corriente":{"gal":10194.955999999915,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1533.489,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":1929.7279999999996,"precio":11130,"gal2":0,"precio2":0}},"2":{"corriente":{"gal":8748.308999999914,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1233.0879999999986,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":1051.47,"precio":11130,"gal2":0,"precio2":0}},"3":{"corriente":{"gal":6610.052999999945,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":1016.1789999999996,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3856.886000000001,"precio":11130,"gal2":0,"precio2":0}},"4":{"corriente":{"gal":6915.470999999961,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":889.5449999999993,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3157.725999999999,"precio":11130,"gal2":0,"precio2":0}},"5":{"corriente":{"gal":7452.012999999955,"precio":15690,"gal2":0,"precio2":0},"extra":{"gal":945.6589999999993,"precio":21090,"gal2":0,"precio2":0},"bio":{"gal":3852.433999999999,"precio":11130,"gal2":0,"precio2":0}}},"D":{"1":{"txns":3058,"ef_pos":213777143,"rumbo":14094764,"miempresa":5585866,"appterpel":130007,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":67416000,"gpcuenta":100000,"gpbolsillo":488625,"bonos":832000,"comentario":""},"2":{"txns":2564,"ef_pos":174967918,"rumbo":7993403,"miempresa":2974464,"appterpel":114145,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":57994000,"gpcuenta":249298,"gpbolsillo":467326,"bonos":536000,"pruebas":5527},"3":{"txns":2505,"ef_pos":168068356,"rumbo":22721730,"miempresa":15884443,"appterpel":192004,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":53181000,"gpbolsillo":282013,"bonos":515000,"pruebas":5381},"4":{"txns":2427,"ef_pos":162408977,"rumbo":18305118,"miempresa":13611763,"appterpel":182179,"terminales_map":{"1":"000BE8B0","2":"000BE8BE","3":"000BE8BQ","4":"000BE8BU","5":"000BH3MS","6":"000BH3MT","7":"000BH77T"},"prosegur":52339000,"gpcuenta":372612,"gpbolsillo":120000,"bonos":574000,"pruebas":5380,"clientes":190000,"alcaparros":190000,"comentario":"","recogida":238829000,"gnv":44719000},"5":{"txns":2648,"ef_pos":179741313,"rumbo":23963083,"miempresa":12505666,"appterpel":235016,"terminales_map":{"1":"000BE8B0","2":"000BE8B9","3":"000BE8BE","4":"000BE8BI","5":"000BE8BN","6":"000BE8BQ","7":"000BE8BU","8":"000BEARZ","9":"000BH3MS","10":"000BH3MT","11":"000BH77T"},"prosegur":60078000,"gpcuenta":321807,"gpbolsillo":160000,"bonos":247000,"pruebas":5230,"gastos":100000,"recogida":57900000,"gnv":11896000,"comentario":"calibraciones 20gl"},"6":{"comentario":""}},"C":{"1":{"1":{"t":0,"v":28644346},"2":{"t":0,"v":26211948},"3":{"t":0,"v":11603506},"4":{"t":0,"v":22600105},"5":{"t":0,"v":1666032},"6":{"t":0,"v":29945798},"7":{"t":0,"v":4460824}},"2":{"1":{"t":0,"v":22719554},"2":{"t":0,"v":3308192},"3":{"t":0,"v":10739856},"4":{"t":0,"v":22325785},"5":{"t":0,"v":1374964},"6":{"t":0,"v":20945002},"7":{"t":0,"v":23064731}},"3":{"1":{"t":0,"v":17682234},"2":{"t":0,"v":8469408},"3":{"t":0,"v":6730965},"4":{"t":0,"v":12916331},"5":{"t":0,"v":1527958},"6":{"t":0,"v":9190017},"7":{"t":0,"v":18735056}},"4":{"1":{"t":0,"v":21108518},"2":{"t":0,"v":8507561},"3":{"t":0,"v":11355407},"4":{"t":0,"v":9251644},"5":{"t":0,"v":1576932},"6":{"t":0,"v":9657798},"7":{"t":0,"v":15318416}},"5":{"1":{"t":0,"v":17601893},"2":{"t":0,"v":10},"3":{"t":0,"v":365756},"4":{"t":0,"v":10},"5":{"t":0,"v":7870846},"6":{"t":0,"v":15844696},"7":{"t":0,"v":10},"8":{"t":0,"v":10},"9":{"t":0,"v":1538744},"10":{"t":0,"v":19570992},"11":{"t":0,"v":19469100}}}}};
+
+let DATA = {};       // { "YYYY-MM": {V, D, C} }
+let currentMonth = "2026-04";
+let currentTab = "diario";
+let pasteKind = null;
+
+const STORAGE_KEY = "eds_dashboard_v1";
+const MONTH_NAMES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+// ============================================================
+// PERSISTENCIA (localStorage del navegador - sobrevive cierres de pestana)
+// ============================================================
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+  } catch (err) {
+    console.error("Error al guardar:", err);
+    showToast("Advertencia: no se pudo guardar automaticamente", "error");
+  }
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    DATA = raw ? JSON.parse(raw) : {};
+  } catch (err) {
+    console.error("Error al cargar:", err);
+    DATA = {};
+  }
+  // Fusion dia por dia con los datos incrustados (V=ventas, D=medios, C=Credibanco, P).
+  // Se rellena lo que falte; se conservan intactos los dias ya presentes (tus ediciones).
+  try {
+    for (const mk in INITIAL_DATA) {
+      const sm = INITIAL_DATA[mk];
+      if (!DATA[mk]) { DATA[mk] = JSON.parse(JSON.stringify(sm)); continue; }
+      for (const sec of ["V","D","C","P"]) {
+        if (!sm[sec]) continue;
+        if (!DATA[mk][sec]) DATA[mk][sec] = {};
+        for (const d in sm[sec]) {
+          if (!DATA[mk][sec][d]) DATA[mk][sec][d] = JSON.parse(JSON.stringify(sm[sec][d]));
+        }
+      }
+    }
+  } catch (e) { console.error("Error al fusionar:", e); }
+  saveData();
+}
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+function ensureMonth(m) {
+  if (!DATA[m]) DATA[m] = { V: {}, D: {}, C: {} };
+  if (!DATA[m].V) DATA[m].V = {};
+  if (!DATA[m].D) DATA[m].D = {};
+  if (!DATA[m].C) DATA[m].C = {};
+}
+
+function getDay(m, dia) {
+  ensureMonth(m);
+  return {
+    v: DATA[m].V[dia] || null,
+    d: DATA[m].D[dia] || {},
+    c: DATA[m].C[dia] || {}
+  };
+}
+
+function daysInMonth(m) {
+  const [y, mm] = m.split("-").map(Number);
+  return new Date(y, mm, 0).getDate();
+}
+
+function fmtMoney(n) {
+  if (!n || n === 0) return "—";
+  const abs = Math.abs(n);
+  const sign = n < 0 ? "-" : "";
+  return sign + "$" + abs.toLocaleString("es-CO", { maximumFractionDigits: 0 });
+}
+function fmtNumber(n) {
+  if (!n || n === 0) return "—";
+  return n.toLocaleString("es-CO", { maximumFractionDigits: 0 });
+}
+function fmtGal(n) {
+  if (!n || n === 0) return "—";
+  return n.toLocaleString("es-CO", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+}
+function fmtSigned(n) {
+  if (!n) return "$0";
+  const sign = n > 0 ? "+" : "";
+  return sign + fmtMoney(n);
+}
+function parseNum(s) {
+  if (!s) return 0;
+  s = String(s).replace(/[^\d\-.,]/g, "").replace(/\./g, "").replace(",", ".");
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+function escapeHTML(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function ventaPOSDia(dia) {
+  const v = DATA[currentMonth].V[dia];
+  if (!v) return 0;
+  let t = 0;
+  ["corriente","extra","bio"].forEach(k => {
+    const p = v[k] || {};
+    t += (p.gal||0) * (p.precio||0) + (p.gal2||0) * (p.precio2||0);
+  });
+  return t;
+}
+function galonesDia(dia) {
+  const v = DATA[currentMonth].V[dia];
+  if (!v) return { c: 0, e: 0, b: 0 };
+  return {
+    c: (v.corriente?.gal||0) + (v.corriente?.gal2||0),
+    e: (v.extra?.gal||0) + (v.extra?.gal2||0),
+    b: (v.bio?.gal||0) + (v.bio?.gal2||0)
+  };
+}
+function credibancoDia(dia) {
+  const c = DATA[currentMonth].C[dia];
+  if (!c) return 0;
+  let t = 0;
+  for (let i=1;i<=11;i++) if (c[i]) t += c[i].v || 0;
+  return t;
+}
+function totalMediosDia(dia) {
+  const d = DATA[currentMonth].D[dia] || {};
+  return (d.prosegur||0) + credibancoDia(dia) + (d.gpcuenta||0) + (d.gpbolsillo||0) +
+         (d.clientes||0) + (d.rumbo||0) + (d.miempresa||0) + (d.appterpel||0) +
+         (d.bonos||0) + (d.daviplata||0) + (d.bancolombia||0) + (d.nequi||0) +
+         (d.moneda||0) + (d.pruebas||0) + (d.gastos||0);
+}
+function rumboCarteraDia(dia) {
+  const d = DATA[currentMonth].D[dia] || {};
+  return (d.rumbo||0) + (d.miempresa||0) + (d.urearumbo||0);
+}
+
+// ============================================================
+// RENDER: SUMMARY CARDS
+// ============================================================
+function updateCards() {
+  ensureMonth(currentMonth);
+  const days = daysInMonth(currentMonth);
+  let ventasPOS = 0, totalMedios = 0, galones = 0, txns = 0;
+  let galCorr = 0, galExtra = 0, galBio = 0;
+  for (let d=1; d<=days; d++) {
+    ventasPOS += ventaPOSDia(d);
+    totalMedios += totalMediosDia(d);
+    const g = galonesDia(d);
+    galones += g.c + g.e + g.b;
+    galCorr += g.c; galExtra += g.e; galBio += g.b;
+    txns += DATA[currentMonth].D[d]?.txns || 0;
+  }
+  const dif = totalMedios - ventasPOS;
+  const ticket = txns > 0 ? ventasPOS / txns : 0;
+  document.getElementById("c-ventas").textContent = fmtMoney(ventasPOS);
+  document.getElementById("c-medios").textContent = fmtMoney(totalMedios);
+  const difEl = document.getElementById("c-dif");
+  difEl.textContent = fmtSigned(dif);
+  difEl.style.color = dif >= 0 ? "var(--emerald-700)" : "var(--red-600)";
+  document.getElementById("c-gal").textContent = fmtGal(galones);
+  document.getElementById("c-ticket").textContent = fmtMoney(ticket);
+  document.getElementById("c-gal-corr").textContent = fmtGal(galCorr);
+  document.getElementById("c-gal-extra").textContent = fmtGal(galExtra);
+  document.getElementById("c-gal-bio").textContent = fmtGal(galBio);
+  
+  // Status badges
+  const posCount = Object.keys(DATA[currentMonth].V || {}).filter(d => {
+    const v = DATA[currentMonth].V[d];
+    return v && ((v.corriente?.gal||0) > 0 || (v.extra?.gal||0) > 0 || (v.bio?.gal||0) > 0);
+  }).length;
+  const crediCount = Object.keys(DATA[currentMonth].C || {}).length;
+  const posBadge = document.getElementById("pos-status");
+  const crediBadge = document.getElementById("credi-status");
+  posBadge.textContent = posCount > 0 ? `${posCount} días` : "—";
+  posBadge.className = "status-badge " + (posCount > 0 ? "status-ok" : "status-empty");
+  crediBadge.textContent = crediCount > 0 ? `${crediCount} días` : "—";
+  crediBadge.className = "status-badge " + (crediCount > 0 ? "status-ok" : "status-empty");
+}
+
+// ============================================================
+// RENDER: TABS
+// ============================================================
+function renderTab() {
+  const el = document.getElementById("content");
+  if (currentTab === "diario") el.innerHTML = renderDiario();
+  else if (currentTab === "ventas") el.innerHTML = renderVentas();
+  else if (currentTab === "credi") el.innerHTML = renderCredi();
+  else if (currentTab === "resumen") el.innerHTML = renderResumen();
+  attachCellListeners();
+  updateCards();
+}
+
+function renderDiario() {
+  const days = daysInMonth(currentMonth);
+  let html = `<div class="table-wrap"><table>
+    <thead>
+      <tr>
+        <th class="day" rowspan="2">Fecha</th>
+        <th colspan="4" class="h-vino">COMBUSTIBLES (Galones)</th>
+        <th rowspan="2" class="h-navy">TOTAL<br>VENTAS POS</th>
+        <th colspan="3" class="h-amber">REFERENCIA POS</th>
+        <th colspan="15" class="h-red">MEDIOS DE PAGO</th>
+        <th rowspan="2" class="h-emerald">TOTAL<br>MEDIOS</th>
+        <th rowspan="2" class="h-amber">DIF.</th>
+        <th colspan="8" class="h-purple-dark">INFORMATIVOS</th>
+      </tr>
+      <tr>
+        <th class="h-vino">Corriente</th><th class="h-vino">Extra</th><th class="h-vino">Bioacem</th><th class="h-vino">TOTAL<br>GAL.</th>
+        <th class="h-amber">Ef. POS</th><th class="h-amber">Txns</th><th class="h-amber">Ticket</th>
+        <th class="h-wine-light">Prosegur</th>
+        <th class="h-blue">Credibanco</th>
+        <th class="h-wine-light">GoPass<br>Cuenta</th>
+        <th class="h-wine-light">GoPass<br>Bolsillo</th>
+        <th class="h-wine-light">Clientes<br>EDS</th>
+        <th class="h-wine-light">Rumbo/<br>Crédito</th>
+        <th class="h-wine-light">Mi<br>Empresa</th>
+        <th class="h-wine-light">App<br>Terpel</th>
+        <th class="h-wine-light">Bonos</th>
+        <th class="h-wine-light">Daviplata</th>
+        <th class="h-wine-light">Banco<br>lombia</th>
+        <th class="h-wine-light">Nequi</th>
+        <th class="h-wine-light">Moneda</th>
+        <th class="h-wine-light">Pruebas</th>
+        <th class="h-wine-light">Gastos</th>
+        <th class="h-purple-dark">Cred.<br>Alcaparros</th>
+        <th class="h-purple-dark">Cred.<br>Autocom</th>
+        <th class="h-purple-dark">Cred.<br>Sylvia</th>
+        <th class="h-purple-dark">Cred.<br>Otro</th>
+        <th class="h-purple-dark">Recogida<br>Líquidos</th>
+        <th class="h-purple-dark">GNV</th>
+        <th class="h-purple-dark">Rumbo<br>Cartera</th>
+        <th class="h-purple-dark">Urea<br>Crédito</th>
+        <th class="h-navy" style="min-width:180px">Comentarios</th>
+      </tr>
+    </thead>
+    <tbody>`;
+  
+  let totalesCols = Array(31).fill(0);
+  
+  for (let d=1; d<=days; d++) {
+    const g = galonesDia(d);
+    const vPOS = ventaPOSDia(d);
+    const dD = DATA[currentMonth].D[d] || {};
+    const cred = credibancoDia(d);
+    const totMedios = totalMediosDia(d);
+    const dif = totMedios - vPOS;
+    const ticket = (dD.txns||0) > 0 ? vPOS / dD.txns : 0;
+    const rumboCart = rumboCarteraDia(d);
+    
+    totalesCols[0]+=g.c; totalesCols[1]+=g.e; totalesCols[2]+=g.b; totalesCols[3]+=vPOS;
+    totalesCols[4]+=dD.ef_pos||0; totalesCols[5]+=dD.txns||0;
+    totalesCols[7]+=dD.prosegur||0; totalesCols[8]+=cred; totalesCols[9]+=dD.gpcuenta||0;
+    totalesCols[10]+=dD.gpbolsillo||0; totalesCols[11]+=dD.clientes||0; totalesCols[12]+=dD.rumbo||0;
+    totalesCols[13]+=dD.miempresa||0; totalesCols[14]+=dD.appterpel||0; totalesCols[15]+=dD.bonos||0;
+    totalesCols[16]+=dD.daviplata||0; totalesCols[17]+=dD.bancolombia||0;
+    totalesCols[18]+=dD.nequi||0; totalesCols[19]+=dD.moneda||0;
+    totalesCols[20]+=dD.pruebas||0; totalesCols[21]+=dD.gastos||0;
+    totalesCols[22]+=totMedios; totalesCols[23]+=dif;
+    totalesCols[24]+=dD.alcaparros||0; totalesCols[25]+=dD.autocom||0;
+    totalesCols[26]+=dD.sylvia||0; totalesCols[27]+=dD.otro||0;
+    totalesCols[28]+=dD.recogida||0; totalesCols[29]+=dD.gnv||0;
+    
+    html += `<tr>
+      <td class="day"><div style="display:flex;align-items:center;justify-content:space-between;gap:4px"><span>${d}</span><button onclick="borrarDia(${d})" title="Borrar todos los datos editables del dia ${d}" style="background:#FEE2E2;color:#991B1B;border:none;border-radius:3px;width:18px;height:18px;cursor:pointer;font-size:11px;padding:0;line-height:1">×</button></div></td>
+      <td class="c-corriente">${fmtGal(g.c)}</td>
+      <td class="c-extra">${fmtGal(g.e)}</td>
+      <td class="c-bio">${fmtGal(g.b)}</td>
+      <td class="c-corriente" style="font-weight:700;background:#FECACA;color:#7F1D1D">${fmtGal(g.c + g.e + g.b)}</td>
+      <td class="c-pos">${fmtMoney(vPOS)}</td>
+      <td class="c-efpos">${fmtMoney(dD.ef_pos)}</td>
+      <td class="c-txns">${fmtNumber(dD.txns)}</td>
+      <td class="c-ticket">${fmtMoney(ticket)}</td>
+      <td class="c-medio" contenteditable="true" data-k="prosegur" data-d="${d}">${fmtMoney(dD.prosegur)}</td>
+      <td class="c-medio">${fmtMoney(cred)}</td>
+      <td class="c-medio" contenteditable="true" data-k="gpcuenta" data-d="${d}">${fmtMoney(dD.gpcuenta)}</td>
+      <td class="c-medio" contenteditable="true" data-k="gpbolsillo" data-d="${d}">${fmtMoney(dD.gpbolsillo)}</td>
+      <td class="c-medio" contenteditable="true" data-k="clientes" data-d="${d}">${fmtMoney(dD.clientes)}</td>
+      <td class="c-medio" contenteditable="true" data-k="rumbo" data-d="${d}">${fmtMoney(dD.rumbo)}</td>
+      <td class="c-medio" contenteditable="true" data-k="miempresa" data-d="${d}">${fmtMoney(dD.miempresa)}</td>
+      <td class="c-medio" contenteditable="true" data-k="appterpel" data-d="${d}">${fmtMoney(dD.appterpel)}</td>
+      <td class="c-medio" contenteditable="true" data-k="bonos" data-d="${d}">${fmtMoney(dD.bonos)}</td>
+      <td class="c-medio" contenteditable="true" data-k="daviplata" data-d="${d}">${fmtMoney(dD.daviplata)}</td>
+      <td class="c-medio" contenteditable="true" data-k="bancolombia" data-d="${d}">${fmtMoney(dD.bancolombia)}</td>
+      <td class="c-medio" contenteditable="true" data-k="nequi" data-d="${d}">${fmtMoney(dD.nequi)}</td>
+      <td class="c-medio" contenteditable="true" data-k="moneda" data-d="${d}">${fmtMoney(dD.moneda)}</td>
+      <td class="c-medio" contenteditable="true" data-k="pruebas" data-d="${d}">${fmtNumber(dD.pruebas)}</td>
+      <td class="c-medio" contenteditable="true" data-k="gastos" data-d="${d}">${fmtMoney(dD.gastos)}</td>
+      <td class="c-total">${fmtMoney(totMedios)}</td>
+      <td class="c-dif ${dif>=0?'pos':'neg'}">${fmtSigned(dif)}</td>
+      <td class="c-info" contenteditable="true" data-k="alcaparros" data-d="${d}">${fmtMoney(dD.alcaparros)}</td>
+      <td class="c-info" contenteditable="true" data-k="autocom" data-d="${d}">${fmtMoney(dD.autocom)}</td>
+      <td class="c-info" contenteditable="true" data-k="sylvia" data-d="${d}">${fmtMoney(dD.sylvia)}</td>
+      <td class="c-info" contenteditable="true" data-k="otro" data-d="${d}">${fmtMoney(dD.otro)}</td>
+      <td class="c-info" contenteditable="true" data-k="recogida" data-d="${d}">${fmtMoney(dD.recogida)}</td>
+      <td class="c-info" contenteditable="true" data-k="gnv" data-d="${d}">${fmtMoney(dD.gnv)}</td>
+      <td class="c-info">${fmtMoney(rumboCart)}</td>
+      <td class="c-info" contenteditable="true" data-k="urearumbo" data-d="${d}">${fmtNumber(dD.urearumbo)}</td>
+      <td class="c-comment" contenteditable="true" data-com="1" data-d="${d}" style="text-align:left;min-width:180px;white-space:normal">${escapeHTML(dD.comentario||'')}</td>
+    </tr>`;
+  }
+  
+  // Fila TOTAL
+  html += `<tr style="background:var(--navy-900);color:white;font-weight:700">
+    <td class="day" style="background:var(--navy-900);color:white">TOTAL</td>
+    <td>${fmtGal(totalesCols[0])}</td><td>${fmtGal(totalesCols[1])}</td><td>${fmtGal(totalesCols[2])}</td>
+    <td style="background:#7F1D1D">${fmtGal(totalesCols[0]+totalesCols[1]+totalesCols[2])}</td>
+    <td>${fmtMoney(totalesCols[3])}</td>
+    <td>${fmtMoney(totalesCols[4])}</td><td>${fmtNumber(totalesCols[5])}</td>
+    <td>${fmtMoney(totalesCols[5]>0?totalesCols[3]/totalesCols[5]:0)}</td>
+    <td>${fmtMoney(totalesCols[7])}</td><td>${fmtMoney(totalesCols[8])}</td>
+    <td>${fmtMoney(totalesCols[9])}</td><td>${fmtMoney(totalesCols[10])}</td>
+    <td>${fmtMoney(totalesCols[11])}</td><td>${fmtMoney(totalesCols[12])}</td>
+    <td>${fmtMoney(totalesCols[13])}</td><td>${fmtMoney(totalesCols[14])}</td>
+    <td>${fmtMoney(totalesCols[15])}</td><td>${fmtMoney(totalesCols[16])}</td>
+    <td>${fmtMoney(totalesCols[17])}</td><td>${fmtMoney(totalesCols[18])}</td>
+    <td>${fmtMoney(totalesCols[19])}</td>
+    <td>${fmtNumber(totalesCols[20])}</td>
+    <td>${fmtMoney(totalesCols[21])}</td>
+    <td>${fmtMoney(totalesCols[22])}</td><td>${fmtSigned(totalesCols[23])}</td>
+    <td>${fmtMoney(totalesCols[24])}</td><td>${fmtMoney(totalesCols[25])}</td>
+    <td>${fmtMoney(totalesCols[26])}</td><td>${fmtMoney(totalesCols[27])}</td>
+    <td>${fmtMoney(totalesCols[28])}</td><td>${fmtMoney(totalesCols[29])}</td>
+    <td>${fmtMoney(totalesCols[12]+totalesCols[13]+sumKey('urearumbo'))}</td>
+    <td>${fmtNumber(sumKey('urearumbo'))}</td>
+    <td></td>
+  </tr>`;
+  
+  html += `</tbody></table></div>`;
+  return html;
+}
+function sumKey(k) {
+  let t=0; const days = daysInMonth(currentMonth);
+  for (let d=1; d<=days; d++) t += DATA[currentMonth].D[d]?.[k] || 0;
+  return t;
+}
+
+function renderVentas() {
+  const days = daysInMonth(currentMonth);
+  let html = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th class="day" rowspan="2">Fecha</th>
+      <th colspan="3" class="h-vino">CORRIENTE</th>
+      <th colspan="3" class="h-wine-light">EXTRA</th>
+      <th colspan="3" class="h-purple">BIOACEM</th>
+      <th rowspan="2" class="h-navy">TOTAL<br>VENTAS POS</th>
+    </tr><tr>
+      <th class="h-vino">Galones</th><th class="h-vino">$/gal</th><th class="h-vino">$ Venta</th>
+      <th class="h-wine-light">Galones</th><th class="h-wine-light">$/gal</th><th class="h-wine-light">$ Venta</th>
+      <th class="h-purple">Galones</th><th class="h-purple">$/gal</th><th class="h-purple">$ Venta</th>
+    </tr></thead><tbody>`;
+  
+  let tC=0,tE=0,tB=0,tVC=0,tVE=0,tVB=0;
+  for (let d=1; d<=days; d++) {
+    const v = DATA[currentMonth].V[d] || {};
+    const c = v.corriente || {gal:0,precio:0,gal2:0,precio2:0};
+    const e = v.extra || {gal:0,precio:0,gal2:0,precio2:0};
+    const b = v.bio || {gal:0,precio:0,gal2:0,precio2:0};
+    const gC = (c.gal||0)+(c.gal2||0), gE = (e.gal||0)+(e.gal2||0), gB = (b.gal||0)+(b.gal2||0);
+    const vC = (c.gal||0)*(c.precio||0) + (c.gal2||0)*(c.precio2||0);
+    const vE = (e.gal||0)*(e.precio||0) + (e.gal2||0)*(e.precio2||0);
+    const vB = (b.gal||0)*(b.precio||0) + (b.gal2||0)*(b.precio2||0);
+    tC+=gC; tE+=gE; tB+=gB; tVC+=vC; tVE+=vE; tVB+=vB;
+    html += `<tr>
+      <td class="day">${d}</td>
+      <td class="c-corriente" contenteditable="true" data-v="corriente.gal" data-d="${d}">${fmtGal(c.gal)}</td>
+      <td class="c-corriente" contenteditable="true" data-v="corriente.precio" data-d="${d}">${fmtMoney(c.precio)}</td>
+      <td class="c-corriente" style="font-weight:700">${fmtMoney(vC)}</td>
+      <td class="c-extra" contenteditable="true" data-v="extra.gal" data-d="${d}">${fmtGal(e.gal)}</td>
+      <td class="c-extra" contenteditable="true" data-v="extra.precio" data-d="${d}">${fmtMoney(e.precio)}</td>
+      <td class="c-extra" style="font-weight:700">${fmtMoney(vE)}</td>
+      <td class="c-bio" contenteditable="true" data-v="bio.gal" data-d="${d}">${fmtGal(b.gal)}</td>
+      <td class="c-bio" contenteditable="true" data-v="bio.precio" data-d="${d}">${fmtMoney(b.precio)}</td>
+      <td class="c-bio" style="font-weight:700">${fmtMoney(vB)}</td>
+      <td class="c-pos">${fmtMoney(vC+vE+vB)}</td>
+    </tr>`;
+  }
+  html += `<tr style="background:var(--navy-900);color:white;font-weight:700">
+    <td class="day" style="background:var(--navy-900);color:white">TOTAL</td>
+    <td>${fmtGal(tC)}</td><td>—</td><td>${fmtMoney(tVC)}</td>
+    <td>${fmtGal(tE)}</td><td>—</td><td>${fmtMoney(tVE)}</td>
+    <td>${fmtGal(tB)}</td><td>—</td><td>${fmtMoney(tVB)}</td>
+    <td>${fmtMoney(tVC+tVE+tVB)}</td>
+  </tr></tbody></table></div>`;
+  return html;
+}
+
+function renderCredi() {
+  const days = daysInMonth(currentMonth);
+  let html = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th class="day">Fecha</th>`;
+  for (let i=1;i<=11;i++) html += `<th class="h-blue">Term. ${i}</th>`;
+  html += `<th class="h-emerald">TOTAL<br>CREDIBANCO</th></tr></thead><tbody>`;
+  
+  let tot = Array(12).fill(0);
+  for (let d=1; d<=days; d++) {
+    const c = DATA[currentMonth].C[d] || {};
+    const dD = DATA[currentMonth].D[d] || {};
+    const mapeo = dD.terminales_map || {};
+    let sum = 0;
+    html += `<tr><td class="day">${d}</td>`;
+    for (let i=1;i<=11;i++) {
+      const v = c[i]?.v || 0;
+      const codigo = mapeo[i] || '';
+      const tooltip = codigo ? ` title="Datafono: ${codigo}"` : '';
+      sum += v; tot[i-1] += v;
+      html += `<td class="c-pos" contenteditable="true" data-cb="${i}" data-d="${d}"${tooltip}>${fmtMoney(v)}</td>`;
+    }
+    tot[11] += sum;
+    html += `<td class="c-total">${fmtMoney(sum)}</td></tr>`;
+  }
+  html += `<tr style="background:var(--navy-900);color:white;font-weight:700">
+    <td class="day" style="background:var(--navy-900);color:white">TOTAL</td>`;
+  for (let i=0;i<11;i++) html += `<td>${fmtMoney(tot[i])}</td>`;
+  html += `<td>${fmtMoney(tot[11])}</td></tr></tbody></table></div>`;
+  return html;
+}
+
+function renderResumen() {
+  const days = daysInMonth(currentMonth);
+  let ventasPOS=0, totMedios=0, galTot={c:0,e:0,b:0}, ventasProducto={c:0,e:0,b:0};
+  let medios = {prosegur:0,credibanco:0,gpcuenta:0,gpbolsillo:0,clientes:0,rumbo:0,miempresa:0,appterpel:0,bonos:0,daviplata:0,bancolombia:0,nequi:0,moneda:0,pruebas:0,gastos:0};
+  let info = {alcaparros:0,autocom:0,sylvia:0,otro:0,recogida:0,gnv:0,rumbocartera:0,urearumbo:0};
+  let txns = 0;
+  let ventasPorDia = [];  // para grafico
+  let galPorDia = [];
+  let diasConDatos = 0;
+  let mejorDia = {dia: 0, venta: 0};
+  let peorDia = {dia: 0, venta: Infinity};
+  
+  for (let d=1; d<=days; d++) {
+    const vDia = ventaPOSDia(d);
+    const mDia = totalMediosDia(d);
+    ventasPOS += vDia;
+    totMedios += mDia;
+    const g = galonesDia(d);
+    galTot.c += g.c; galTot.e += g.e; galTot.b += g.b;
+    const gTotDia = g.c + g.e + g.b;
+    ventasPorDia.push({dia: d, venta: vDia, galones: gTotDia});
+    
+    if (vDia > 0) {
+      diasConDatos++;
+      if (vDia > mejorDia.venta) mejorDia = {dia: d, venta: vDia};
+      if (vDia < peorDia.venta) peorDia = {dia: d, venta: vDia};
+    }
+    
+    const v = DATA[currentMonth].V[d];
+    if (v) {
+      ["corriente","extra","bio"].forEach((k,i)=>{
+        const key = ["c","e","b"][i];
+        const p = v[k]||{};
+        ventasProducto[key] += (p.gal||0)*(p.precio||0) + (p.gal2||0)*(p.precio2||0);
+      });
+    }
+    const dD = DATA[currentMonth].D[d] || {};
+    txns += dD.txns || 0;
+    medios.prosegur += dD.prosegur||0;
+    medios.credibanco += credibancoDia(d);
+    medios.gpcuenta += dD.gpcuenta||0; medios.gpbolsillo += dD.gpbolsillo||0;
+    medios.clientes += dD.clientes||0; medios.rumbo += dD.rumbo||0;
+    medios.miempresa += dD.miempresa||0; medios.appterpel += dD.appterpel||0;
+    medios.bonos += dD.bonos||0; medios.daviplata += dD.daviplata||0;
+    medios.bancolombia += dD.bancolombia||0; medios.nequi += dD.nequi||0;
+    medios.moneda += dD.moneda||0; medios.pruebas += dD.pruebas||0; medios.gastos += dD.gastos||0;
+    info.alcaparros += dD.alcaparros||0; info.autocom += dD.autocom||0;
+    info.sylvia += dD.sylvia||0; info.otro += dD.otro||0;
+    info.recogida += dD.recogida||0; info.gnv += dD.gnv||0;
+    info.urearumbo += dD.urearumbo||0;
+    info.rumbocartera += rumboCarteraDia(d);
+  }
+  if (peorDia.venta === Infinity) peorDia = {dia: 0, venta: 0};
+  const dif = totMedios - ventasPOS;
+  const ticket = txns > 0 ? ventasPOS/txns : 0;
+  const diasDiv = diasConDatos || 1;
+  const totalGal = galTot.c + galTot.e + galTot.b;
+  
+  // Porcentajes de productos
+  const pctCorr = totalGal > 0 ? (galTot.c/totalGal*100).toFixed(1) : 0;
+  const pctExtra = totalGal > 0 ? (galTot.e/totalGal*100).toFixed(1) : 0;
+  const pctBio = totalGal > 0 ? (galTot.b/totalGal*100).toFixed(1) : 0;
+  
+  // SVG: grafico de barras de ventas diarias
+  const maxVenta = Math.max(...ventasPorDia.map(x => x.venta), 1);
+  const barWidth = 100 / days;
+  let barsHTML = '';
+  ventasPorDia.forEach(x => {
+    const h = (x.venta / maxVenta) * 180;
+    const y = 200 - h;
+    const isMax = x.dia === mejorDia.dia && x.venta > 0;
+    const color = isMax ? '#F59E0B' : (x.venta > 0 ? '#2563EB' : '#E5E7EB');
+    barsHTML += `<g>
+      <rect x="${(x.dia-1) * barWidth}%" y="${y}" width="${barWidth * 0.85}%" height="${h}" fill="${color}" rx="2">
+        <title>Dia ${x.dia}: ${fmtMoney(x.venta)}</title>
+      </rect>
+      ${x.dia % 5 === 0 || x.dia === 1 || x.dia === days ? `<text x="${(x.dia-0.5) * barWidth}%" y="215" font-size="10" fill="#6B7280" text-anchor="middle">${x.dia}</text>` : ''}
+    </g>`;
+  });
+  
+  // Donut de composicion de productos
+  const total = galTot.c + galTot.e + galTot.b;
+  let donutHTML = '';
+  if (total > 0) {
+    const r = 70, cx = 100, cy = 100;
+    let acum = 0;
+    const segmentos = [
+      {val: galTot.c, color: '#7F1D1D', label: 'Corriente'},
+      {val: galTot.e, color: '#B91C1C', label: 'Extra'},
+      {val: galTot.b, color: '#6B21A8', label: 'Bioacem'}
+    ];
+    segmentos.forEach(s => {
+      if (s.val <= 0) return;
+      const frac = s.val / total;
+      const a1 = acum * 2 * Math.PI - Math.PI/2;
+      const a2 = (acum + frac) * 2 * Math.PI - Math.PI/2;
+      const x1 = cx + r * Math.cos(a1);
+      const y1 = cy + r * Math.sin(a1);
+      const x2 = cx + r * Math.cos(a2);
+      const y2 = cy + r * Math.sin(a2);
+      const large = frac > 0.5 ? 1 : 0;
+      donutHTML += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z" fill="${s.color}"><title>${s.label}: ${fmtGal(s.val)} gal</title></path>`;
+      acum += frac;
+    });
+    // agujero del donut
+    donutHTML += `<circle cx="${cx}" cy="${cy}" r="40" fill="white"/>`;
+    donutHTML += `<text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="11" fill="#6B7280">TOTAL</text>`;
+    donutHTML += `<text x="${cx}" y="${cy + 12}" text-anchor="middle" font-size="14" font-weight="700" fill="#0F172A">${fmtGal(total).split(',')[0]}</text>`;
+  }
+  
+  // Indicador de diferencia
+  const difColor = Math.abs(dif) < 10000 ? '#059669' : (dif > 0 ? '#059669' : '#DC2626');
+  const difSigno = dif >= 0 ? '+' : '';
+  
+  return `<div class="dashboard">
+    <style>
+      .dashboard { padding: 24px; background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%); min-height: 100vh; }
+      .dash-title { font-size: 22px; font-weight: 800; color: #0F172A; margin-bottom: 4px; letter-spacing: -0.02em; }
+      .dash-sub { font-size: 13px; color: #64748B; margin-bottom: 24px; }
+      .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+      .kpi { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 6px rgba(15,23,42,0.06); border: 1px solid #E2E8F0; position: relative; overflow: hidden; }
+      .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+      .kpi-v::before { background: linear-gradient(90deg, #1E3A8A, #3B82F6); }
+      .kpi-m::before { background: linear-gradient(90deg, #065F46, #10B981); }
+      .kpi-d::before { background: linear-gradient(90deg, #92400E, #F59E0B); }
+      .kpi-g::before { background: linear-gradient(90deg, #6B21A8, #A855F7); }
+      .kpi-lbl { font-size: 11px; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 6px; }
+      .kpi-val { font-size: 24px; font-weight: 800; color: #0F172A; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+      .kpi-sub { font-size: 11px; color: #94A3B8; margin-top: 4px; }
+      
+      .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+      .panel { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 6px rgba(15,23,42,0.06); border: 1px solid #E2E8F0; }
+      .panel-title { font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
+      .chart { width: 100%; height: 230px; }
+      
+      .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+      .prod-card { background: white; border-radius: 12px; padding: 18px; border: 1px solid #E2E8F0; position: relative; overflow: hidden; }
+      .prod-card.corr { border-left: 4px solid #7F1D1D; }
+      .prod-card.extra { border-left: 4px solid #B91C1C; }
+      .prod-card.bio { border-left: 4px solid #6B21A8; }
+      .prod-lbl { font-size: 12px; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+      .prod-gal { font-size: 22px; font-weight: 800; color: #0F172A; margin-top: 6px; font-variant-numeric: tabular-nums; }
+      .prod-venta { font-size: 13px; color: #475569; margin-top: 2px; }
+      .prod-pct { position: absolute; top: 16px; right: 16px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 10px; background: #F1F5F9; color: #475569; }
+      .prod-bar { height: 4px; background: #F1F5F9; border-radius: 2px; margin-top: 10px; overflow: hidden; }
+      .prod-bar-fill { height: 100%; transition: width 0.3s; }
+      
+      .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .detail-box { background: white; border-radius: 12px; padding: 18px; border: 1px solid #E2E8F0; box-shadow: 0 2px 6px rgba(15,23,42,0.06); }
+      .detail-box table { width: 100%; font-size: 13px; }
+      .detail-box td { padding: 8px 4px; border-bottom: 1px solid #F1F5F9; }
+      .detail-box td:last-child { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: #0F172A; }
+      .detail-box tr:last-child td { border-bottom: none; }
+      .detail-box tr.total { background: linear-gradient(90deg, #ECFDF5, #D1FAE5); }
+      .detail-box tr.total td { font-weight: 800; color: #065F46; font-size: 14px; padding: 12px 4px; border-bottom: none; }
+      .detail-box tr.sub td { padding-left: 16px; color: #64748B; font-size: 12px; }
+      
+      .mini-highlight { display: inline-flex; align-items: center; gap: 6px; background: #FEF3C7; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #92400E; margin-top: 8px; }
+      .dif-badge { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; color: white; }
+      
+      @media (max-width: 900px) {
+        .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        .grid-2 { grid-template-columns: 1fr; }
+        .grid-3 { grid-template-columns: 1fr; }
+        .detail-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+    
+    <div class="dash-title">Dashboard de Ventas</div>
+    <div class="dash-sub">EDS Av. Boyacá · Terpel — ${currentMonth.split('-')[1]}/${currentMonth.split('-')[0]} · ${diasConDatos} días con datos</div>
+    
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi kpi-v">
+        <div class="kpi-lbl">Ventas POS</div>
+        <div class="kpi-val">${fmtMoney(ventasPOS)}</div>
+        <div class="kpi-sub">Prom. diario: ${fmtMoney(ventasPOS/diasDiv)}</div>
+      </div>
+      <div class="kpi kpi-m">
+        <div class="kpi-lbl">Total Medios</div>
+        <div class="kpi-val">${fmtMoney(totMedios)}</div>
+        <div class="kpi-sub">${fmtNumber(txns)} transacciones</div>
+      </div>
+      <div class="kpi kpi-d">
+        <div class="kpi-lbl">Diferencia</div>
+        <div class="kpi-val" style="color: ${difColor}">${difSigno}${fmtMoney(dif)}</div>
+        <div class="kpi-sub">Ticket prom.: ${fmtMoney(ticket)}</div>
+      </div>
+      <div class="kpi kpi-g">
+        <div class="kpi-lbl">Galones Totales</div>
+        <div class="kpi-val">${fmtGal(totalGal)}</div>
+        <div class="kpi-sub">${fmtGal(totalGal/diasDiv)} prom. diario</div>
+      </div>
+    </div>
+    
+    <!-- Grafico + Donut -->
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Ventas por Día</div>
+        <svg class="chart" viewBox="0 0 1000 230" preserveAspectRatio="none">
+          <line x1="0" y1="200" x2="1000" y2="200" stroke="#E2E8F0" stroke-width="1"/>
+          ${barsHTML}
+        </svg>
+        ${mejorDia.dia > 0 ? `<div class="mini-highlight">⭐ Mejor día: ${mejorDia.dia} con ${fmtMoney(mejorDia.venta)}</div>` : ''}
+      </div>
+      <div class="panel">
+        <div class="panel-title">Composición de Galones</div>
+        <svg class="chart" viewBox="0 0 200 200" style="max-height: 200px">
+          ${donutHTML}
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span><span style="display:inline-block;width:10px;height:10px;background:#7F1D1D;border-radius:2px;margin-right:6px"></span>Corriente</span><span style="font-weight:700">${pctCorr}%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span><span style="display:inline-block;width:10px;height:10px;background:#B91C1C;border-radius:2px;margin-right:6px"></span>Extra</span><span style="font-weight:700">${pctExtra}%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span><span style="display:inline-block;width:10px;height:10px;background:#6B21A8;border-radius:2px;margin-right:6px"></span>Bioacem</span><span style="font-weight:700">${pctBio}%</span></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Cards de productos -->
+    <div class="grid-3">
+      <div class="prod-card corr">
+        <div class="prod-pct">${pctCorr}%</div>
+        <div class="prod-lbl">⛽ Corriente</div>
+        <div class="prod-gal">${fmtGal(galTot.c)}</div>
+        <div class="prod-venta">Venta: ${fmtMoney(ventasProducto.c)}</div>
+        <div class="prod-bar"><div class="prod-bar-fill" style="width:${pctCorr}%;background:#7F1D1D"></div></div>
+      </div>
+      <div class="prod-card extra">
+        <div class="prod-pct">${pctExtra}%</div>
+        <div class="prod-lbl">⛽ Extra</div>
+        <div class="prod-gal">${fmtGal(galTot.e)}</div>
+        <div class="prod-venta">Venta: ${fmtMoney(ventasProducto.e)}</div>
+        <div class="prod-bar"><div class="prod-bar-fill" style="width:${pctExtra}%;background:#B91C1C"></div></div>
+      </div>
+      <div class="prod-card bio">
+        <div class="prod-pct">${pctBio}%</div>
+        <div class="prod-lbl">⛽ Bioacem</div>
+        <div class="prod-gal">${fmtGal(galTot.b)}</div>
+        <div class="prod-venta">Venta: ${fmtMoney(ventasProducto.b)}</div>
+        <div class="prod-bar"><div class="prod-bar-fill" style="width:${pctBio}%;background:#6B21A8"></div></div>
+      </div>
+    </div>
+    
+    <!-- Detalle Medios + Informativos -->
+    <div class="detail-grid">
+      <div class="detail-box">
+        <div class="panel-title" style="color:#991B1B;margin-bottom:8px">💳 Medios de Pago</div>
+        <table>
+          <tr><td>Prosegur (Efectivo)</td><td>${fmtMoney(medios.prosegur)}</td></tr>
+          <tr><td>Credibanco</td><td>${fmtMoney(medios.credibanco)}</td></tr>
+          <tr><td>GoPass Cuenta</td><td>${fmtMoney(medios.gpcuenta)}</td></tr>
+          <tr><td>GoPass Bolsillo</td><td>${fmtMoney(medios.gpbolsillo)}</td></tr>
+          <tr><td>Clientes EDS</td><td>${fmtMoney(medios.clientes)}</td></tr>
+          <tr><td>Rumbo / Crédito</td><td>${fmtMoney(medios.rumbo)}</td></tr>
+          <tr><td>Mi Empresa</td><td>${fmtMoney(medios.miempresa)}</td></tr>
+          <tr><td>App Terpel</td><td>${fmtMoney(medios.appterpel)}</td></tr>
+          <tr><td>Bonos</td><td>${fmtMoney(medios.bonos)}</td></tr>
+          <tr><td>Daviplata</td><td>${fmtMoney(medios.daviplata)}</td></tr>
+          <tr><td>Bancolombia</td><td>${fmtMoney(medios.bancolombia)}</td></tr>
+          <tr><td>Nequi</td><td>${fmtMoney(medios.nequi)}</td></tr>
+          <tr><td>Moneda</td><td>${fmtMoney(medios.moneda)}</td></tr>
+          <tr><td>Pruebas</td><td>${fmtNumber(medios.pruebas)}</td></tr>
+          <tr><td>Gastos</td><td>${fmtMoney(medios.gastos)}</td></tr>
+          <tr class="total"><td>TOTAL MEDIOS</td><td>${fmtMoney(totMedios)}</td></tr>
+        </table>
+      </div>
+      <div class="detail-box">
+        <div class="panel-title" style="color:#6B21A8;margin-bottom:8px">📊 Informativos</div>
+        <table>
+          <tr><td>Cred. Alcaparros</td><td>${fmtMoney(info.alcaparros)}</td></tr>
+          <tr><td>Cred. Autocom</td><td>${fmtMoney(info.autocom)}</td></tr>
+          <tr><td>Cred. Sylvia</td><td>${fmtMoney(info.sylvia)}</td></tr>
+          <tr><td>Cred. Otro</td><td>${fmtMoney(info.otro)}</td></tr>
+          <tr><td>Recogida Líquidos</td><td>${fmtMoney(info.recogida)}</td></tr>
+          <tr><td>GNV</td><td>${fmtMoney(info.gnv)}</td></tr>
+          <tr><td>Rumbo Cartera</td><td>${fmtMoney(info.rumbocartera)}</td></tr>
+          <tr><td>Urea Crédito</td><td>${fmtNumber(info.urearumbo)}</td></tr>
+        </table>
+        <div style="margin-top:16px;padding:14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0">
+          <div style="font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:0.05em;font-weight:700;margin-bottom:8px">Promedios del Mes</div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span>Venta diaria</span><span style="font-weight:700">${fmtMoney(ventasPOS/diasDiv)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span>Galones diarios</span><span style="font-weight:700">${fmtGal(totalGal/diasDiv)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span>Txns diarias</span><span style="font-weight:700">${fmtNumber(txns/diasDiv)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span>Ticket promedio</span><span style="font-weight:700">${fmtMoney(ticket)}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// EDICIÓN DE CELDAS (guardado automático)
+// ============================================================
+function attachCellListeners() {
+  document.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
+    cell.addEventListener('focus', () => {
+      if (cell.dataset.com) {
+        // Comentarios: solo seleccionar el texto
+        setTimeout(() => document.execCommand('selectAll', false, null), 10);
+        return;
+      }
+      // Limpiar formato al entrar
+      const raw = cell.textContent.replace(/[^\d\-.,]/g,'').replace(/\./g,'').replace(',','.');
+      cell.textContent = raw === "0" || raw === "" ? "" : raw;
+      setTimeout(() => document.execCommand('selectAll', false, null), 10);
+    });
+    cell.addEventListener('blur', () => {
+      const d = parseInt(cell.dataset.d);
+      if (cell.dataset.com) {
+        // Comentario: texto libre, no parsear numero
+        ensureMonth(currentMonth);
+        if (!DATA[currentMonth].D[d]) DATA[currentMonth].D[d] = {};
+        DATA[currentMonth].D[d].comentario = cell.textContent.trim();
+        saveData();
+        return;
+      }
+      const txt = cell.textContent.trim();
+      const val = parseNum(txt);
+      if (cell.dataset.k) {
+        // Medio de pago / informativo
+        ensureMonth(currentMonth);
+        if (!DATA[currentMonth].D[d]) DATA[currentMonth].D[d] = {};
+        if (txt === "" || val === 0) {
+          delete DATA[currentMonth].D[d][cell.dataset.k];
+        } else {
+          DATA[currentMonth].D[d][cell.dataset.k] = val;
+        }
+      } else if (cell.dataset.v) {
+        // Ventas (corriente/extra/bio . gal/precio)
+        const [prod, campo] = cell.dataset.v.split(".");
+        ensureMonth(currentMonth);
+        if (!DATA[currentMonth].V[d]) DATA[currentMonth].V[d] = {};
+        if (!DATA[currentMonth].V[d][prod]) DATA[currentMonth].V[d][prod] = {gal:0,precio:0,gal2:0,precio2:0};
+        DATA[currentMonth].V[d][prod][campo] = val;
+      } else if (cell.dataset.cb) {
+        // Credibanco terminal
+        const i = cell.dataset.cb;
+        ensureMonth(currentMonth);
+        if (!DATA[currentMonth].C[d]) DATA[currentMonth].C[d] = {};
+        DATA[currentMonth].C[d][i] = {t: 0, v: val};
+      }
+      saveData();
+      renderTab();
+    });
+    cell.addEventListener('keydown', e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        // Buscar la siguiente celda editable de la MISMA FILA (mismo data-d)
+        const currentD = cell.dataset.d;
+        const todasEnFila = Array.from(document.querySelectorAll(
+          `td[contenteditable="true"][data-d="${currentD}"]`
+        ));
+        const idx = todasEnFila.indexOf(cell);
+        cell.blur();
+        if (idx >= 0 && idx < todasEnFila.length - 1) {
+          setTimeout(() => {
+            // Re-buscar porque renderTab redibuja
+            const nuevaFila = Array.from(document.querySelectorAll(
+              `td[contenteditable="true"][data-d="${currentD}"]`
+            ));
+            if (nuevaFila[idx + 1]) nuevaFila[idx + 1].focus();
+          }, 50);
+        }
+      }
+      if (e.key === "Escape") { cell.blur(); }
+    });
+  });
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, kind="info") {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.className = "toast " + kind;
+  setTimeout(()=>t.classList.add("show"), 10);
+  setTimeout(()=>t.classList.remove("show"), 3500);
+}
+
+// ============================================================
+// DESCARGAR EXCEL
+// ============================================================
+function downloadExcel() {
+  const wb = XLSX.utils.book_new();
+  const days = daysInMonth(currentMonth);
+  const [y, mm] = currentMonth.split("-").map(Number);
+  const mName = MONTH_NAMES[mm-1];
+  
+  // Hoja 1: Cuadro Diario
+  const h1 = [
+    ["Fecha","Gal Corriente","Gal Extra","Gal Bioacem","TOTAL GALONES","TOTAL VENTAS POS","Ef. POS","Txns","Ticket Prom",
+     "Prosegur","Credibanco","GoPass Cuenta","GoPass Bolsillo","Clientes EDS","Rumbo/Crédito","Mi Empresa",
+     "App Terpel","Bonos","Daviplata","Bancolombia","Nequi","Moneda","Pruebas","Gastos","TOTAL MEDIOS","DIF.",
+     "Cred. Alcaparros","Cred. Autocom","Cred. Sylvia","Cred. Otro","Recogida Líquidos","GNV","Rumbo Cartera","Urea Crédito","Comentarios"]
+  ];
+  for (let d=1; d<=days; d++) {
+    const g = galonesDia(d); const vPOS = ventaPOSDia(d);
+    const dD = DATA[currentMonth].D[d]||{}; const cred = credibancoDia(d);
+    const totMedios = totalMediosDia(d); const dif = totMedios-vPOS;
+    const ticket = (dD.txns||0)>0 ? vPOS/dD.txns : 0;
+    h1.push([d+" "+mName, g.c, g.e, g.b, g.c + g.e + g.b, vPOS, dD.ef_pos||0, dD.txns||0, ticket,
+      dD.prosegur||0, cred, dD.gpcuenta||0, dD.gpbolsillo||0, dD.clientes||0, dD.rumbo||0, dD.miempresa||0,
+      dD.appterpel||0, dD.bonos||0, dD.daviplata||0, dD.bancolombia||0, dD.nequi||0, dD.moneda||0, dD.pruebas||0, dD.gastos||0,
+      totMedios, dif,
+      dD.alcaparros||0, dD.autocom||0, dD.sylvia||0, dD.otro||0, dD.recogida||0, dD.gnv||0,
+      rumboCarteraDia(d), dD.urearumbo||0, dD.comentario||'']);
+  }
+  const ws1 = XLSX.utils.aoa_to_sheet(h1);
+  XLSX.utils.book_append_sheet(wb, ws1, "Cuadro Diario");
+  
+  // Hoja 2: Ventas Detalle
+  const h2 = [["Fecha","Gal Corriente","Precio Corriente","Venta Corriente","Gal Extra","Precio Extra","Venta Extra","Gal Bioacem","Precio Bioacem","Venta Bioacem","TOTAL VENTAS POS"]];
+  for (let d=1; d<=days; d++) {
+    const v = DATA[currentMonth].V[d]||{};
+    const c = v.corriente||{gal:0,precio:0,gal2:0,precio2:0};
+    const e = v.extra||{gal:0,precio:0,gal2:0,precio2:0};
+    const b = v.bio||{gal:0,precio:0,gal2:0,precio2:0};
+    const vC = (c.gal||0)*(c.precio||0)+(c.gal2||0)*(c.precio2||0);
+    const vE = (e.gal||0)*(e.precio||0)+(e.gal2||0)*(e.precio2||0);
+    const vB = (b.gal||0)*(b.precio||0)+(b.gal2||0)*(b.precio2||0);
+    h2.push([d+" "+mName, (c.gal||0)+(c.gal2||0), c.precio||0, vC, (e.gal||0)+(e.gal2||0), e.precio||0, vE, (b.gal||0)+(b.gal2||0), b.precio||0, vB, vC+vE+vB]);
+  }
+  const ws2 = XLSX.utils.aoa_to_sheet(h2);
+  XLSX.utils.book_append_sheet(wb, ws2, "Ventas Detalle");
+  
+  // Hoja 3: Credibanco
+  const h3 = [["Fecha","Term 1","Term 2","Term 3","Term 4","Term 5","Term 6","Term 7","Term 8","Term 9","Term 10","Term 11","TOTAL"]];
+  for (let d=1; d<=days; d++) {
+    const c = DATA[currentMonth].C[d]||{};
+    const row = [d+" "+mName];
+    let sum = 0;
+    for (let i=1;i<=11;i++) { const v = c[i]?.v||0; row.push(v); sum+=v; }
+    row.push(sum);
+    h3.push(row);
+  }
+  const ws3 = XLSX.utils.aoa_to_sheet(h3);
+  XLSX.utils.book_append_sheet(wb, ws3, "Credibanco");
+  
+  // Hoja 4: Resumen
+  let ventasPOS=0, totMedios=0, galTot={c:0,e:0,b:0}, txns=0;
+  for (let d=1; d<=days; d++) {
+    ventasPOS += ventaPOSDia(d); totMedios += totalMediosDia(d);
+    const g = galonesDia(d); galTot.c+=g.c; galTot.e+=g.e; galTot.b+=g.b;
+    txns += DATA[currentMonth].D[d]?.txns || 0;
+  }
+  const ticket = txns>0 ? ventasPOS/txns : 0;
+  const h4 = [
+    ["RESUMEN MENSUAL — EDS Av. Boyacá — "+mName+" "+y],[],
+    ["GALONES VENDIDOS",""],
+    ["Corriente", galTot.c],["Extra", galTot.e],["Bioacem", galTot.b],
+    ["TOTAL GALONES", galTot.c+galTot.e+galTot.b],[],
+    ["VENTAS",""],["Total Ventas POS", ventasPOS],["Total Medios", totMedios],["Diferencia", totMedios-ventasPOS],[],
+    ["INDICADORES",""],["Total Transacciones", txns],["Ticket Promedio", ticket]
+  ];
+  const ws4 = XLSX.utils.aoa_to_sheet(h4);
+  XLSX.utils.book_append_sheet(wb, ws4, "Resumen Mensual");
+  
+  const fname = `Control_Ventas_EDS_AvBoyaca_${mName}_${y}.xlsx`;
+  XLSX.writeFile(wb, fname);
+  showToast(`Descargando ${fname}`, "success");
+}
+
+// ============================================================
+// BACKUP / RESTORE / MODALES
+// ============================================================
+function downloadBackup() {
+  const json = JSON.stringify(DATA, null, 2);
+  const blob = new Blob([json], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const fname = `Backup_EDS_${currentMonth}_${new Date().toISOString().slice(0,10)}.json`;
+  a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Respaldo descargado: ${fname}`, "success");
+}
+
+function openPasteModal(kind) {
+  pasteKind = kind;
+  document.getElementById("pasteTitle").textContent = kind === "pos" 
+    ? "Pegar datos de POS Terpel" 
+    : "Pegar datos de Credibanco";
+  document.getElementById("pasteHelp").innerHTML = kind === "pos"
+    ? "Pegue aquí el contenido de su reporte POS Terpel (tabla con columnas como Día, Producto, Galones, Precio, Venta). También acepta formato JSON del respaldo."
+    : "Pegue aquí el reporte Credibanco (tabla con columnas como Día, Terminal, Valor). También acepta formato JSON.";
+  document.getElementById("pasteArea").value = "";
+  document.getElementById("pasteModal").classList.add("show");
+  setTimeout(()=>document.getElementById("pasteArea").focus(), 100);
+}
+function closePasteModal() { document.getElementById("pasteModal").classList.remove("show"); }
+
+document.getElementById("pasteApply").onclick = function() {
+  const text = document.getElementById("pasteArea").value.trim();
+  if (!text) { showToast("Pegue algo antes de aplicar", "error"); return; }
+  try {
+    if (text.startsWith("{") && text.includes('"V"') || text.includes('"C"')) {
+      // Formato JSON respaldo
+      const parsed = JSON.parse(text);
+      if (pasteKind === "pos" && parsed[currentMonth]?.V) {
+        DATA[currentMonth].V = parsed[currentMonth].V;
+        if (parsed[currentMonth].D) DATA[currentMonth].D = parsed[currentMonth].D;
+        showToast("Datos POS cargados desde JSON", "success");
+      } else if (pasteKind === "credi" && parsed[currentMonth]?.C) {
+        DATA[currentMonth].C = parsed[currentMonth].C;
+        showToast("Datos Credibanco cargados desde JSON", "success");
+      } else {
+        showToast("JSON no contiene datos del mes " + currentMonth, "error");
+        return;
+      }
+    } else {
+      // Parser de tabla (TSV/CSV)
+      const res = parseTabular(text, pasteKind);
+      if (res.count === 0) {
+        showToast("No se detectaron filas válidas. Verifique el formato.", "error");
+        return;
+      }
+      showToast(`Aplicados ${res.count} registros`, "success");
+    }
+    saveData();
+    renderTab();
+    closePasteModal();
+  } catch (err) {
+    showToast("Error al procesar: " + err.message, "error");
+  }
+};
+
+
+// ============================================================
+// CARGAR ARCHIVO POS TERPEL (Excel con detalle transaccional)
+// Lee combustibles + medios de pago + transacciones en una sola pasada
+// ============================================================
+function handlePOSFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type: 'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header: 1, defval: null});
+      
+      const header = rows[0] || [];
+      const findCol = (names) => {
+        for (let i = 0; i < header.length; i++) {
+          const h = String(header[i] || '').toUpperCase().trim();
+          for (const n of names) {
+            if (h === n.toUpperCase() || h.includes(n.toUpperCase())) return i;
+          }
+        }
+        return -1;
+      };
+      
+      const colFecha = findCol(['FECHA']);
+      const colProducto = findCol(['PRODUCTO']);
+      const colPrecio = findCol(['PRECIO']);
+      const colCantidad = findCol(['CANTIDAD']);
+      const colValor = findCol(['VALOR VENTA', 'VALOR']);
+      const colMedioPago = findCol(['MEDIO PAGO', 'MEDIO DE PAGO']);
+      
+      if (colFecha < 0 || colProducto < 0 || colCantidad < 0) {
+        showToast("No se reconocen las columnas del archivo. Revise el formato.", "error");
+        return;
+      }
+      
+      // Estructuras
+      const ventas = {};       // dia -> tipo -> precio -> {gal, valor}
+      const txnsPorDia = {};   // dia -> numero de transacciones
+      const efPosPorDia = {};  // dia -> suma total del dia (Ef. POS ref)
+      const mediosPorDia = {}; // dia -> { prosegur, rumbo, miempresa, appterpel, bonos, gpbolsillo, pruebas }
+      let filasInvalidas = 0;
+      
+      // Mapeo de medios de pago del archivo a campos del cuadro
+      function clasificarMedio(medioRaw) {
+        const m = String(medioRaw || '').toUpperCase().trim();
+        if (!m) return null;
+        // Rumbo/Credito = CREDITO + CONSUMO PROPIO (credito propio EDS)
+        // Mi Empresa va por aparte
+        if (m === 'MI EMPRESA' || m.includes('MI EMPRESA')) return 'miempresa';
+        if (m.includes('CREDITO') || m.includes('CRÉDITO')) return 'rumbo';
+        if (m.includes('CONSUMO PROPIO')) return 'rumbo';
+        if (m.includes('APP TERPEL') || m === 'APP') return 'appterpel';
+        return null;
+      }
+      
+      // Localizar columnas adicionales para detectar NC (Nota Credito)
+      const colTipoFactura = findCol(['TIPO FACTURA', 'TIPO_FACTURA']);
+      const colConsecutivo = findCol(['CONSECUTIVO', 'CONSECUTIVO DE FACTURA']);
+      let nCsIgnoradas = 0;
+      
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || !row[colFecha]) continue;
+        
+        // === FILTRAR NC (Notas Credito) ===
+        // Regla 1: tipo factura contiene NC
+        if (colTipoFactura >= 0) {
+          const tf = String(row[colTipoFactura] || '').toUpperCase().trim();
+          if (tf === 'NC' || tf.includes('NOTA CREDITO') || tf.includes('NOTA CRÉDITO')) {
+            nCsIgnoradas++;
+            continue;
+          }
+        }
+        // Regla 2: consecutivo empieza con NC
+        if (colConsecutivo >= 0) {
+          const cn = String(row[colConsecutivo] || '').toUpperCase().trim();
+          if (cn.startsWith('NC') || cn.startsWith('NC-') || cn.startsWith('NC ')) {
+            nCsIgnoradas++;
+            continue;
+          }
+        }
+        // Regla 3: cantidad o valor negativo (devolucion)
+        const _cant = parseFloat(row[colCantidad]) || 0;
+        const _val = parseFloat(row[colValor]) || 0;
+        if (_cant < 0 || _val < 0) {
+          nCsIgnoradas++;
+          continue;
+        }
+        
+        const fechaStr = String(row[colFecha]);
+        let dia = null;
+        const m1 = fechaStr.match(/^\d{4}[/\-](\d{1,2})[/\-](\d{1,2})/);
+        const m2 = fechaStr.match(/^(\d{1,2})[/\-](\d{1,2})[/\-]\d{4}/);
+        if (m1) dia = parseInt(m1[2]);
+        else if (m2) dia = parseInt(m2[1]);
+        if (!dia || dia < 1 || dia > 31) { filasInvalidas++; continue; }
+        
+        const producto = String(row[colProducto] || '').toUpperCase();
+        const precio = parseFloat(row[colPrecio]) || 0;
+        const cantidad = parseFloat(row[colCantidad]) || 0;
+        const valor = parseFloat(row[colValor]) || 0;
+        
+        if (!producto || cantidad <= 0) continue;
+        
+        let tipo = null;
+        if (producto.includes('CORRIENTE')) tipo = 'corriente';
+        else if (producto.includes('EXTRA')) tipo = 'extra';
+        else if (producto.includes('BIO') || producto.includes('ACPM') || producto.includes('DIESEL')) tipo = 'bio';
+        else continue;
+        
+        // Acumular ventas
+        if (!ventas[dia]) ventas[dia] = {};
+        if (!ventas[dia][tipo]) ventas[dia][tipo] = {};
+        if (!ventas[dia][tipo][precio]) ventas[dia][tipo][precio] = {gal: 0, valor: 0};
+        ventas[dia][tipo][precio].gal += cantidad;
+        ventas[dia][tipo][precio].valor += valor;
+        
+        // Contar txns y Ef. POS
+        txnsPorDia[dia] = (txnsPorDia[dia] || 0) + 1;
+        efPosPorDia[dia] = (efPosPorDia[dia] || 0) + valor;
+        
+        // Medio de pago
+        if (colMedioPago >= 0) {
+          const medioCampo = clasificarMedio(row[colMedioPago]);
+          if (medioCampo) {
+            if (!mediosPorDia[dia]) mediosPorDia[dia] = {};
+            mediosPorDia[dia][medioCampo] = (mediosPorDia[dia][medioCampo] || 0) + valor;
+          }
+        }
+      }
+      
+      // Volcar a DATA
+      ensureMonth(currentMonth);
+      let diasProcesados = 0;
+      
+      // Campos que provienen del POS (los que se reemplazan, no se suman)
+      const camposDelPOS = ['rumbo', 'miempresa', 'appterpel'];
+      
+      for (const dia in ventas) {
+        // BORRAR completamente las ventas de combustibles del dia (carga no acumulativa)
+        DATA[currentMonth].V[dia] = {};
+        
+        for (const tipo of ['corriente', 'extra', 'bio']) {
+          const precios = ventas[dia][tipo] || {};
+          const ord = Object.keys(precios).map(Number).sort((a,b) => b-a);
+          const p1 = ord[0] || 0;
+          const p2 = ord[1] || 0;
+          DATA[currentMonth].V[dia][tipo] = {
+            gal: ord.length > 0 ? precios[p1].gal : 0,
+            precio: p1,
+            gal2: ord.length > 1 ? precios[p2].gal : 0,
+            precio2: p2
+          };
+        }
+        
+        if (!DATA[currentMonth].D[dia]) DATA[currentMonth].D[dia] = {};
+        // RESETEAR los campos del POS antes de escribirlos (carga no acumulativa)
+        DATA[currentMonth].D[dia].txns = 0;
+        DATA[currentMonth].D[dia].ef_pos = 0;
+        camposDelPOS.forEach(c => { DATA[currentMonth].D[dia][c] = 0; });
+        
+        // Escribir nuevos valores
+        DATA[currentMonth].D[dia].txns = txnsPorDia[dia] || 0;
+        DATA[currentMonth].D[dia].ef_pos = Math.round(efPosPorDia[dia] || 0);
+        
+        // Medios de pago: SUMAR rumbo (porque agrupa CREDITO + MI EMPRESA)
+        if (mediosPorDia[dia]) {
+          for (const campo in mediosPorDia[dia]) {
+            // Rumbo se suma porque agrupa credito + mi empresa
+            DATA[currentMonth].D[dia][campo] = (DATA[currentMonth].D[dia][campo] || 0) + Math.round(mediosPorDia[dia][campo]);
+          }
+        }
+        
+        diasProcesados++;
+      }
+      
+      saveData();
+      renderTab();
+      
+      let msg = "Cargado(s) " + diasProcesados + " dia(s) del POS con combustibles y medios de pago";
+      if (nCsIgnoradas > 0) msg += " (" + nCsIgnoradas + " NC excluidas)";
+      if (filasInvalidas > 0) msg += " (" + filasInvalidas + " filas ignoradas por fecha invalida)";
+      showToast(msg, "success");
+      
+    } catch (err) {
+      console.error(err);
+      showToast("Error al leer el archivo: " + err.message, "error");
+    }
+    event.target.value = '';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ============================================================
+// CARGAR ARCHIVO CREDIBANCO (Excel)
+// Lee columna B (fecha), F (terminal), M (estado), S (valor)
+// Solo suma transacciones con estado "Aprobada"
+// Pregunta al usuario que dia quiere cargar para evitar colas
+// ============================================================
+function handleCrediFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type: 'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header: 1, defval: null});
+      
+      // Primera pasada: detectar dias y terminales presentes
+      const diasPresentes = {};  // dia -> count
+      const terminalesVistas = {};  // dia -> Set de codigos terminal
+      
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || !row[1]) continue;
+        const estado = String(row[12] || '').trim();
+        if (estado !== 'Aprobada') continue;
+        
+        const fechaStr = String(row[1]);
+        let dia = null;
+        const m1 = fechaStr.match(/^(\d{1,2})[/\-]/);
+        if (m1) dia = parseInt(m1[1]);
+        if (!dia || dia < 1 || dia > 31) continue;
+        
+        diasPresentes[dia] = (diasPresentes[dia] || 0) + 1;
+        if (!terminalesVistas[dia]) terminalesVistas[dia] = new Set();
+        if (row[5]) terminalesVistas[dia].add(String(row[5]).trim());
+      }
+      
+      const diasArr = Object.keys(diasPresentes).map(Number).sort((a,b) => a-b);
+      
+      if (diasArr.length === 0) {
+        showToast("No se encontraron transacciones Aprobadas en el archivo", "error");
+        event.target.value = '';
+        return;
+      }
+      
+      // Cargar TODOS los dias presentes en el archivo (carga multi-dia automatica)
+      ensureMonth(currentMonth);
+      
+      // Por cada dia, recolectar los valores por terminal
+      const porDiaTerminal = {};  // dia -> { codigoTerm -> valor }
+      
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || !row[1]) continue;
+        const estado = String(row[12] || '').trim();
+        if (estado !== 'Aprobada') continue;
+        
+        const fechaStr = String(row[1]);
+        const m1 = fechaStr.match(/^(\d{1,2})[/\-]/);
+        if (!m1) continue;
+        const dia = parseInt(m1[1]);
+        if (!dia || dia < 1 || dia > 31) continue;
+        
+        const codigoTerm = String(row[5] || '').trim();
+        const valor = parseFloat(row[18]) || 0;
+        if (valor <= 0) continue;
+        
+        if (!porDiaTerminal[dia]) porDiaTerminal[dia] = {};
+        if (!porDiaTerminal[dia][codigoTerm]) porDiaTerminal[dia][codigoTerm] = 0;
+        porDiaTerminal[dia][codigoTerm] += valor;
+      }
+      
+      // Procesar cada dia: BORRAR datos previos y escribir nuevos (NO acumular)
+      let totalDias = 0;
+      let totalGeneral = 0;
+      const diasOrdenados = Object.keys(porDiaTerminal).map(Number).sort((a,b)=>a-b);
+      
+      for (const dia of diasOrdenados) {
+        const codigos = Object.keys(porDiaTerminal[dia]).sort();
+        
+        // BORRAR datos previos del dia (carga no acumulativa)
+        DATA[currentMonth].C[dia] = {};
+        
+        const mapeo = {};
+        codigos.forEach((cod, idx) => {
+          const num = idx + 1;
+          if (num > 11) return;
+          DATA[currentMonth].C[dia][num] = {t: 0, v: Math.round(porDiaTerminal[dia][cod])};
+          mapeo[num] = cod;
+        });
+        
+        if (!DATA[currentMonth].D[dia]) DATA[currentMonth].D[dia] = {};
+        DATA[currentMonth].D[dia].terminales_map = mapeo;
+        
+        const totDia = codigos.reduce((s,c) => s + porDiaTerminal[dia][c], 0);
+        totalGeneral += totDia;
+        totalDias++;
+      }
+      
+      saveData();
+      renderTab();
+      
+      let msgFinal = "";
+      if (totalDias === 1) {
+        msgFinal = "Dia " + diasOrdenados[0] + " cargado. Total: $" + Math.round(totalGeneral).toLocaleString('es-CO');
+      } else {
+        msgFinal = totalDias + " dias cargados (dias " + diasOrdenados.join(", ") + "). Total: $" + Math.round(totalGeneral).toLocaleString('es-CO');
+      }
+      showToast(msgFinal, "success");
+      
+    } catch (err) {
+      console.error(err);
+      showToast("Error al leer el archivo: " + err.message, "error");
+    }
+    event.target.value = '';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+
+
+function parseTabular(text, kind) {
+  ensureMonth(currentMonth);
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  let count = 0;
+  lines.forEach(line => {
+    const parts = line.split(/\t|;|,/).map(s => s.trim());
+    if (parts.length < 2) return;
+    const diaRaw = parts[0];
+    const diaMatch = diaRaw.match(/\d+/);
+    if (!diaMatch) return;
+    const dia = parseInt(diaMatch[0]);
+    if (dia < 1 || dia > 31) return;
+    
+    if (kind === "pos") {
+      // Formato flexible: detectar si tiene producto o columnas directas
+      // Intentar: día, corriente_gal, corriente_precio, extra_gal, extra_precio, bio_gal, bio_precio
+      if (parts.length >= 7) {
+        const c_gal = parseNum(parts[1]), c_pre = parseNum(parts[2]);
+        const e_gal = parseNum(parts[3]), e_pre = parseNum(parts[4]);
+        const b_gal = parseNum(parts[5]), b_pre = parseNum(parts[6]);
+        if (c_gal > 0 || e_gal > 0 || b_gal > 0) {
+          if (!DATA[currentMonth].V[dia]) DATA[currentMonth].V[dia] = {};
+          DATA[currentMonth].V[dia].corriente = {gal:c_gal, precio:c_pre, gal2:0, precio2:0};
+          DATA[currentMonth].V[dia].extra = {gal:e_gal, precio:e_pre, gal2:0, precio2:0};
+          DATA[currentMonth].V[dia].bio = {gal:b_gal, precio:b_pre, gal2:0, precio2:0};
+          count++;
+        }
+      }
+    } else if (kind === "credi") {
+      // Formato: día, terminal, valor  OR  día, t1, t2, t3, ... t11
+      if (parts.length === 3) {
+        const term = parseInt(parts[1]);
+        const valor = parseNum(parts[2]);
+        if (term >= 1 && term <= 11 && valor > 0) {
+          if (!DATA[currentMonth].C[dia]) DATA[currentMonth].C[dia] = {};
+          DATA[currentMonth].C[dia][term] = {t:0, v:valor};
+          count++;
+        }
+      } else if (parts.length >= 12) {
+        if (!DATA[currentMonth].C[dia]) DATA[currentMonth].C[dia] = {};
+        for (let i=1;i<=11;i++) {
+          const v = parseNum(parts[i]);
+          if (v > 0) DATA[currentMonth].C[dia][i] = {t:0, v:v};
+        }
+        count++;
+      }
+    }
+  });
+  return {count};
+}
+
+function openRestoreModal() {
+  document.getElementById("restoreArea").value = "";
+  document.getElementById("restoreModal").classList.add("show");
+}
+function closeRestoreModal() { document.getElementById("restoreModal").classList.remove("show"); }
+function applyRestore() {
+  const text = document.getElementById("restoreArea").value.trim();
+  if (!text) { showToast("Pegue el respaldo antes de restaurar", "error"); return; }
+  try {
+    const parsed = JSON.parse(text);
+    if (parsed[currentMonth]) {
+      DATA[currentMonth] = parsed[currentMonth];
+      saveData();
+      renderTab();
+      closeRestoreModal();
+      showToast("Datos restaurados correctamente", "success");
+    } else {
+      // Restaurar TODO si el JSON tiene otras estructuras
+      Object.keys(parsed).forEach(k => { DATA[k] = parsed[k]; });
+      saveData();
+      renderTab();
+      closeRestoreModal();
+      showToast("Respaldo restaurado", "success");
+    }
+  } catch (err) {
+    showToast("JSON inválido: " + err.message, "error");
+  }
+}
+
+function clearMonth() {
+  if (!confirm(`¿Seguro que desea BORRAR todos los datos de ${currentMonth}? Esta acción no se puede deshacer.`)) return;
+  DATA[currentMonth] = { V:{}, D:{}, C:{} };
+  saveData();
+  renderTab();
+  showToast("Mes limpiado", "info");
+}
+
+function borrarDia(dia) {
+  if (!confirm(`¿Borrar TODOS los datos del día ${dia}? (Combustibles, medios de pago, informativos, comentarios y Credibanco). Esta acción no se puede deshacer.`)) return;
+  ensureMonth(currentMonth);
+  delete DATA[currentMonth].V[dia];
+  delete DATA[currentMonth].D[dia];
+  delete DATA[currentMonth].C[dia];
+  saveData();
+  renderTab();
+  showToast(`Día ${dia} borrado`, "info");
+}
+
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    currentTab = t.dataset.tab;
+    renderTab();
+  };
+});
+
+document.getElementById("monthSelector").onchange = (e) => {
+  currentMonth = e.target.value;
+  ensureMonth(currentMonth);
+  renderTab();
+};
+
+(async function init() {
+  loadData();
+  ensureMonth(currentMonth);
+  renderTab();
+  showToast("Cuadro cargado. Sus datos están guardados automáticamente.", "success");
+})();
+</script>
+
+</body>
+</html>
