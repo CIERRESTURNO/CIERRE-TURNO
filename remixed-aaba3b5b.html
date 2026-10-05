@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Cierre de Turno — EDS Av. Boyacá</title>
+<style>
+  :root {
+    --rojo: #e30613; --rojo2: #b30010;
+    --bg: #f2f4f7; --white: #ffffff;
+    --border: #dde2ea; --text: #1a1a2e; --text2: #555e70; --text3: #9aa3b0;
+    --green: #00a651; --blue: #0057a8; --amber: #f59e0b;
+    --info: #e8f0fb; --info-border: #b3caf5; --info-text: #0057a8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  header { background: var(--rojo); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+  .header-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
+  .header-logo { display: flex; align-items: center; gap: 10px; }
+  .header-title { color: #fff; font-size: 14px; font-weight: 800; line-height: 1.3; }
+  .header-title span { display: block; font-size: 11px; font-weight: 400; opacity: .85; }
+  .header-clock { text-align: right; color: #fff; }
+  .header-clock .time { font-size: 20px; font-weight: 800; }
+  .header-clock .date { font-size: 10px; opacity: .8; }
+  .header-strip { background: var(--rojo2); text-align: center; padding: 4px; font-size: 11px; color: rgba(255,255,255,.85); letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
+
+  main { max-width: 560px; margin: 0 auto; padding: 14px 12px 110px; }
+
+  .sec-title { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--rojo); margin: 18px 0 8px; display: flex; align-items: center; gap: 8px; }
+  .sec-title::after { content:''; flex:1; height:2px; background: var(--rojo); opacity:.15; border-radius:2px; }
+  .sec-title.info-sec { color: var(--blue); }
+  .sec-title.info-sec::after { background: var(--blue); }
+
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .card.info-card { background: var(--info); border-color: var(--info-border); }
+
+  label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--text2); margin-bottom: 5px; }
+  input, select, textarea { width: 100%; background: #f7f9fc; border: 2px solid var(--border); border-radius: 10px; color: var(--text); font-size: 22px; font-weight: 700; padding: 13px 14px; outline: none; transition: border-color .2s; -webkit-appearance: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--rojo); background: #fff; }
+  input.error { border-color: var(--rojo) !important; background: #fff5f5; }
+  select { font-size: 16px; font-weight: 600; }
+  textarea { font-size: 15px; font-weight: 400; }
+  input::placeholder { color: #c0c8d4; font-weight: 400; font-size: 16px; }
+
+  .field { margin-bottom: 12px; }
+  .field-hint { font-size: 12px; color: var(--text3); margin-top: 4px; }
+  .field-hint.warn { color: var(--amber); font-weight: 700; }
+  .field-hint.ok { color: var(--green); font-weight: 700; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* EJEMPLO VISUAL */
+  .ejemplo { display: flex; gap: 8px; margin: 6px 0 2px; }
+  .ej-item { flex:1; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 6px 10px; text-align: center; }
+  .ej-item.mal { background: #fff5f5; border-color: #fecaca; }
+  .ej-label { font-size: 10px; font-weight: 700; color: #16a34a; text-transform: uppercase; }
+  .ej-item.mal .ej-label { color: #dc2626; }
+  .ej-val { font-size: 18px; font-weight: 900; color: #16a34a; }
+  .ej-item.mal .ej-val { color: #dc2626; text-decoration: line-through; }
+
+  /* COMBUSTIBLES */
+  .fuel-card { border-radius: 12px; padding: 14px; margin-bottom: 10px; border: 2px solid var(--border); background: var(--white); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .fuel-card.co { border-top: 4px solid #22c55e; }
+  .fuel-card.ex { border-top: 4px solid var(--rojo); }
+  .fuel-card.ac { border-top: 4px solid var(--blue); }
+  .fuel-name { font-size: 17px; font-weight: 900; margin-bottom: 12px; }
+  .fuel-card.co .fuel-name { color: #16a34a; }
+  .fuel-card.ex .fuel-name { color: var(--rojo); }
+  .fuel-card.ac .fuel-name { color: var(--blue); }
+  .precio-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .precio-row input { flex:1; border-color: #fbbf24; background: #fffbeb; color: #92400e; }
+  .precio-row input:focus { border-color: var(--amber); }
+  .precio-tag { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #92400e; background: #fef3c7; border: 1px solid #fbbf24; border-radius: 6px; padding: 5px 8px; white-space: nowrap; }
+  .total-pill { background: var(--bg); border: 2px solid var(--border); border-radius: 10px; padding: 10px 14px; text-align: center; margin-top: 10px; }
+  .total-pill .lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .total-pill .val { font-size: 28px; font-weight: 900; color: var(--green); margin-top: 2px; }
+  .total-pill.info .val { color: var(--info-text); font-size: 22px; }
+
+  /* MEDIOS */
+  .pago-item { background: #f7f9fc; border: 2px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .pago-emoji { font-size: 26px; width: 34px; text-align: center; flex-shrink: 0; }
+  .pago-info { flex:1; }
+  .pago-name { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .pago-info input { background: #fff; font-size: 22px; margin: 0; padding: 10px 12px; }
+
+  /* VARIOS */
+  .varios-item { background: #f7f9fc; border: 2px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px; position: relative; }
+  .varios-remove { position: absolute; top: 8px; right: 10px; background: #fee2e2; border: none; color: var(--rojo); font-size: 18px; cursor: pointer; border-radius: 6px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+  .btn-add-varios { width: 100%; background: #fff; border: 2px dashed var(--rojo); border-radius: 10px; color: var(--rojo); font-size: 15px; font-weight: 800; padding: 12px; cursor: pointer; margin-bottom: 10px; }
+
+  /* ENCUESTAS */
+  .encuesta-zone { background: var(--info); border: 2px dashed var(--info-border); border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; margin-bottom: 10px; }
+  .encuesta-icon { font-size: 36px; margin-bottom: 6px; }
+  .encuesta-text { font-size: 14px; font-weight: 700; color: var(--blue); }
+  .encuesta-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+  #encuesta-input { display: none; }
+  .encuesta-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .encuesta-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 2px solid var(--info-border); }
+  .encuesta-count { font-size: 13px; font-weight: 700; color: var(--blue); margin-top: 6px; text-align: center; }
+
+  /* BORRAR ÚLTIMO */
+  .borrar-btn { width: 100%; background: #fff5f5; border: 2px solid #fecaca; border-radius: 10px; color: var(--rojo); font-size: 14px; font-weight: 800; padding: 12px; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+  /* ALERTA */
+  .alert-box { background: #fff5f5; border: 2px solid var(--rojo); border-radius: 12px; padding: 14px; margin-bottom: 16px; display: none; }
+  .alert-box.show { display: block; }
+  .alert-title { font-size: 14px; font-weight: 800; color: var(--rojo); margin-bottom: 8px; }
+  .alert-list { font-size: 13px; color: #b91c1c; padding-left: 18px; }
+  .alert-list li { margin-bottom: 4px; }
+
+  /* RESUMEN */
+  .resumen-card { background: var(--rojo); border-radius: 14px; padding: 18px; box-shadow: 0 4px 16px rgba(227,6,19,.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.15); font-size: 14px; color: rgba(255,255,255,.9); }
+  .res-row:last-child { border-bottom: none; }
+  .res-row.grand { font-size: 22px; font-weight: 900; color: #fff; padding-top: 14px; }
+  .res-amt { font-weight: 800; color: #fff; }
+  .res-amt.green { color: #86efac; }
+  .res-amt.blue { color: #93c5fd; }
+  .diff-ok { color: #86efac; font-weight: 900; font-size: 16px; }
+  .diff-warn { color: #fde68a; font-weight: 900; font-size: 16px; }
+  .diff-bad { color: #fca5a5; font-weight: 900; font-size: 16px; }
+  .info-strip { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.2); }
+  .info-strip-title { font-size: 10px; color: rgba(255,255,255,.6); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .info-strip .res-row { color: rgba(255,255,255,.6); font-size: 13px; border-color: rgba(255,255,255,.08); }
+  .info-strip .res-amt { color: rgba(255,255,255,.5); }
+
+  /* BOTONES */
+  .btn-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 2px solid var(--border); padding: 10px 12px; display: flex; gap: 8px; z-index: 200; box-shadow: 0 -2px 12px rgba(0,0,0,.08); }
+  .btn { flex:1; padding: 14px 8px; border: none; border-radius: 10px; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .btn-primary { background: var(--rojo); color: #fff; box-shadow: 0 2px 8px rgba(227,6,19,.3); }
+  .btn-secondary { background: var(--bg); color: var(--text2); border: 2px solid var(--border); }
+  .toast { position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%); background: var(--green); color: #fff; padding: 12px 24px; border-radius: 24px; font-weight: 800; font-size: 14px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 999; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="header-logo">
+      <img src="data:image/jpeg;base64,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" alt="Terpel" style="height:44px;width:auto;border-radius:8px;">
+      <div class="header-title">
+        Cierre de Turno
+        <span>EDS Av. Boyacá</span>
+      </div>
+    </div>
+    <div class="header-clock">
+      <div class="time" id="clock">00:00:00</div>
+      <div class="date" id="dateLabel"></div>
+    </div>
+  </div>
+  <div class="header-strip">⛽ EDS Av. Boyacá No. 77A-15 — Bogotá</div>
+</header>
+
+<main>
+
+  <div class="alert-box" id="alert-box">
+    <div class="alert-title">⚠️ Completa estos campos antes de enviar:</div>
+    <ul class="alert-list" id="alert-list"></ul>
+  </div>
+
+  <!-- DATOS -->
+  <div class="sec-title">📋 Datos del Turno</div>
+  <div class="card">
+    <div class="field">
+      <label>Nombre y Apellido *</label>
+      <input type="text" id="empleado" placeholder="Nombre y apellido..." autocomplete="name" style="font-size:18px;">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Turno *</label>
+        <select id="turno">
+          <option value="">— Seleccionar —</option>
+          <option>🌙 12:00am - 6:00am</option>
+          <option>🌅 6:00am - 2:00pm</option>
+          <option>☀️ 2:00pm - 9:30pm</option>
+          <option>🌆 9:30pm - 12:00am</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Fecha *</label>
+        <input type="date" id="fecha" style="font-size:15px;font-weight:600;">
+      </div>
+    </div>
+  </div>
+
+  <!-- COMBUSTIBLES -->
+  <div class="sec-title">⛽ Combustibles</div>
+
+  <div class="fuel-card co">
+    <div class="fuel-name">🟢 CORRIENTE</div>
+    <label>Precio x Galón — solo números, sin puntos</label>
+    <div class="ejemplo">
+      <div class="ej-item"><div class="ej-label">✅ Así sí</div><div class="ej-val">10900</div></div>
+      <div class="ej-item mal"><div class="ej-label">❌ Así no</div><div class="ej-val">10.900</div></div>
+    </div>
+    <div class="precio-row" style="margin-top:8px">
+      <input type="text" inputmode="numeric" id="co_precio" placeholder="Ej: 10900" oninput="soloEnteros(this); calcFuel('co')">
+      <div class="precio-tag">✏️ $/Gal</div>
+    </div>
+    <div class="field" style="margin-top:10px">
+      <label>Galones Vendidos — usa coma para decimales</label>
+      <div class="ejemplo">
+        <div class="ej-item"><div class="ej-label">✅ Así sí</div><div class="ej-val">244,11</div></div>
+        <div class="ej-item mal"><div class="ej-label">❌ Así no</div><div class="ej-val">244.11</div></div>
+      </div>
+      <input type="text" inputmode="decimal" id="co_gal" placeholder="Ej: 244,11" oninput="normalizarComa(this); calcFuel('co')" style="margin-top:8px">
+    </div>
+    <div class="total-pill"><div class="lbl">Total Corriente</div><div class="val" id="co_total_v">$0</div></div>
+  </div>
+
+  <div class="fuel-card ex">
+    <div class="fuel-name">🔴 EXTRA</div>
+    <label>Precio x Galón — solo números, sin puntos</label>
+    <div class="precio-row" style="margin-top:6px">
+      <input type="text" inputmode="numeric" id="ex_precio" placeholder="Ej: 12000" oninput="soloEnteros(this); calcFuel('ex')">
+      <div class="precio-tag">✏️ $/Gal</div>
+    </div>
+    <div class="field" style="margin-top:10px">
+      <label>Galones Vendidos — usa coma para decimales</label>
+      <input type="text" inputmode="decimal" id="ex_gal" placeholder="Ej: 36,36" oninput="normalizarComa(this); calcFuel('ex')" style="margin-top:6px">
+    </div>
+    <div class="total-pill"><div class="lbl">Total Extra</div><div class="val" id="ex_total_v">$0</div></div>
+  </div>
+
+  <div class="fuel-card ac">
+    <div class="fuel-name">🔵 ACPM / DIÉSEL</div>
+    <label>Precio x Galón — solo números, sin puntos</label>
+    <div class="precio-row" style="margin-top:6px">
+      <input type="text" inputmode="numeric" id="ac_precio" placeholder="Ej: 9800" oninput="soloEnteros(this); calcFuel('ac')">
+      <div class="precio-tag">✏️ $/Gal</div>
+    </div>
+    <div class="field" style="margin-top:10px">
+      <label>Galones Vendidos — usa coma para decimales</label>
+      <input type="text" inputmode="decimal" id="ac_gal" placeholder="Ej: 10,50" oninput="normalizarComa(this); calcFuel('ac')" style="margin-top:6px">
+    </div>
+    <div class="total-pill"><div class="lbl">Total ACPM</div><div class="val" id="ac_total_v">$0</div></div>
+  </div>
+
+  <!-- UREA -->
+  <div class="sec-title info-sec">🧴 Urea <small style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">— informativo</small></div>
+  <div class="card info-card">
+    <div class="row2">
+      <div class="field">
+        <label>Litros Vendidos *</label>
+        <input type="text" inputmode="decimal" id="urea_litros" placeholder="0" oninput="normalizarComa(this); calcUrea()">
+        <div class="field-hint">Escribe 0 si no hubo</div>
+      </div>
+      <div class="field">
+        <label>Precio x Litro</label>
+        <input type="text" inputmode="numeric" id="urea_precio" value="4100" oninput="soloEnteros(this); calcUrea()">
+      </div>
+    </div>
+    <div class="total-pill info"><div class="lbl">Total Urea</div><div class="val info" id="urea_total_v">$0</div></div>
+  </div>
+
+  <!-- LUBES -->
+  <div class="sec-title info-sec">🛢 Lubes y Aditivos <small style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">— informativo</small></div>
+  <div class="card info-card">
+    <div class="field">
+      <label>Valor Venta ($) * — sin puntos</label>
+      <input type="text" inputmode="numeric" id="lubes_valor" placeholder="0" oninput="soloEnteros(this); calcResumen()">
+      <div class="field-hint">Escribe 0 si no hubo ventas</div>
+    </div>
+  </div>
+
+  <!-- EXTINTORES -->
+  <div class="sec-title info-sec">🧯 Extintores <small style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">— informativo</small></div>
+  <div class="card info-card">
+    <div class="row2">
+      <div class="field"><label>Precio Recarga</label><input type="text" inputmode="numeric" id="epc_0" value="20000" oninput="soloEnteros(this); calcExt()"></div>
+      <div class="field"><label>Cant. Recarga *</label><input type="text" inputmode="numeric" id="ecc_0" placeholder="0" oninput="soloEnteros(this); calcExt()"><div class="field-hint">0 si no hubo</div></div>
+      <div class="field"><label>Precio Nuevo</label><input type="text" inputmode="numeric" id="epn_0" value="34500" oninput="soloEnteros(this); calcExt()"></div>
+      <div class="field"><label>Cant. Nuevo *</label><input type="text" inputmode="numeric" id="ecn_0" placeholder="0" oninput="soloEnteros(this); calcExt()"><div class="field-hint">0 si no hubo</div></div>
+    </div>
+    <div class="total-pill info"><div class="lbl">Total Extintores</div><div class="val info" id="ext_total_v">$0</div></div>
+  </div>
+
+  <!-- VARIOS -->
+  <div class="sec-title">➕ Varios</div>
+  <div id="varios-list"></div>
+  <button class="btn-add-varios" onclick="addVarios()">+ Agregar ítem (Urea Rumbo, aceite...)</button>
+  <div class="card" style="display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:13px;color:var(--text2);font-weight:700">Total Varios</span>
+    <span style="font-size:24px;font-weight:900;color:var(--green)" id="varios_total_lbl">$0</span>
+  </div>
+
+  <!-- MEDIOS DE PAGO -->
+  <div class="sec-title">💳 Medios de Pago</div>
+  <div class="card" style="background:#fff8e1;border-color:#fbbf24;margin-bottom:10px">
+    <p style="font-size:13px;font-weight:700;color:#92400e">⚠️ Escribe los valores SIN puntos ni comas<br><span style="font-weight:400">Ejemplo: un millón quinientos = <strong>1500000</strong></span></p>
+  </div>
+  <div id="pago-list"></div>
+  <div class="card" style="display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:13px;color:var(--text2);font-weight:700">Total Recibido</span>
+    <span style="font-size:24px;font-weight:900;color:var(--blue)" id="pago_total_lbl">$0</span>
+  </div>
+
+  <!-- ENCUESTAS -->
+  <div class="sec-title info-sec">📸 Encuestas del Turno</div>
+  <div class="card info-card">
+    <p style="font-size:13px;color:var(--info-text);font-weight:600;margin-bottom:10px">Sube foto de cada encuesta diligenciada en este turno</p>
+    <div class="encuesta-zone" onclick="document.getElementById('encuesta-input').click()">
+      <div class="encuesta-icon">📷</div>
+      <div class="encuesta-text">Toca aquí para subir fotos</div>
+      <div class="encuesta-sub">Puedes seleccionar varias a la vez</div>
+    </div>
+    <input type="file" id="encuesta-input" accept="image/*" multiple onchange="previewEncuestas(this)">
+    <div class="encuesta-preview" id="encuesta-preview"></div>
+    <div class="encuesta-count" id="encuesta-count"></div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="sec-title">📊 Resumen del Turno</div>
+  <div class="resumen-card">
+    <div class="res-row"><span>Corriente</span><span class="res-amt green" id="r_co">$0</span></div>
+    <div class="res-row"><span>Extra</span><span class="res-amt green" id="r_ex">$0</span></div>
+    <div class="res-row"><span>ACPM / Diésel</span><span class="res-amt green" id="r_ac">$0</span></div>
+    <div class="res-row"><span>Varios</span><span class="res-amt green" id="r_varios">$0</span></div>
+    <div class="res-row grand"><span>TOTAL VENTAS</span><span id="r_grand">$0</span></div>
+    <div class="res-row" style="padding-top:12px"><span style="opacity:.8">Total Medios de Pago</span><span class="res-amt blue" id="r_pagos">$0</span></div>
+    <div class="res-row"><span style="opacity:.8">Diferencia</span><span id="r_diff" class="diff-ok">$0</span></div>
+    <div class="info-strip">
+      <div class="info-strip-title">Solo informativo</div>
+      <div class="res-row"><span>Urea</span><span class="res-amt" id="r_urea">$0</span></div>
+      <div class="res-row"><span>Lubes y Aditivos</span><span class="res-amt" id="r_lubes">$0</span></div>
+      <div class="res-row"><span>Extintores</span><span class="res-amt" id="r_ext">$0</span></div>
+    </div>
+  </div>
+
+  <!-- OBSERVACIONES -->
+  <div class="sec-title">📝 Observaciones</div>
+  <div class="card">
+    <textarea id="obs" rows="3" placeholder="Anota novedades del turno..."></textarea>
+  </div>
+
+  <!-- BORRAR ÚLTIMO ENVÍO -->
+  <div class="sec-title" style="color:#dc2626">🗑 ¿Te equivocaste?</div>
+  <button class="borrar-btn" onclick="borrarUltimo()">🗑 Borrar mi último envío</button>
+
+</main>
+
+<div class="btn-bar">
+  <button class="btn btn-secondary" onclick="limpiar()">🔄 Limpiar</button>
+  <button class="btn btn-primary" id="btn-enviar" onclick="enviarSheets()">📤 Enviar al Administrador</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbyjLkewT-R1rHFjIN6IcG9tknbqqC0seartc7ED6XGp4zn7RtBiXdDl0GFus6vR3gW5/exec";
+
+const MEDIOS = [
+  { id:'efectivo',            nombre:'Efectivo',              emoji:'💵' },
+  { id:'datafono_liquidos',   nombre:'Datáfono Líquidos',     emoji:'💳' },
+  { id:'datafono_gnv',        nombre:'Datáfono GNV',          emoji:'💳' },
+  { id:'gopass',              nombre:'Gopass',                emoji:'🚗' },
+  { id:'rumbo',               nombre:'Rumbo',                 emoji:'🔴' },
+  { id:'mi_empresa',          nombre:'Mi Empresa',            emoji:'🏢' },
+  { id:'bonos',               nombre:'Bonos',                 emoji:'🎟' },
+  { id:'credito_flota',       nombre:'Crédito Flota Propia',  emoji:'🚛' },
+  { id:'credito_recuperado',  nombre:'Crédito Recuperado',    emoji:'✅' },
+  { id:'creditos_eds',        nombre:'Créditos EDS',          emoji:'🏪' },
+  { id:'app_terpel',          nombre:'App Terpel',            emoji:'⛽' },
+  { id:'nequi',               nombre:'Nequi',                 emoji:'💜' },
+  { id:'daviplata',           nombre:'DaviPlata',             emoji:'🔵' },
+  { id:'bancolombia',         nombre:'Bancolombia',           emoji:'🏦' },
+  { id:'pruebas_combustible', nombre:'Pruebas Combustible',   emoji:'🧪' },
+  { id:'moneda',              nombre:'Moneda',                emoji:'🪙' },
+];
+
+var variosCount = 0;
+var encuestaFiles = [];
+var ultimoPromotor = '';
+var ultimoTurno = '';
+var ultimaFecha = '';
+
+window.onload = function() {
+  document.getElementById('fecha').valueAsDate = new Date();
+  var pagoList = document.getElementById('pago-list');
+  MEDIOS.forEach(function(mp) {
+    pagoList.innerHTML += `
+      <div class="pago-item">
+        <div class="pago-emoji">${mp.emoji}</div>
+        <div class="pago-info">
+          <div class="pago-name">${mp.nombre}</div>
+          <input type="text" inputmode="numeric" id="pago_${mp.id}" placeholder="0" oninput="soloEnteros(this); calcPagos()">
+        </div>
+      </div>`;
+  });
+  setInterval(function() {
+    var now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('es-CO',{hour12:false});
+    document.getElementById('dateLabel').textContent = now.toLocaleDateString('es-CO',{weekday:'short',day:'numeric',month:'short'});
+  }, 1000);
+};
+
+// Solo enteros — borra todo lo que no sea número
+function soloEnteros(el) {
+  var pos = el.selectionStart;
+  var old = el.value;
+  el.value = el.value.replace(/[^0-9]/g, '');
+  if (el.value !== old) el.setSelectionRange(pos-1, pos-1);
+}
+
+// Galones: solo permite coma como decimal
+function normalizarComa(el) {
+  // Permite dígitos y UNA coma
+  el.value = el.value.replace(/[^0-9,]/g, '');
+  var partes = el.value.split(',');
+  if (partes.length > 2) el.value = partes[0] + ',' + partes.slice(1).join('');
+}
+
+function n(id) {
+  var el = document.getElementById(id);
+  if (!el) return 0;
+  var v = el.value.replace(',', '.');
+  return parseFloat(v) || 0;
+}
+function fmt(v) { return Math.round(v).toLocaleString('es-CO'); }
+function getV(id) { return parseFloat((document.getElementById(id)?.textContent||'0').replace(/[$,.]/g,''))||0; }
+
+function calcFuel(p) {
+  var total = n(p+'_gal') * n(p+'_precio');
+  document.getElementById(p+'_total_v').textContent = '$' + fmt(total);
+  calcResumen();
+}
+function calcUrea() {
+  document.getElementById('urea_total_v').textContent = '$' + fmt(n('urea_litros') * n('urea_precio'));
+  calcResumen();
+}
+function calcExt() {
+  var t = n('ecc_0')*n('epc_0') + n('ecn_0')*n('epn_0');
+  document.getElementById('ext_total_v').textContent = '$' + fmt(t);
+  calcResumen();
+}
+function addVarios() {
+  var id = variosCount++;
+  var div = document.createElement('div');
+  div.className = 'varios-item'; div.id = 'varios_wrap_' + id;
+  div.innerHTML = `
+    <button class="varios-remove" onclick="removeVarios(${id})">×</button>
+    <div class="field"><label>Descripción</label>
+      <input type="text" id="varios_desc_${id}" placeholder="Ej: Urea Rumbo..." style="font-size:16px;">
+    </div>
+    <div class="field"><label>Valor ($) — sin puntos</label>
+      <input type="text" inputmode="numeric" id="varios_val_${id}" placeholder="0" oninput="soloEnteros(this); calcVarios()">
+    </div>`;
+  document.getElementById('varios-list').appendChild(div);
+  calcVarios();
+}
+function removeVarios(id) {
+  var el = document.getElementById('varios_wrap_' + id); if (el) el.remove(); calcVarios();
+}
+function calcVarios() {
+  var t = 0;
+  for (var i = 0; i < variosCount; i++) {
+    if (!document.getElementById('varios_wrap_' + i)) continue;
+    t += parseFloat(document.getElementById('varios_val_' + i)?.value||'0')||0;
+  }
+  document.getElementById('varios_total_lbl').textContent = '$' + fmt(t);
+  calcResumen();
+}
+function calcPagos() {
+  var t = 0; MEDIOS.forEach(function(mp) { t += n('pago_' + mp.id); });
+  document.getElementById('pago_total_lbl').textContent = '$' + fmt(t);
+  calcResumen();
+}
+function calcResumen() {
+  var co = getV('co_total_v'), ex = getV('ex_total_v'), ac = getV('ac_total_v');
+  var urea = getV('urea_total_v'), ext = getV('ext_total_v');
+  var lubes = parseFloat(document.getElementById('lubes_valor')?.value||'0')||0;
+  var varios = 0;
+  for (var i = 0; i < variosCount; i++) {
+    if (!document.getElementById('varios_wrap_' + i)) continue;
+    varios += parseFloat(document.getElementById('varios_val_' + i)?.value||'0')||0;
+  }
+  document.getElementById('r_co').textContent = '$' + fmt(co);
+  document.getElementById('r_ex').textContent = '$' + fmt(ex);
+  document.getElementById('r_ac').textContent = '$' + fmt(ac);
+  document.getElementById('r_varios').textContent = '$' + fmt(varios);
+  document.getElementById('r_urea').textContent = '$' + fmt(urea);
+  document.getElementById('r_lubes').textContent = '$' + fmt(lubes);
+  document.getElementById('r_ext').textContent = '$' + fmt(ext);
+  var grand = co + ex + ac + varios;
+  document.getElementById('r_grand').textContent = '$' + fmt(grand);
+  var pagos = 0; MEDIOS.forEach(function(mp) { pagos += n('pago_' + mp.id); });
+  document.getElementById('r_pagos').textContent = '$' + fmt(pagos);
+  var diff = grand - pagos;
+  var el = document.getElementById('r_diff');
+  if (diff===0){el.textContent='✅ Cuadrado';el.className='diff-ok';}
+  else if(diff>0){el.textContent='▲ Faltante $'+fmt(diff);el.className='diff-warn';}
+  else{el.textContent='▼ Sobrante $'+fmt(Math.abs(diff));el.className='diff-bad';}
+}
+function previewEncuestas(input) {
+  encuestaFiles = Array.from(input.files);
+  var preview = document.getElementById('encuesta-preview');
+  var count = document.getElementById('encuesta-count');
+  preview.innerHTML = '';
+  encuestaFiles.forEach(function(file) {
+    var img = document.createElement('img'); img.className = 'encuesta-thumb';
+    img.src = URL.createObjectURL(file); preview.appendChild(img);
+  });
+  count.textContent = encuestaFiles.length > 0 ? encuestaFiles.length + ' foto(s) lista(s) ✅' : '';
+}
+function validar() {
+  var errores = [];
+  document.querySelectorAll('.error').forEach(function(el){el.classList.remove('error');});
+  var emp = document.getElementById('empleado').value.trim();
+  var turno = document.getElementById('turno').value;
+  if (!emp || emp.split(' ').filter(function(w){return w.length>0;}).length < 2){errores.push('Nombre y Apellido completos');document.getElementById('empleado').classList.add('error');}
+  if (!turno){errores.push('Turno');document.getElementById('turno').classList.add('error');}
+  var campos = [
+    ['co_precio','Precio Corriente'],['co_gal','Galones Corriente'],
+    ['ex_precio','Precio Extra'],['ex_gal','Galones Extra'],
+    ['ac_precio','Precio ACPM'],['ac_gal','Galones ACPM'],
+    ['urea_litros','Urea Litros (escribe 0 si no hubo)'],
+    ['lubes_valor','Lubes y Aditivos (escribe 0 si no hubo)'],
+    ['ecc_0','Cant. Recarga Extintor (escribe 0 si no hubo)'],
+    ['ecn_0','Cant. Nuevo Extintor (escribe 0 si no hubo)'],
+  ];
+  campos.forEach(function(c){
+    if(document.getElementById(c[0]).value.trim()===''){
+      errores.push(c[1]); document.getElementById(c[0]).classList.add('error');
+    }
+  });
+  var alertBox = document.getElementById('alert-box');
+  var alertList = document.getElementById('alert-list');
+  if(errores.length>0){
+    alertList.innerHTML = errores.map(function(e){return '<li>'+e+'</li>';}).join('');
+    alertBox.classList.add('show'); window.scrollTo({top:0,behavior:'smooth'}); return false;
+  }
+  alertBox.classList.remove('show'); return true;
+}
+function enviarSheets() {
+  if (!validar()) return;
+  var emp = document.getElementById('empleado').value.trim();
+  var btn = document.getElementById('btn-enviar');
+  btn.textContent = '⏳ Enviando...'; btn.disabled = true;
+  var coT=n('co_gal')*n('co_precio'), exT=n('ex_gal')*n('ex_precio'), acT=n('ac_gal')*n('ac_precio');
+  var ureaT=n('urea_litros')*n('urea_precio'), extT=n('ecc_0')*n('epc_0')+n('ecn_0')*n('epn_0');
+  var lubes=parseFloat(document.getElementById('lubes_valor').value||'0')||0;
+  var varios=0, variosDesc=[];
+  for(var i=0;i<variosCount;i++){
+    if(!document.getElementById('varios_wrap_'+i))continue;
+    var desc=document.getElementById('varios_desc_'+i)?.value||'';
+    var val=parseFloat(document.getElementById('varios_val_'+i)?.value||'0')||0;
+    varios+=val; if(desc||val) variosDesc.push(desc+': $'+fmt(val));
+  }
+  var pagosT=0; MEDIOS.forEach(function(mp){pagosT+=n('pago_'+mp.id);});
+  var grand=coT+exT+acT+varios;
+  ultimoPromotor=emp; ultimoTurno=document.getElementById('turno').value; ultimaFecha=document.getElementById('fecha').value;
+  var payload={
+    fecha:ultimaFecha, hora:new Date().toLocaleTimeString('es-CO',{hour12:false}),
+    promotor:emp, turno:ultimoTurno,
+    co_precio:n('co_precio'),co_gal:n('co_gal'),co_total:coT,
+    ex_precio:n('ex_precio'),ex_gal:n('ex_gal'),ex_total:exT,
+    ac_precio:n('ac_precio'),ac_gal:n('ac_gal'),ac_total:acT,
+    urea_litros:n('urea_litros'),urea_precio:n('urea_precio'),urea_total:ureaT,
+    lubes_aditivos:lubes,
+    ext_recarga:n('ecc_0'),ext_nuevo:n('ecn_0'),ext_total:extT,
+    varios_detalle:variosDesc.join(' | '),varios_total:varios,
+    pago_efectivo:n('pago_efectivo'),pago_datafono_liquidos:n('pago_datafono_liquidos'),
+    pago_datafono_gnv:n('pago_datafono_gnv'),pago_gopass:n('pago_gopass'),
+    pago_rumbo:n('pago_rumbo'),pago_mi_empresa:n('pago_mi_empresa'),
+    pago_bonos:n('pago_bonos'),pago_credito_flota:n('pago_credito_flota'),
+    pago_credito_recuperado:n('pago_credito_recuperado'),pago_creditos_eds:n('pago_creditos_eds'),
+    pago_app_terpel:n('pago_app_terpel'),pago_nequi:n('pago_nequi'),
+    pago_daviplata:n('pago_daviplata'),pago_bancolombia:n('pago_bancolombia'),
+    pago_pruebas_combustible:n('pago_pruebas_combustible'),pago_moneda:n('pago_moneda'),
+    total_pagos:pagosT,total_ventas:grand,diferencia:grand-pagosT,
+    encuestas_subidas:encuestaFiles.length,
+    observaciones:document.getElementById('obs').value
+  };
+  fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)})
+  .then(function(){showToast('✅ Enviado al Administrador');btn.textContent='✅ Enviado';btn.disabled=false;})
+  .catch(function(){showToast('✅ Enviado al Administrador');btn.textContent='✅ Enviado';btn.disabled=false;});
+}
+function borrarUltimo() {
+  if(!ultimoPromotor){showToast('⚠️ No hay envío reciente para borrar');return;}
+  if(!confirm('¿Borrar el último envío de '+ultimoPromotor+' — '+ultimoTurno+'?'))return;
+  var payload={accion:'borrar',promotor:ultimoPromotor,turno:ultimoTurno,fecha:ultimaFecha};
+  fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)})
+  .then(function(){showToast('🗑 Último envío borrado');ultimoPromotor='';ultimoTurno='';ultimaFecha='';})
+  .catch(function(){showToast('🗑 Solicitud enviada');ultimoPromotor='';});
+}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3000);}
+function limpiar(){if(!confirm('¿Limpiar todos los datos?'))return;location.reload();}
+</script>
+</body>
+</html>
