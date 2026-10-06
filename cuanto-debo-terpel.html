@@ -1,0 +1,458 @@
+<title>Cuánto debo a Terpel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* Layout: una columna; zona para subir archivos arriba, el número grande, explicación en prosa, luego los cuadros y el cruce */
+:root{
+  --bg:#f7f5f2; --card:#ffffff; --fg:#1f1b1a; --muted:#6b625f; --line:#e6e0db;
+  --accent:#c8102e; --accent-soft:#fbe9ec; --ok:#1f7a4d; --ok-soft:#e4f3ea; --warn:#9a5b00; --warn-soft:#fff1dc;
+  --display:'Sora',system-ui,sans-serif; --body:'Source Sans 3',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#171414; --card:#211d1d; --fg:#f1ebe7; --muted:#a79d98; --line:#3a3331;
+  --accent:#ff5c6f; --accent-soft:#3a1a20; --ok:#5fcf92; --ok-soft:#1b3328; --warn:#f0b35a; --warn-soft:#3a2a12; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#171414; --card:#211d1d; --fg:#f1ebe7; --muted:#a79d98; --line:#3a3331;
+  --accent:#ff5c6f; --accent-soft:#3a1a20; --ok:#5fcf92; --ok-soft:#1b3328; --warn:#f0b35a; --warn-soft:#3a2a12; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-block:28px 48px;padding-inline:16px}
+h1{font-family:var(--display);font-size:1.15rem;font-weight:500;color:var(--muted);margin:0 0 14px;letter-spacing:.02em}
+.drop{border:2px dashed var(--line);border-radius:14px;background:var(--card);padding:18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop p{margin:0;flex:1 1 240px;min-width:0}
+.drop small{display:block;color:var(--muted)}
+.btn{font:600 .95rem var(--body);background:var(--accent);color:#fff;border:0;border-radius:10px;padding:10px 16px;cursor:pointer}
+.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.drop input[type=file]{display:none}
+.fecha{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.95rem;color:var(--muted);flex-basis:100%}
+.fecha input{font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg)}
+.corte{font-size:.95rem;color:var(--muted);margin:0 0 20px}
+.hero{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 22px 18px;margin-bottom:18px}
+.hero .lbl{font-family:var(--display);font-weight:500;font-size:.95rem;color:var(--muted);margin:0 0 6px}
+.hero .num{font-family:var(--display);font-weight:700;font-size:clamp(2rem,8vw,3rem);color:var(--accent);line-height:1.1;margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.hero .sub{margin:10px 0 0;color:var(--muted)}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.85rem;font-weight:600}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--accent-soft);color:var(--accent)}
+h2{font-family:var(--display);font-size:1rem;font-weight:700;margin:26px 0 10px}
+h2 small{font-weight:400;color:var(--muted)}
+p{margin:0 0 12px;max-width:65ch}
+.rows{display:grid;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+.row{display:flex;justify-content:space-between;gap:12px;padding:10px 16px;border-top:1px solid var(--line);align-items:baseline}
+.row:first-child{border-top:0}
+.row .k{min-width:0;flex:1} .row .v{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.row.total{background:var(--accent-soft);font-family:var(--display)} .row.total .v{color:var(--accent)}
+.row.head{background:var(--bg)}
+.row .k small{display:block;color:var(--muted);font-size:.85rem;font-weight:400}
+.neg{color:var(--ok)}
+table{width:100%;border-collapse:collapse;background:var(--card);font-size:.95rem}
+.tbl{border:1px solid var(--line);border-radius:12px;overflow:auto}
+th,td{text-align:left;padding:8px 12px;border-top:1px solid var(--line);white-space:nowrap}
+th{border-top:0;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td.st{text-align:center}
+tr.tot td{font-weight:600;background:var(--bg)}
+.hist button{all:unset;cursor:pointer;display:flex;justify-content:space-between;gap:12px;width:100%;box-sizing:border-box;padding:10px 16px;border-top:1px solid var(--line)}
+.hist button:first-child{border-top:0}
+.hist button:hover,.hist button:focus-visible{background:var(--bg);outline:2px solid var(--accent);outline-offset:-2px}
+.hist button[aria-current="true"]{background:var(--accent-soft)}
+.hist .v{font-variant-numeric:tabular-nums;font-weight:600}
+.hist .d{color:var(--ok);font-size:.85rem;margin-left:8px} .hist .u{color:var(--accent);font-size:.85rem;margin-left:8px}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:20px;color:var(--muted)}
+.note{background:var(--warn-soft);color:var(--fg);border-radius:10px;padding:12px 16px;font-size:.95rem;margin-bottom:12px}
+.msg{border-radius:10px;padding:10px 14px;font-size:.95rem;margin-bottom:16px}
+.msg.ok{background:var(--ok-soft);color:var(--ok)} .msg.bad{background:var(--accent-soft);color:var(--accent)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.tabs button{font:600 .85rem var(--body);border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:5px 12px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+<div class="wrap">
+  <h1>Cartera con Terpel · PLAN VE SAS · EDS Av. Boyacá</h1>
+
+  <div class="drop" id="drop">
+    <p><strong>Sube los archivos</strong><small>Del portal: "EstadoCuenta-…" (cuánto debes) e "HistoricoCuenta-…" (qué registró Terpel). Tuyo: "Control_Ventas_…" del mes (lo que tú contaste). Puedes elegir varios a la vez.</small></p>
+    <label class="btn" for="file">Elegir archivos</label>
+    <input type="file" id="file" accept=".xls,.xlsx" multiple>
+    <div class="fecha"><label for="fechaCorte">Fecha del corte (facturas que vencen hasta):</label><input type="date" id="fechaCorte"></div>
+  </div>
+  <div id="msg" hidden></div>
+
+  <p class="corte" id="corte">Cargando el último corte…</p>
+  <div id="app"><div class="empty">Todavía no hay cortes guardados. Sube el primer Estado de Cuenta y aquí aparecerá cuánto debes.</div></div>
+  <div id="cruce"></div>
+</div>
+
+<script>
+const fmt = n => '$' + Math.round(Math.abs(n)).toLocaleString('es-CO');
+const fmtS = n => (n < 0 ? '−' : '') + fmt(n);
+const toDate = iso => { const [y,m,d]=iso.split('-').map(Number); return new Date(y,m-1,d); };
+const fechaLarga = iso => toDate(iso).toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const fechaCorta = iso => toDate(iso).toLocaleDateString('es-CO',{day:'numeric',month:'short'});
+const mesLargo = ym => toDate(ym+'-01').toLocaleDateString('es-CO',{month:'long',year:'numeric'});
+const ddmmyyyy_to_iso = s => { const m = String(s).match(/(\d{2})[\/-](\d{2})[\/-](\d{4})/); return m ? `${m[3]}-${m[2]}-${m[1]}` : null; };
+const addDays = (iso,n) => { const d=toDate(iso); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
+const hoyISO = () => { const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
+const MESES = {ene:1,feb:2,mar:3,abr:4,may:5,jun:6,jul:7,ago:8,sep:9,set:9,oct:10,nov:11,dic:12};
+
+let cortes = [], sel = null, db = null, terpelMeses = {}, misMeses = {}, canalSel = 'datafonos';
+let ajustes = { efectivoMaquina:0, otros:0, otrosNota:'', partTerpel:0, partFranq:0 };
+let pendCruce = { total:0, detalle:[] };
+const $ = id => document.getElementById(id);
+function showMsg(t, cls){ const m=$('msg'); m.className='msg '+cls; m.textContent=t; m.hidden=false; }
+
+/* ---------- Canales ---------- */
+const CANALES = [
+  { id:'prosegur',  nombre:'Prosegur (recogidas de efectivo)', mio:'Columna Recogida Líquidos',      lag:null, tol:0 },
+  { id:'datafonos', nombre:'Datáfonos (Credibanco, incluye Bre-B)', mio:'Columna Credibanco',        lag:1,    tol:0.05, terpel:['datafonos','breb'] },
+  { id:'rumbo',     nombre:'Rumbo, Mi Empresa y Urea',    mio:'Columna Rumbo Cartera',          lag:0,    tol:0.03 },
+  { id:'app',       nombre:'App Terpel',                   mio:'Columna App Terpel',             lag:1,    tol:0.01 },
+  { id:'bonos',     nombre:'Bonos y Vive Terpel',          mio:'Columna Bonos',                  lag:null, tol:0 },
+  { id:'gopass',    nombre:'GoPass / BigPass',             mio:'GoPass Cuenta + Bolsillo',       lag:null, tol:0 },
+];
+function canalTerpel(clase, det){
+  const d = (det||'').toString();
+  if (/PROSEGUR/i.test(d)) return 'prosegur';
+  if (clase === 'Nota Datafonos') return 'datafonos';
+  if (clase === 'Nota financiera' && !d.trim()) return 'rumbo';
+  if (/Bre-?b/i.test(d)) return 'breb';
+  if (/BOTON/i.test(d)) return 'app';
+  if (/BONO/i.test(d)) return 'bonos';
+  if (/Vive Terpel/i.test(clase)) return 'bonos';
+  if (/gopass|bigpass|pluxee/i.test(d)) return 'gopass';
+  return 'otros';
+}
+const NOMBRE_CANAL = { prosegur:'Prosegur (efectivo recogido)', datafonos:'Datáfonos (Credibanco)', rumbo:'Rumbo, Mi Empresa y Urea', breb:'Bre-B', app:'App Terpel', bonos:'Bonos y Vive Terpel', gopass:'GoPass / BigPass / Pluxee', otros:'Otros' };
+
+/* ---------- Lectura de archivos ---------- */
+function sheetRows(ws){ return XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:''}).map(r => r.map(c => String(c))); }
+
+function leerArchivo(wb, nombreArchivo){
+  if (wb.SheetNames.some(n => /Cuadro Diario/i.test(n))) return parseControl(wb, nombreArchivo);
+  return parseTerpel(wb);
+}
+
+function parseTerpel(wb){
+  const flat = sheetRows(wb.Sheets[wb.SheetNames[0]]);
+  const isHist = flat.some(r => r.some(c => /Hist[oó]rico de Cuenta/i.test(c)));
+  let reporte = '';
+  for (const r of flat){ const i = r.findIndex(c => /Fecha y hora de reporte/i.test(c)); if (i>=0){ const f = ddmmyyyy_to_iso(r[i+1]||''); reporte = (f||'') + ' ' + (r[i+2]||'').slice(0,5); break; } }
+  const hi = flat.findIndex(r => r.some(c => /Número Factura/i.test(c)));
+  if (hi < 0) throw new Error('No encontré la tabla de documentos. ¿Es un archivo del portal de Terpel?');
+  const H = flat[hi]; const col = name => H.findIndex(c => new RegExp(name,'i').test(c));
+  const cNF=col('Número Factura'), cND=col('Número documento'), cCl=col('Clase Documento'), cDet=col('Detalle'), cFD=col('Fecha de Documento'), cFV=col('Fecha Vencimiento'), cVal=col('^Valor');
+  const docs = [];
+  for (let i=hi+1;i<flat.length;i++){
+    const r = flat[i]; if (!r[cND] && /Saldo Total/i.test(r[cNF]||'')) break;
+    if (!r[cND]) continue;
+    const valor = parseFloat(String(r[cVal]).replace(/[^\d.-]/g,'')); if (isNaN(valor)) continue;
+    docs.push({ numero:r[cNF]||'', clase:r[cCl]||'', detalle:r[cDet]||'', fecha:ddmmyyyy_to_iso(r[cFD]||'')||'', venceTxt:r[cFV]||'', vence:ddmmyyyy_to_iso(r[cFV]||'')||'', valor });
+  }
+  if (!docs.length) throw new Error('El archivo no trae documentos.');
+  return { tipo: isHist ? 'historico' : 'estado', reporte, docs, fechaReporte: reporte.slice(0,10) };
+}
+
+function parseControl(wb, nombreArchivo){
+  const ws = wb.Sheets[wb.SheetNames.find(n => /Cuadro Diario/i.test(n))];
+  const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:''});
+  const H = rows[0].map(c => String(c).trim());
+  const col = name => H.findIndex(c => c.toLowerCase() === name.toLowerCase());
+  const num = (r,i) => i<0 ? 0 : (parseFloat(r[i]) || 0);
+  const anio = (String(nombreArchivo).match(/(20\d{2})/)||[])[1] || String(new Date().getFullYear());
+  const dias = {}; let ym = null;
+  for (const r of rows.slice(1)){
+    const f = String(r[col('Fecha')]||'').trim(); const m = f.match(/(\d{1,2})\s*([A-Za-z]{3})/); if (!m) continue;
+    const mes = MESES[m[2].toLowerCase()]; if (!mes) continue;
+    const iso = `${anio}-${String(mes).padStart(2,'0')}-${m[1].padStart(2,'0')}`; ym = iso.slice(0,7);
+    dias[iso] = {
+      prosegur: num(r,col('Recogida Líquidos')), efectivoContado: num(r,col('Prosegur')),
+      datafonos: num(r,col('Credibanco')),
+      rumbo: col('Rumbo Cartera')>=0 ? num(r,col('Rumbo Cartera')) : num(r,col('Rumbo/Crédito'))+num(r,col('Mi Empresa'))+num(r,col('Urea Crédito')),
+      app: num(r,col('App Terpel')), bonos: num(r,col('Bonos')),
+      gopass: num(r,col('GoPass Cuenta'))+num(r,col('GoPass Bolsillo')),
+      ventas: num(r,col('TOTAL VENTAS POS')),
+    };
+  }
+  if (!ym) throw new Error('No encontré filas con fecha en la hoja "Cuadro Diario".');
+  return { tipo:'control', ym, dias };
+}
+
+/* ---------- Cálculos ---------- */
+function calcular(parsed, fechaCorte){
+  const esFac = d => d.clase === 'Factura' || d.clase === 'Saldo Compensación';
+  const fac = parsed.docs.filter(esFac).sort((a,b)=>a.vence.localeCompare(b.vence));
+  const otros = parsed.docs.filter(d => !esFac(d));
+  const enCorte = fac.filter(f => f.vence <= fechaCorte);
+  const facturasVencidas = enCorte.filter(f => f.vence < fechaCorte).reduce((s,f)=>s+f.valor,0);
+  const venceHoy = enCorte.filter(f => f.vence === fechaCorte).reduce((s,f)=>s+f.valor,0);
+  const fueraDelCorte = fac.filter(f => f.vence > fechaCorte).reduce((s,f)=>s+f.valor,0);
+  const cargos = otros.filter(d => d.valor > 0).reduce((s,d)=>s+d.valor,0);
+  const abonos = {};
+  otros.filter(d => d.valor < 0).forEach(d => { const k = NOMBRE_CANAL[canalTerpel(d.clase, d.detalle)]; abonos[k] = (abonos[k]||0) + (-d.valor); });
+  const totalAbonos = Object.values(abonos).reduce((s,v)=>s+v,0);
+  const saldoTotal = parsed.docs.reduce((s,d)=>s+d.valor,0);
+  const pendienteHoy = facturasVencidas + venceHoy + cargos - totalAbonos;
+  return { fechaCorte, reporte: parsed.reporte, facturasVencidas, venceHoy, fueraDelCorte, cargos, abonos, totalAbonos, saldoTotal, pendienteHoy,
+    facturas: enCorte.map(f => ({numero:f.numero, detalle: f.clase==='Saldo Compensación' ? 'Saldo pendiente de factura' : f.detalle, venceTxt:f.venceTxt, vence:f.vence, valor:f.valor})) };
+}
+
+function movimientos(parsed){
+  const porDia = new Map();
+  for (const d of parsed.docs){
+    const f = d.fecha; if (!f) continue;
+    if (!porDia.has(f)) porDia.set(f, {fecha:f, facturas:0, nFacturas:0, abonos:{}, cargos:0});
+    const x = porDia.get(f);
+    if (d.clase === 'Factura'){ x.facturas += d.valor; x.nFacturas++; }
+    else if (d.valor < 0){ const k = NOMBRE_CANAL[canalTerpel(d.clase, d.detalle)]; x.abonos[k] = (x.abonos[k]||0) - d.valor; }
+    else x.cargos += d.valor;
+  }
+  return [...porDia.values()].sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,4);
+}
+
+function terpelPorMes(parsed){
+  const meses = {};
+  for (const d of parsed.docs){
+    if (!d.fecha || d.valor >= 0) continue;
+    const c = canalTerpel(d.clase, d.detalle); if (c === 'otros') continue;
+    const ym = d.fecha.slice(0,7); meses[ym] = meses[ym] || { ym, reporte: parsed.reporte, dias:{} };
+    const x = meses[ym].dias[d.fecha] = meses[ym].dias[d.fecha] || {};
+    x[c] = (x[c]||0) - d.valor;
+  }
+  return meses;
+}
+
+async function procesar(files){
+  try {
+    let estado = null, hist = null, control = null;
+    for (const file of files){
+      const wb = XLSX.read(await file.arrayBuffer(), {type:'array'});
+      const p = leerArchivo(wb, file.name);
+      if (p.tipo === 'historico') hist = p; else if (p.tipo === 'estado') estado = p; else control = p;
+    }
+    const fechaCorte = $('fechaCorte').value || (estado||hist||{}).fechaReporte || hoyISO();
+    const partes = [];
+    if (hist){
+      const meses = terpelPorMes(hist);
+      for (const [ym, doc] of Object.entries(meses)){ if (db) await db.collection('terpel').doc(ym).set(doc); else terpelMeses[ym]=doc; }
+    }
+    if (control){
+      if (db) await db.collection('misabonos').doc(control.ym).set({ ym: control.ym, dias: control.dias }); else misMeses[control.ym] = control;
+      partes.push('tus abonos de ' + mesLargo(control.ym) + ' guardados');
+    }
+    const existente = cortes.find(x => x.id === fechaCorte);
+    if (estado){
+      const doc = calcular(estado, fechaCorte);
+      doc.movimientos = hist ? movimientos(hist) : (existente?.movimientos || []);
+      if (db) await db.collection('cortes').doc(fechaCorte).set(doc); else { cortes = [{id:fechaCorte, ...doc}, ...cortes.filter(x=>x.id!==fechaCorte)]; }
+      sel = fechaCorte;
+      partes.unshift('corte del ' + fechaCorta(fechaCorte) + ' guardado: debes ' + fmt(doc.pendienteHoy));
+      if (!hist) partes.push('falta el Histórico para ver los movimientos y el cruce');
+    } else if (hist){
+      if (existente){ if (db) await db.collection('cortes').doc(fechaCorte).update({ movimientos: movimientos(hist) }); else existente.movimientos = movimientos(hist); sel = fechaCorte; partes.unshift('Histórico agregado al corte del ' + fechaCorta(fechaCorte)); }
+      else partes.unshift('Histórico guardado para el cruce; para calcular cuánto debes sube también el Estado de Cuenta');
+    }
+    if (!partes.length) partes.push('No reconocí ningún archivo.');
+    showMsg(partes.join(' · ') + '.', 'ok'); render();
+  } catch (e) { showMsg(e.message || 'No pude leer el archivo.', 'bad'); }
+}
+
+/* ---------- Cruce ---------- */
+function cruceMes(ym){
+  const mio = misMeses[ym]; const ter = terpelMeses[ym]; if (!mio) return null;
+  const terNext = terpelMeses[addDays(ym+'-01',31).slice(0,7)];
+  const tDiaRaw = (iso,c) => ((terpelMeses[iso.slice(0,7)]||{}).dias||{})[iso]?.[c] || 0;
+  const tDia = (iso,c) => (Array.isArray(c) ? c : [c]).reduce((s,k)=>s+tDiaRaw(iso,k),0);
+  const diasMio = Object.keys(mio.dias).sort();
+  const ultimoTerpel = Object.keys(ter?.dias||{}).concat(Object.keys(terNext?.dias||{})).sort().pop() || '';
+  const res = { ym, ultimoTerpel, canales:[] };
+  for (const c of CANALES){
+    const totMio = diasMio.reduce((s,d)=>s+(mio.dias[d][c.id]||0),0);
+    // Terpel acumulado del mes (fechas del mes) + lo del mes siguiente que corresponde a días de este mes (por el rezago)
+    const src = c.terpel || c.id;
+    let totTer = Object.keys(ter?.dias||{}).reduce((s,d)=>s+tDia(d,src),0);
+    if (c.lag && terNext){ for (let i=1;i<=c.lag;i++){ const d = addDays(ym+'-01', 31).slice(0,8) + String(i).padStart(2,'0'); totTer += tDia(d,src); } }
+    const dias = diasMio.map(d => {
+      const m = mio.dias[d][c.id]||0; const dT = c.lag===null ? d : addDays(d, c.lag); const t = tDia(dT, src);
+      let st = 'ok';
+      if (c.lag !== null){ if (m>0 && t===0) st = dT >= ultimoTerpel ? 'pend' : 'falta'; else if (m>0 && Math.abs(t-m) > Math.max(m*c.tol, 20000)) st='dif'; else if (m===0 && t===0) st='vacio'; }
+      return { fecha:d, fechaTerpel:dT, mio:m, terpel:t, dif:t-m, st };
+    });
+    const sinRegistrar = dias.filter(x=>x.st==='pend' || x.st==='falta').reduce((s,x)=>s+x.mio,0);
+    res.canales.push({ ...c, totMio, totTer, dif: totTer-totMio, dias, sinRegistrar, nFalta: dias.filter(x=>x.st==='falta').length, nDif: dias.filter(x=>x.st==='dif').length });
+  }
+  return res;
+}
+
+function renderCruce(){
+  const el = $('cruce'); const meses = Object.keys(misMeses).sort().reverse();
+  if (!meses.length){ el.innerHTML = `<h2>Cruce con tus abonos</h2><div class="empty">Sube tu archivo "Control_Ventas_…" del mes y aquí comparo, canal por canal, lo que tú contaste contra lo que Terpel registró.</div>`; return; }
+  const r = cruceMes(meses[0]); if (!r) return;
+  const tieneTerpel = !!terpelMeses[r.ym];
+  pendCruce = { total:0, detalle:[] };
+  for (const ch of r.canales){
+    if (ch.id==='bonos' || ch.id==='gopass') continue;
+    let v = 0;
+    if (ch.lag === null) v = Math.max(0, ch.totMio - ch.totTer);
+    else v = ch.dias.filter(x => x.st==='pend' || x.st==='falta').reduce((s,x)=>s+x.mio,0);
+    if (v>0){ pendCruce.detalle.push({canal: ch.nombre, valor: v}); pendCruce.total += v; }
+  }
+  const totMio = r.canales.reduce((s,c)=>s+c.totMio,0), totTer = r.canales.reduce((s,c)=>s+c.totTer,0);
+  const resumen = r.canales.map(c => {
+    const d = c.totTer - c.totMio; const pct = c.totMio ? d/c.totMio : 0;
+    const estado = !tieneTerpel ? '' : Math.abs(pct) <= 0.02 ? '<span class="pill ok">Cuadra</span>' : d < 0 ? `<span class="pill ${Math.abs(pct)>0.1?'bad':'warn'}">Terpel tiene ${fmt(d)} menos</span>` : `<span class="pill warn">Terpel tiene ${fmt(d)} más</span>`;
+    return `<tr><td>${c.nombre}<br><small style="color:var(--muted)">${c.mio}</small></td><td class="n">${fmt(c.totMio)}</td><td class="n">${fmt(c.totTer)}</td><td class="n" style="color:${d<0?'var(--accent)':'var(--ok)'}">${fmtS(d)}</td><td>${estado}</td></tr>`; }).join('');
+  const ST = { ok:'✓', dif:'≠', pend:'…', falta:'✗', vacio:'' };
+  const STT = { ok:'cuadra', dif:'no cuadra', pend:'Terpel aún no lo registra', falta:'Terpel no lo registró', vacio:'' };
+  const c = r.canales.find(x=>x.id===canalSel) || r.canales[1];
+  const tabs = r.canales.map(x=>`<button aria-pressed="${x.id===c.id}" data-c="${x.id}">${x.nombre}</button>`).join('');
+  const filas = c.dias.filter(x=>x.st!=='vacio').map(x=>`<tr><td>${fechaCorta(x.fecha)}</td><td class="n">${fmt(x.mio)}</td><td class="n">${x.terpel?fmt(x.terpel):'—'}${c.lag?`<br><small style="color:var(--muted)">reg. ${fechaCorta(x.fechaTerpel)}</small>`:''}</td><td class="n" style="color:${x.dif<0?'var(--accent)':'var(--ok)'}">${x.terpel?fmtS(x.dif):''}</td><td class="st" title="${STT[x.st]}" style="color:${x.st==='ok'?'var(--ok)':x.st==='pend'?'var(--warn)':'var(--accent)'}">${c.lag===null?'':ST[x.st]}</td></tr>`).join('');
+  const diasMes = (r.canales[0]?.dias||[]).map(x=>x.fecha);
+  const grid = diasMes.map((f,i) => {
+    let sinReg = 0;
+    const celdas = r.canales.map(ch => {
+      const x = ch.dias[i]; if (!x || (!x.mio && !x.terpel)) return '<td class="n" style="color:var(--muted)">—</td>';
+      if (ch.id === 'bonos' || ch.id === 'gopass') return `<td class="n" style="color:var(--muted)">${x.mio ? fmt(x.mio) : '—'}</td>`;
+      if (ch.lag === null){ const cu = x.terpel ? (Math.abs(x.terpel-x.mio) <= Math.max(x.mio*0.01,20000) ? '✓' : '≠') : (x.mio ? '…' : ''); const col = cu==='✓'?'var(--ok)':cu==='…'?'var(--warn)':'var(--accent)'; if (cu==='…') sinReg += x.mio; return `<td class="n"><span style="color:${col}">${cu}</span> ${fmt(x.mio)}${x.terpel && cu!=='✓' ? `<br><small style="color:var(--muted)">Terpel ${fmt(x.terpel)}</small>`:''}</td>`; }
+      if (x.st==='pend' || x.st==='falta') sinReg += x.mio;
+      const col = x.st==='ok'?'var(--ok)':x.st==='pend'?'var(--warn)':'var(--accent)';
+      return `<td class="n"><span style="color:${col}">${ST[x.st]||''}</span> ${fmt(x.mio)}${x.st==='dif' ? `<br><small style="color:var(--muted)">Terpel ${fmt(x.terpel)}</small>`:''}</td>`;
+    }).join('');
+    return `<tr><td>${fechaCorta(f)}</td>${celdas}<td class="n" style="color:${sinReg?'var(--accent)':'var(--muted)'}">${sinReg?fmt(sinReg):'—'}</td></tr>`;
+  }).join('');
+  const expl = c.lag === null
+    ? `Este canal Terpel no lo registra exactamente el mismo día (a veces lo fecha un día antes o después, o en tandas), así que lo que manda es el acumulado del mes: lo tuyo contra lo que Terpel ha recibido.`
+    : `Lo que anotas un día Terpel lo registra ${c.lag? 'al día siguiente' : 'el mismo día'}; la tabla ya está alineada así. ✓ cuadra (tolerancia ${Math.round(c.tol*100)} %), ≠ no cuadra, … todavía no ha llegado, ✗ debería estar y no está.`;
+  el.innerHTML = `
+  <h2>Cruce con tus abonos <small>· ${mesLargo(r.ym)}${tieneTerpel ? ' · Terpel registrado hasta el ' + fechaCorta(r.ultimoTerpel) : ''}</small></h2>
+  ${!tieneTerpel ? '<div class="note">Tengo tus abonos del mes pero no el Histórico de Terpel de ese mes. Súbelo y aparece la comparación.</div>' : ''}
+  <p>Tú contaste <strong>${fmt(totMio)}</strong> en abonos este mes; Terpel tiene registrados <strong>${fmt(totTer)}</strong>. ${totTer<totMio ? 'Faltan por aparecer <strong>'+fmt(totMio-totTer)+'</strong>, normalmente los datáfonos del último día y alguna recogida de Prosegur que Terpel aún no registra.' : 'Terpel tiene registrado todo lo que contaste.'}</p>
+  <div class="tbl"><table><thead><tr><th>Canal</th><th class="n">Tú contaste</th><th class="n">Terpel registró</th><th class="n">Diferencia</th><th></th></tr></thead><tbody>${resumen}<tr class="tot"><td>Total</td><td class="n">${fmt(totMio)}</td><td class="n">${fmt(totTer)}</td><td class="n">${fmtS(totTer-totMio)}</td><td></td></tr></tbody></table></div>
+  <h2>Día a día, todos los canales <small>· ✓ Terpel ya lo registró · … todavía no · ✗ debería estar y no está · ≠ no cuadra · bonos y GoPass solo se cruzan por acumulado</small></h2>
+  <div class="tbl"><table><thead><tr><th>Día</th>${r.canales.map(x=>`<th class="n">${x.nombre.split(' (')[0]}</th>`).join('')}<th class="n">Sin registrar</th></tr></thead><tbody>${grid}</tbody></table></div>
+  <h2>Detalle por canal</h2>
+  <div class="tabs" id="tabs">${tabs}</div>
+  <p style="color:var(--muted);font-size:.95rem">${expl}</p>
+  ${c.sinRegistrar>0 && c.lag!==null ? `<div class="note">${c.nombre}: hay <strong>${fmt(c.sinRegistrar)}</strong> tuyos que Terpel todavía no tiene registrados${c.nFalta?` (${c.nFalta} día${c.nFalta>1?'s':''} que ya deberían estar)`:''}.</div>` : ''}
+  <div class="tbl"><table><thead><tr><th>Día</th><th class="n">Tú contaste</th><th class="n">Terpel registró</th><th class="n">Dif.</th><th></th></tr></thead><tbody>${filas}<tr class="tot"><td>Total mes</td><td class="n">${fmt(c.totMio)}</td><td class="n">${fmt(c.totTer)}</td><td class="n">${fmtS(c.totTer-c.totMio)}</td><td></td></tr></tbody></table></div>`;
+  el.querySelectorAll('#tabs button').forEach(b => b.addEventListener('click', () => { canalSel = b.dataset.c; renderCruce(); }));
+}
+
+/* ---------- Render ---------- */
+function render(){
+  renderCruce();
+  const app = $('app'); const corteEl = $('corte');
+  if(!cortes.length){ corteEl.textContent = 'Sin cortes todavía'; return; }
+  const c = cortes.find(x => x.id === sel) || cortes[0]; sel = c.id;
+  const idx = cortes.findIndex(x => x.id === sel); const prev = cortes[idx+1];
+  corteEl.textContent = 'Corte: facturas que vencen hasta el ' + fechaLarga(c.fechaCorte) + ' · Estado de Cuenta del ' + c.reporte;
+  const pend = c.pendienteHoy;
+  const estado = pend <= 0 ? ['ok','Cubierto'] : ['bad','Pendiente por pagar'];
+  const dif = prev ? pend - prev.pendienteHoy : null;
+  const abonosRows = Object.entries(c.abonos).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="row"><span class="k">${k}</span><span class="v neg">${fmt(v)}</span></div>`).join('');
+  const facRows = (c.facturas||[]).map(f=>`<tr><td>${f.numero}</td><td>${f.detalle}</td><td>${(f.venceTxt||'').slice(0,5)}</td><td class="n">${fmt(f.valor)}</td></tr>`).join('');
+  const histRows = cortes.map((x,i)=>{ const p=cortes[i+1]; const d=p? x.pendienteHoy-p.pendienteHoy : null;
+    return `<button aria-current="${x.id===sel}" data-id="${x.id}"><span>${fechaCorta(x.fechaCorte)} <small style="color:var(--muted)">· archivo del ${x.reporte}</small></span><span class="v">${fmt(x.pendienteHoy)}${d===null?'':d<=0?`<span class="d">▼ ${fmt(d)}</span>`:`<span class="u">▲ ${fmt(d)}</span>`}</span></button>`; }).join('');
+  const movs = (c.movimientos||[]).map(m => `<div class="rows" style="margin-bottom:10px">
+    <div class="row head"><span class="k"><strong>${fechaLarga(m.fecha)}</strong></span><span class="v"></span></div>
+    ${m.nFacturas ? `<div class="row"><span class="k">Facturas nuevas <small>${m.nFacturas} factura${m.nFacturas>1?'s':''}</small></span><span class="v">${fmt(m.facturas)}</span></div>` : ''}
+    ${Object.entries(m.abonos).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="row"><span class="k">Abono · ${k}</span><span class="v neg">${fmt(v)}</span></div>`).join('')}
+    ${m.cargos ? `<div class="row"><span class="k">Cargos</span><span class="v">${fmt(m.cargos)}</span></div>` : ''}
+  </div>`).join('');
+
+  app.innerHTML = `
+  <div class="hero">
+    <p class="lbl">Debes a Terpel · corte ${fechaCorta(c.fechaCorte)}</p>
+    <p class="num">${fmt(pend)}</p>
+    <p class="sub"><span class="pill ${estado[0]}">${estado[1]}</span> ${dif===null?'':dif<=0?`<span class="pill ok">Bajó ${fmt(dif)} desde el corte anterior</span>`:`<span class="pill warn">Subió ${fmt(dif)} desde el corte anterior</span>`}</p>
+    <p class="sub">Facturas que vencen hasta el ${fechaCorta(c.fechaCorte)}, más los cargos extra, menos todos los abonos que Terpel tiene registrados.</p>
+  </div>
+
+  ${(() => {
+    const aFavorTerpel = -pend;
+    const pendTotal = pendCruce.total + (ajustes.efectivoMaquina||0) + (ajustes.otros||0);
+    const saldo1 = aFavorTerpel + pendTotal;                 // a favor después de mis abonos pendientes
+    const saldo2 = saldo1 - (ajustes.partTerpel||0);         // después de participación Terpel
+    const pf = ajustes.partFranq||0;
+    let veredicto = '';
+    if (ajustes.partTerpel || pf){
+      if (saldo2 >= pf) veredicto = `<span class="pill ok">Te pagarían tu participación completa (${fmt(pf)}) y quedarías con ${fmt(saldo2-pf)} a favor</span>`;
+      else if (saldo2 > 0) veredicto = `<span class="pill warn">Te pagarían ${fmt(saldo2)} y cruzarían ${fmt(pf-saldo2)} de tu participación contra la cartera</span>`;
+      else veredicto = `<span class="pill bad">Saldo en contra: cruzarían toda tu participación y seguirías debiendo ${fmt(-saldo2+pf)}</span>`;
+    }
+    const detalle = pendCruce.detalle.map(d=>`<div class="row"><span class="k">${d.canal} <small>según tu diario del mes, Terpel aún no lo tiene registrado</small></span><span class="v neg">${fmt(d.valor)}</span></div>`).join('');
+    return `
+  <h2>Cuadre diario <small>· la misma cuenta que Terpel hace el 2 de cada mes, pero hoy</small></h2>
+  <div class="rows">
+    <div class="row"><span class="k">${pend>0?'Lo que debes según Terpel':'A favor según Terpel'} <small>facturas hasta el ${fechaCorta(c.fechaCorte)} menos abonos registrados</small></span><span class="v ${pend>0?'':'neg'}">${pend>0?'− ':''}${fmt(pend)}</span></div>
+    ${detalle || '<div class="row"><span class="k" style="color:var(--muted)">Sube tu Control_Ventas del mes para que aquí aparezcan los abonos tuyos que Terpel aún no registra.</span><span class="v"></span></div>'}
+    ${ajustes.efectivoMaquina ? `<div class="row"><span class="k">Efectivo en la máquina <small>pendiente de recogida</small></span><span class="v neg">${fmt(ajustes.efectivoMaquina)}</span></div>`:''}
+    ${ajustes.otros ? `<div class="row"><span class="k">Otros abonos pendientes <small>${ajustes.otrosNota||''}</small></span><span class="v neg">${fmt(ajustes.otros)}</span></div>`:''}
+    <div class="row total"><span class="k">${saldo1>=0?'Saldo a tu favor con todos tus abonos':'Saldo en contra con todos tus abonos'}</span><span class="v">${fmt(saldo1)}</span></div>
+    ${ajustes.partTerpel ? `<div class="row"><span class="k">Participación Terpel <small>estimada; se cobra a la cartera</small></span><span class="v">− ${fmt(ajustes.partTerpel)}</span></div>
+    <div class="row total"><span class="k">${saldo2>=0?'Saldo a favor después de participación Terpel':'Saldo en contra después de participación Terpel'}</span><span class="v">${fmt(saldo2)}</span></div>`:''}
+  </div>
+  ${veredicto ? `<p style="margin-top:10px">${veredicto}</p>` : ''}
+  <details style="margin-top:10px"><summary style="cursor:pointer;color:var(--muted)">Ajustar valores manuales (efectivo en máquina, planillas reclamadas, participaciones)</summary>
+    <div class="rows" style="margin-top:8px;padding:12px 16px;gap:8px">
+      <label>Efectivo en la máquina <input type="number" id="ajEfectivo" value="${ajustes.efectivoMaquina||''}" style="width:100%;font:inherit;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)"></label>
+      <label>Otros abonos pendientes (valor) <input type="number" id="ajOtros" value="${ajustes.otros||''}" style="width:100%;font:inherit;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)"></label>
+      <label>Nota de esos otros abonos <input type="text" id="ajOtrosNota" value="${(ajustes.otrosNota||'').replace(/"/g,'&quot;')}" placeholder="ej. planilla 63659729 del 18 sep en reclamo" style="width:100%;font:inherit;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)"></label>
+      <label>Participación Terpel estimada <input type="number" id="ajPartTerpel" value="${ajustes.partTerpel||''}" style="width:100%;font:inherit;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)"></label>
+      <label>Participación franquiciado estimada <input type="number" id="ajPartFranq" value="${ajustes.partFranq||''}" style="width:100%;font:inherit;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)"></label>
+      <div><button class="btn" id="ajGuardar" type="button">Guardar</button> <span id="ajMsg" style="color:var(--muted);font-size:.9rem"></span></div>
+    </div>
+  </details>`; })()}
+
+  <h2>En palabras sencillas</h2>
+  <p>Terpel te tiene facturas abiertas por <strong>${fmt(c.facturasVencidas + c.venceHoy)}</strong> con vencimiento hasta el ${fechaCorta(c.fechaCorte)}${c.cargos>0 ? ', más <strong>'+fmt(c.cargos)+'</strong> de cargos adicionales (bonos de carbono, retefuente)' : ''}. Tú ya le has pagado <strong>${fmt(c.totalAbonos)}</strong> por todos los canales, y ese dinero está en fila esperando a que Terpel lo cruce contra las facturas (el portal lo llama “saldo a favor”, pero no es plata de más). ${pend>0 ? 'La diferencia, <strong>'+fmt(pend)+'</strong>, es lo que sigue pendiente.' : 'Con eso las facturas del corte quedan cubiertas y te sobran <strong>'+fmt(pend)+'</strong> para las siguientes.'}</p>
+  ${c.fueraDelCorte>0 ? `<div class="note">Hay otras facturas por ${fmt(c.fueraDelCorte)} que vencen después del ${fechaCorta(c.fechaCorte)}; no entran en este corte.</div>` : ''}
+  <div class="note">Prosegur, Rumbo/Mi Empresa y los datáfonos entran al portal con 1-2 días de rezago. Si consignaste ayer u hoy y aún no aparece, el saldo real es menor.</div>
+
+  <h2>Cómo se arma el número</h2>
+  <div class="rows">
+    <div class="row"><span class="k">Facturas ya vencidas <small>vencían antes del ${fechaCorta(c.fechaCorte)}</small></span><span class="v">${fmt(c.facturasVencidas)}</span></div>
+    <div class="row"><span class="k">Facturas que vencen el ${fechaCorta(c.fechaCorte)}</span><span class="v">${fmt(c.venceHoy)}</span></div>
+    <div class="row"><span class="k">Cargos adicionales <small>bonos de carbono, retefuente de datáfonos</small></span><span class="v">${fmt(c.cargos)}</span></div>
+    <div class="row"><span class="k">Abonos recibidos, pendientes de cruzar</span><span class="v neg">− ${fmt(c.totalAbonos)}</span></div>
+    <div class="row total"><span class="k">Lo que debes</span><span class="v">${fmt(pend)}</span></div>
+  </div>
+
+  <h2>Lo que ya pagaste y Terpel aún no ha cruzado</h2>
+  <div class="rows">${abonosRows}<div class="row total"><span class="k">Total abonos</span><span class="v">${fmt(c.totalAbonos)}</span></div></div>
+
+  <h2>Facturas que entran en el corte</h2>
+  <div class="tbl"><table><thead><tr><th>Factura</th><th>Producto</th><th>Vence</th><th class="n">Valor</th></tr></thead><tbody>${facRows}</tbody></table></div>
+
+  ${movs ? `<h2>Qué entró en los últimos días <small>(según el Histórico)</small></h2>${movs}` : ''}
+
+  <h2>Cortes anteriores</h2>
+  <div class="rows hist">${histRows}</div>`;
+  app.querySelectorAll('.hist button').forEach(b => b.addEventListener('click', () => { sel = b.dataset.id; render(); window.scrollTo({top:0,behavior:'smooth'}); }));
+  const g = $('ajGuardar'); if (g) g.addEventListener('click', async () => {
+    const n = id => parseFloat($(id).value) || 0;
+    const nuevo = { efectivoMaquina:n('ajEfectivo'), otros:n('ajOtros'), otrosNota:$('ajOtrosNota').value||'', partTerpel:n('ajPartTerpel'), partFranq:n('ajPartFranq') };
+    try { if (db) await db.doc('config/ajustes').set(nuevo); ajustes = nuevo; render(); showMsg('Valores manuales guardados.', 'ok'); }
+    catch(e){ $('ajMsg').textContent = 'No se pudo guardar.'; }
+  });
+}
+
+/* ---------- Arranque ---------- */
+(function(){
+  $('fechaCorte').value = hoyISO();
+  const drop = $('drop');
+  $('file').addEventListener('change', e => { const fs=[...e.target.files]; if(fs.length) procesar(fs); e.target.value=''; });
+  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => { const fs=[...e.dataTransfer.files]; if(fs.length) procesar(fs); });
+})();
+render();
+
+(async () => {
+  db = await window.claude?.use?.('db');
+  if(!db){ $('corte').textContent = 'No se pudieron cargar los cortes.'; return; }
+  const err = () => { $('corte').textContent = 'No se pudieron cargar los datos.'; };
+  db.collection('cortes').orderBy('fechaCorte','desc').limit(90).onSnapshot(snap => { cortes = snap.docs.filter(d=>d.exists).map(d => ({ id:d.id, ...d.data() })); render(); }, err);
+  db.collection('terpel').limit(24).onSnapshot(snap => { terpelMeses = {}; snap.docs.forEach(d => { if (d.exists) terpelMeses[d.id] = d.data(); }); render(); }, err);
+  db.doc('config/ajustes').onSnapshot(snap => { if (snap.exists) ajustes = { ...ajustes, ...snap.data() }; render(); }, err);
+  db.collection('misabonos').limit(24).onSnapshot(snap => { misMeses = {}; snap.docs.forEach(d => { if (d.exists) misMeses[d.id] = d.data(); }); render(); }, err);
+})();
+</script>
