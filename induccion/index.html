@@ -119,7 +119,7 @@ table.res th{font-family:var(--display);font-weight:800;color:var(--muted);font-
     <div class="stage"><img id="slide" src="slides/s-01.jpg" alt="Diapositiva 1 de la inducción" width="1467" height="825"><video id="vid" src="protocolo_servicio.mp4" poster="video_cover.jpg" controls playsinline preload="none" hidden></video></div><p id="vidcap" class="pos" style="margin-top:8px" hidden>Video: protocolo de servicio. Toca play y fíjate en cada paso.</p>
     <div class="nav">
       <button class="btn ghost" id="prev">Anterior</button>
-      <span class="pos" id="pos">1 / 40</span>
+      <span class="pos" id="pos">1 / 41</span>
       <button class="btn ghost" id="next">Siguiente</button>
     </div>
     <div class="dots" id="dots" aria-label="Ir a una diapositiva"></div>
@@ -156,6 +156,7 @@ table.res th{font-family:var(--display);font-weight:800;color:var(--muted);font-
           <label class="f" for="nombre">Nombre completo<input type="text" id="nombre" autocomplete="name" placeholder="Ej.: Juan Pérez"></label>
           <label class="f" for="cedula">Cédula<input type="text" id="cedula" inputmode="numeric" placeholder="Ej.: 1012345678"></label>
         </div>
+        <label class="opt" for="autoriza" style="cursor:pointer"><input type="checkbox" id="autoriza"><span><b>Autorización de lectura:</b> declaro que leí y entendí todo el documento de inducción de PLAN VE S.A.S. y que puedo consultar el Reglamento Interno de Trabajo en el código QR de la oficina.</span></label>
         <div><button class="btn" id="go" disabled>Empezar evaluación</button></div>
       </div>
     </section>
@@ -174,7 +175,7 @@ table.res th{font-family:var(--display);font-weight:800;color:var(--muted);font-
 <script>
 const $ = (id)=>document.getElementById(id);
 /* ---------- Presentación ---------- */
-const N = 40; let cur = 1;
+const N = 41; let cur = 1;
 const src = (n)=>`slides/s-${String(n).padStart(2,"0")}.jpg`;
 for(let i=1;i<=N;i++){ const b=document.createElement("button"); b.setAttribute("aria-label","Diapositiva "+i); b.addEventListener("click",()=>show(i)); $("dots").appendChild(b); }
 const VIDEO_SLIDE = 11;
@@ -264,9 +265,9 @@ const BANK = {
   ["Un cliente quiere pagar con tarjeta Nequi. ¿Qué haces?", ["No se acepta, salvo autorización de la gerencia", "La acepto siempre", "Le cobro un recargo", "La paso como efectivo"], "Así lo dicen los deberes y protocolos."],
   ["Un cliente te pide que le saques efectivo con el datáfono. ¿Qué haces?", ["No lo hago: están prohibidos los retiros y adelantos, y aviso a la administración", "Lo hago si muestra la cédula", "Lo hago hasta $200.000", "Lo hago si insiste"], "Exponen al promotor a investigación de la Fiscalía."],
   ["Venta de urea a un cliente Rumbo. ¿Cuál es el procedimiento?", ["Despacho exacto, factura inmediata revisada y firmada por el conductor antes de salir, y cierre inmediato", "Cerrar la venta al final del turno", "Sin factura si es cliente frecuente", "Dejar la venta abierta"], "Ninguna venta Rumbo sin factura firmada."],
-  ["Se cae el sistema. ¿A quién llamas?", ["A Devitech: 605 385 5117", "Al 123", "A la ARL", "A Prosegur"], "Para fallas de GNV o de clientes Rumbo, marcas #462."],
+  ["Se cae el sistema o falla el GNV. ¿Qué haces?", ["Marco de inmediato el #462", "Llamo al 123", "Llamo a la ARL", "Llamo a Prosegur"], "Para fallas de GNV o de clientes Rumbo, marcas #462."],
   ["Hay una contaminación de combustible. ¿Qué haces?", ["Informo de inmediato al jefe de patios o al encargado de la EDS", "Sigo despachando", "Lo arreglo yo solo", "Espero al día siguiente"], "Las contaminaciones se reportan de inmediato."],
-  ["Un cliente quiere poner una queja. ¿Por dónde la envía?", ["Por WhatsApp al 318 550 7467, el número que aparece en la factura", "Por correo a Terpel", "A mi celular personal", "No se reciben quejas"], "Ese número aparece en la factura."],
+  ["Un cliente tiene una queja. ¿Qué haces?", ["Lo escucho con respeto y trato de resolver; si no puedo, acudo a mi jefe directo", "Le digo que no es mi problema", "Discuto con él hasta que se vaya", "Lo ignoro"], "Manejar bien al cliente es parte de tu trabajo."],
   ["Un cliente paga con Gopass. ¿Qué envías al grupo de WhatsApp?", ["Foto de la placa con el carro en la EDS, foto del voucher, nombre y teléfono del cliente", "Solo el valor", "Nada", "Solo la foto del cliente"], "Si la placa no coincide con el tag, no tanqueas y reportas."]
  ],
  "Integridad y convivencia": [
@@ -322,8 +323,8 @@ function pick(){
     return {mod:x.mod, text, why, order: shuffle(opts.map((t,k)=>({t,ok:k===0})))};
   });
 }
-function validStart(){ $("go").disabled = !($("nombre").value.trim().length>3 && /\d{5,}/.test($("cedula").value)); }
-$("nombre").addEventListener("input",validStart); $("cedula").addEventListener("input",validStart);
+function validStart(){ $("go").disabled = !($("nombre").value.trim().length>3 && /\d{5,}/.test($("cedula").value) && $("autoriza").checked); }
+$("nombre").addEventListener("input",validStart); $("cedula").addEventListener("input",validStart); $("autoriza").addEventListener("change",validStart);
 $("go").addEventListener("click",()=>{ person={nombre:$("nombre").value.trim(), cedula:$("cedula").value.replace(/\D/g,"")}; $("start").hidden=true; newAttempt(); });
 $("quiz").addEventListener("change", progress);
 
@@ -368,7 +369,7 @@ $("send").addEventListener("click",()=>{
   const score=Math.round(good/TOTAL*100);
   $("bar").hidden=true;
   const now=new Date();
-  const rec={nombre:person.nombre, cedula:person.cedula, intento:attempt, puntaje:score, correctas:good, total:TOTAL, aprobado:score===100, fecha:now.toISOString(),
+  const rec={nombre:person.nombre, cedula:person.cedula, autorizaLectura:"Sí", intento:attempt, puntaje:score, correctas:good, total:TOTAL, aprobado:score===100, fecha:now.toISOString(),
     codigo: score===100 ? codeFor(person.cedula+"|"+now.toISOString().slice(0,10)+"|"+attempt) : "",
     falladas: current.filter((it,n)=>!it.order[+$("q"+n).querySelector("input:checked").value].ok).map(it=>it.text)};
   const savedP = saveResult(rec);
