@@ -254,7 +254,7 @@ $("toRes").addEventListener("click",()=>view("res"));
 if(location.hash==="#evaluacion") view("eval");
 
 /* ---------- Envío a Google Sheets (Apps Script) ---------- */
-const SHEETS_URL = "";   // URL del Apps Script (Implementar > Aplicación web), termina en /exec
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwDKwQ8n-268ipmA4k2o_ThUwRsruyJFhEDbAaoNbDetV19ORvmkFRkuU6GX6GNE5YuAw/exec";   // URL del Apps Script (Implementar > Aplicación web), termina en /exec
 var canAdmin=false;
 async function send(tipo, rec){
   if(!SHEETS_URL) return false;
