@@ -88,6 +88,14 @@ input[type=text]:focus{outline:3px solid var(--yellow);border-color:var(--navy)}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-variant-numeric:tabular-nums;margin:0}
 .kv dt{color:var(--muted);font-weight:600} .kv dd{margin:0;font-weight:700;min-width:0;overflow-wrap:anywhere}
 .code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:20px;letter-spacing:.12em;color:var(--navy)}
+.authbox{margin-top:14px;background:var(--surface);border:2px solid var(--red);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.bigcheck{display:flex;gap:14px;align-items:flex-start;cursor:pointer;font-size:17px;line-height:1.45}
+.bigcheck input{appearance:none;-webkit-appearance:none;flex:none;width:34px;height:34px;border:3px solid var(--navy);border-radius:6px;background:var(--surface);display:grid;place-items:center;cursor:pointer;margin:0}
+.bigcheck input:checked{background:var(--ok);border-color:var(--ok)}
+.bigcheck input:checked::after{content:"✓";color:#fff;font-size:26px;font-weight:900;line-height:1}
+.bigcheck input:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.okmsg{color:var(--ok);font-weight:700}
+.badmsg{color:var(--bad);font-weight:700}
 .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 table.res{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
 table.res th,table.res td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -123,6 +131,16 @@ table.res th{font-family:var(--display);font-weight:800;color:var(--muted);font-
       <button class="btn ghost" id="next">Siguiente</button>
     </div>
     <div class="dots" id="dots" aria-label="Ir a una diapositiva"></div>
+    <div class="authbox" id="authPanel" hidden>
+      <h2>Autorización de lectura</h2>
+      <label class="bigcheck" for="authChk"><input type="checkbox" id="authChk"><span>Declaro que leí y entendí todo el documento de inducción de PLAN VE S.A.S.: bienvenida, turnos y nómina, protocolos operativos, integridad y convivencia, y Seguridad y Salud en el Trabajo. Me comprometo a cumplirlo y sé que puedo consultar el Reglamento Interno de Trabajo en el código QR de la oficina.</span></label>
+      <div class="row">
+        <label class="f" for="authNombre">Nombre completo<input type="text" id="authNombre" autocomplete="off" placeholder="Ej.: Juan Pérez"></label>
+        <label class="f" for="authCedula">Cédula<input type="text" id="authCedula" inputmode="numeric" autocomplete="off" placeholder="Ej.: 1012345678"></label>
+      </div>
+      <div><button class="btn" id="authSend" disabled>Firmar autorización</button></div>
+      <p id="authMsg" class="note" hidden></p>
+    </div>
     <div class="cta" id="cta">
       <div><h2>¿Terminaste la presentación?</h2><p style="color:var(--muted)">Responde la evaluación. Se aprueba solo con 100/100.</p></div>
       <button class="btn" id="toEval2">Hacer la evaluación</button>
@@ -144,6 +162,7 @@ table.res th{font-family:var(--display);font-weight:800;color:var(--muted);font-
       <div class="panel stack">
         <h2>Antes de empezar</h2>
         <ul class="rules">
+          <li>Antes debes firmar la <b>autorización de lectura</b> al final de la presentación.</li>
           <li>Son <b>20 preguntas</b> de selección múltiple sobre lo que viste en la inducción.</li>
           <li>Necesitas <b>100 sobre 100</b>. Con una sola respuesta mala, repites.</li>
           <li>Cada intento trae preguntas diferentes y las opciones en otro orden.</li>
@@ -152,12 +171,14 @@ table.res th{font-family:var(--display);font-weight:800;color:var(--muted);font-
         </ul>
       </div>
       <div class="panel stack">
-        <div class="row">
-          <label class="f" for="nombre">Nombre completo<input type="text" id="nombre" autocomplete="name" placeholder="Ej.: Juan Pérez"></label>
-          <label class="f" for="cedula">Cédula<input type="text" id="cedula" inputmode="numeric" placeholder="Ej.: 1012345678"></label>
+        <div id="needAuth" class="stack">
+          <p class="badmsg">Primero firma la autorización de lectura al final de la presentación.</p>
+          <div><button class="btn alt" id="goAuth">Ir a la autorización</button></div>
         </div>
-        <label class="opt" for="autoriza" style="cursor:pointer"><input type="checkbox" id="autoriza"><span><b>Autorización de lectura:</b> declaro que leí y entendí todo el documento de inducción de PLAN VE S.A.S. y que puedo consultar el Reglamento Interno de Trabajo en el código QR de la oficina.</span></label>
-        <div><button class="btn" id="go" disabled>Empezar evaluación</button></div>
+        <div id="haveAuth" class="stack" hidden>
+          <dl class="kv"><dt>Nombre</dt><dd id="evN"></dd><dt>Cédula</dt><dd id="evC"></dd></dl>
+          <div><button class="btn" id="go">Empezar evaluación</button></div>
+        </div>
       </div>
     </section>
     <section id="result" class="stack" style="margin-top:16px" hidden></section>
@@ -178,10 +199,12 @@ const $ = (id)=>document.getElementById(id);
 const N = 41; let cur = 1;
 const src = (n)=>`slides/s-${String(n).padStart(2,"0")}.jpg`;
 for(let i=1;i<=N;i++){ const b=document.createElement("button"); b.setAttribute("aria-label","Diapositiva "+i); b.addEventListener("click",()=>show(i)); $("dots").appendChild(b); }
-const VIDEO_SLIDE = 11;
+const VIDEO_SLIDE = 11, AUTH_SLIDE = 40;
+let auth = null;
 function show(n){
   cur=Math.max(1,Math.min(N,n));
   const isVid = cur===VIDEO_SLIDE; $("slide").hidden=isVid; $("vid").hidden=!isVid; $("vidcap").hidden=!isVid; if(!isVid) $("vid").pause();
+  $("authPanel").hidden = cur!==AUTH_SLIDE;
   $("slide").src=src(cur); $("slide").alt="Diapositiva "+cur+" de la inducción";
   $("pos").textContent=cur+" / "+N;
   $("prev").disabled=cur===1; $("next").disabled=cur===N;
@@ -194,6 +217,25 @@ document.addEventListener("keydown",(e)=>{ if($("deck").hidden) return; if(e.key
 let tx=null; $("slide").addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
 $("slide").addEventListener("touchend",e=>{ if(tx===null) return; const dx=e.changedTouches[0].clientX-tx; if(Math.abs(dx)>40) show(cur+(dx<0?1:-1)); tx=null; });
 show(1);
+
+function authValid(){ return $("authChk").checked && $("authNombre").value.trim().length>3 && /\d{5,}/.test($("authCedula").value); }
+["authChk","authNombre","authCedula"].forEach(id=>$(id).addEventListener(id==="authChk"?"change":"input",()=>{ if(!auth) $("authSend").disabled=!authValid(); }));
+$("authSend").addEventListener("click", async ()=>{
+  if(!authValid() || auth) return;
+  auth={nombre:$("authNombre").value.trim(), cedula:$("authCedula").value.replace(/\D/g,""), fecha:new Date().toISOString()};
+  ["authChk","authNombre","authCedula","authSend"].forEach(id=>$(id).disabled=true);
+  $("authSend").textContent="Autorización firmada";
+  const m=$("authMsg"); m.hidden=false; m.className="note"; m.textContent="Enviando…";
+  refreshStart();
+  const ok = await saveAuth({nombre:auth.nombre, cedula:auth.cedula, fecha:auth.fecha, autorizacion:"Leí y entendí todo el documento de inducción"});
+  m.className = ok ? "okmsg" : "badmsg";
+  m.textContent = ok ? "Autorización registrada. Ya puedes hacer la evaluación." : "Autorización firmada, pero no se pudo enviar. Avisa a la administración. Ya puedes hacer la evaluación.";
+});
+function refreshStart(){
+  $("needAuth").hidden=!!auth; $("haveAuth").hidden=!auth;
+  if(auth){ $("evN").textContent=auth.nombre; $("evC").textContent=auth.cedula; }
+}
+$("goAuth").addEventListener("click",()=>{ view("deck"); show(AUTH_SLIDE); });
 
 function view(v){
   const ev = v==="eval", rs = v==="res";
@@ -211,14 +253,16 @@ $("toDeck").addEventListener("click",()=>view("deck"));
 $("toRes").addEventListener("click",()=>view("res"));
 if(location.hash==="#evaluacion") view("eval");
 
-/* ---------- Guardado de resultados en Google Sheets ---------- */
-const SHEETS_URL = "";   // URL del Apps Script (Implementar > Aplicación web)
+/* ---------- Envío a Google Sheets (Apps Script) ---------- */
+const SHEETS_URL = "";   // URL del Apps Script (Implementar > Aplicación web), termina en /exec
 var canAdmin=false;
-async function saveResult(rec){
+async function send(tipo, rec){
   if(!SHEETS_URL) return false;
-  try{ await fetch(SHEETS_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(rec)}); return true; }
+  try{ await fetch(SHEETS_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(Object.assign({tipo:tipo},rec))}); return true; }
   catch(e){ return false; }
 }
+const saveAuth = (rec)=>send("autorizacion", rec);
+const saveResult = (rec)=>send("evaluacion", rec);
 
 /* ---------- Evaluación ---------- */
 // Banco de preguntas: la primera opción de cada arreglo es la correcta (se baraja al mostrar).
@@ -323,9 +367,7 @@ function pick(){
     return {mod:x.mod, text, why, order: shuffle(opts.map((t,k)=>({t,ok:k===0})))};
   });
 }
-function validStart(){ $("go").disabled = !($("nombre").value.trim().length>3 && /\d{5,}/.test($("cedula").value) && $("autoriza").checked); }
-$("nombre").addEventListener("input",validStart); $("cedula").addEventListener("input",validStart); $("autoriza").addEventListener("change",validStart);
-$("go").addEventListener("click",()=>{ person={nombre:$("nombre").value.trim(), cedula:$("cedula").value.replace(/\D/g,"")}; $("start").hidden=true; newAttempt(); });
+$("go").addEventListener("click",()=>{ if(!auth) return; person={nombre:auth.nombre, cedula:auth.cedula}; $("start").hidden=true; newAttempt(); });
 $("quiz").addEventListener("change", progress);
 
 function newAttempt(){
@@ -382,7 +424,9 @@ $("send").addEventListener("click",()=>{
       <h2>¡Felicitaciones! Completaste tu inducción.</h2>
       <dl class="kv"><dt>Nombre</dt><dd id="cN"></dd><dt>Cédula</dt><dd id="cC"></dd><dt>Fecha</dt><dd>${fecha}</dd><dt>Intentos</dt><dd>${attempt}</dd><dt>Código</dt><dd class="code">${code}</dd></dl>
       <p id="saveMsg" class="note">Guardando el resultado…</p>
-      <p>Muestra esta pantalla a la administración para firmar tu constancia de inducción.</p></div>`;
+      <p>Muestra esta pantalla a la administración para firmar tu constancia de inducción.</p>
+      <div><button class="btn alt" id="nextPerson">Terminar y dejar listo para otra persona</button></div></div>`;
+    $("nextPerson").addEventListener("click",()=>location.reload());
     $("cN").textContent=person.nombre; $("cC").textContent=person.cedula;
     savedP.then(ok=>{ $("saveMsg").textContent = ok ? "Resultado enviado a la administración." : "No se pudo enviar el resultado: toma una captura de esta pantalla."; });
   } else {
