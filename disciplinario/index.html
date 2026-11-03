@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Procesos Disciplinarios · PLAN VE S.A.S</title>
+<meta name="theme-color" content="#1B1F27">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Disciplinarios">
+<meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rojo:#D7141A; --rojo-osc:#A50F14; --rojo-suave:#FDECEC;
+  --tinta:#1B1F27; --gris:#5E6673; --gris2:#8B93A1; --linea:#E4E7EC; --fondo:#F5F6F8; --blanco:#fff;
+  --azul:#1F5FBF; --azul-s:#E8F0FC; --ambar:#B26A00; --ambar-s:#FFF4E0; --verde:#17804A; --verde-s:#E5F5EC; --morado:#6B3FB5; --morado-s:#F0EAFB;
+  --r:12px; --sombra:0 1px 2px rgba(16,24,40,.06),0 4px 12px rgba(16,24,40,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--fondo);color:var(--tinta);font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+header{background:var(--tinta);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+.logo{width:36px;height:36px;border-radius:9px;background:var(--rojo);display:grid;place-items:center;font-weight:700;font-size:15px;flex:none}
+header h1{font-size:16px;margin:0;font-weight:600}
+header small{display:block;color:#AEB4BF;font-size:12px;font-weight:400}
+header .sp{flex:1}
+.btn{border:1px solid var(--linea);background:#fff;border-radius:9px;padding:8px 14px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:#F2F4F7}
+.btn.pri{background:var(--rojo);border-color:var(--rojo);color:#fff}
+.btn.pri:hover{background:var(--rojo-osc)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:#EEF0F3}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+header .btn{border-color:#3A404C;background:#262B35;color:#fff}
+header .btn:hover{background:#323844}
+header .btn.pri{background:var(--rojo);border-color:var(--rojo)}
+nav.tabs{display:flex;gap:4px;padding:0 22px;background:#fff;border-bottom:1px solid var(--linea);overflow-x:auto}
+nav.tabs button{border:0;background:none;padding:13px 14px;cursor:pointer;color:var(--gris);font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+nav.tabs button.on{color:var(--tinta);border-bottom-color:var(--rojo)}
+main{padding:20px 22px 60px;max-width:1280px;margin:0 auto}
+.banner{background:var(--ambar-s);border:1px solid #F3D9A6;color:#6B4300;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:#fff;border:1px solid var(--linea);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:.15s}
+.kpi:hover{border-color:#C9CED6}
+.kpi.on{outline:2px solid var(--tinta)}
+.kpi .n{font-size:26px;font-weight:700;line-height:1.1}
+.kpi .l{color:var(--gris);font-size:12.5px;margin-top:3px}
+.kpi .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.search{flex:1;min-width:220px;position:relative}
+.search input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--linea);border-radius:9px;background:#fff}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--gris2)}
+select.f{padding:8px 10px;border:1px solid var(--linea);border-radius:9px;background:#fff}
+.card{background:#fff;border:1px solid var(--linea);border-radius:var(--r);box-shadow:var(--sombra)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:12px;color:var(--gris);font-weight:600;padding:10px 14px;border-bottom:1px solid var(--linea);background:#FAFBFC;white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid #EEF0F3;vertical-align:middle}
+tr.row{cursor:pointer}
+tr.row:hover td{background:#FAFBFC}
+tr:last-child td{border-bottom:0}
+.mono{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+.muted{color:var(--gris)}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.t-cit{background:var(--azul-s);color:var(--azul)}
+.t-des{background:var(--ambar-s);color:var(--ambar)}
+.t-dec{background:var(--morado-s);color:var(--morado)}
+.t-san{background:var(--rojo-suave);color:var(--rojo-osc)}
+.t-cer{background:var(--verde-s);color:var(--verde)}
+.t-arc{background:#EEF0F3;color:var(--gris)}
+.pipe{display:flex;gap:3px}
+.pipe i{width:18px;height:5px;border-radius:3px;background:#E4E7EC}
+.pipe i.ok{background:var(--verde)}
+.pipe i.cur{background:var(--rojo)}
+.empty{padding:50px 20px;text-align:center;color:var(--gris)}
+.empty b{display:block;color:var(--tinta);font-size:15px;margin-bottom:6px}
+/* drawer */
+.overlay{position:fixed;inset:0;background:rgba(16,20,28,.45);z-index:40;display:none}
+.overlay.on{display:block}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(860px,100%);background:var(--fondo);z-index:41;transform:translateX(100%);transition:transform .22s ease;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dh{background:#fff;border-bottom:1px solid var(--linea);padding:16px 20px;display:flex;gap:12px;align-items:flex-start}
+.dh h2{margin:0;font-size:18px}
+.dh .sp{flex:1}
+.db{overflow:auto;padding:18px 20px 40px;flex:1}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.step{background:#fff;border:1px solid var(--linea);border-radius:10px;padding:10px 12px;cursor:pointer;position:relative}
+.step .k{font-size:11px;color:var(--gris2);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.step .t{font-weight:600;font-size:13px;margin-top:2px}
+.step .d{font-size:12px;color:var(--gris);margin-top:2px}
+.step.ok{border-color:#B7E1C8;background:#F6FCF8}
+.step.ok .k{color:var(--verde)}
+.step.cur{border-color:var(--rojo);box-shadow:0 0 0 1px var(--rojo)}
+.step.sel{background:var(--tinta);color:#fff;border-color:var(--tinta)}
+.step.sel .k,.step.sel .d{color:#C9CED6}
+.step.off{opacity:.5}
+.sec{background:#fff;border:1px solid var(--linea);border-radius:var(--r);padding:16px 18px;margin-bottom:14px}
+.sec h3{margin:0 0 12px;font-size:14.5px;display:flex;align-items:center;gap:8px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.full{grid-column:1/-1}
+label.fl{display:block;font-size:12px;font-weight:600;color:var(--gris);margin-bottom:4px}
+.in{width:100%;padding:8px 10px;border:1px solid var(--linea);border-radius:8px;background:#fff}
+.in:focus{outline:2px solid #F7B9BB;border-color:var(--rojo)}
+textarea.in{min-height:84px;resize:vertical}
+.hint{font-size:12px;color:var(--gris);margin-top:4px}
+.warn{font-size:12.5px;color:var(--rojo-osc);background:var(--rojo-suave);border-radius:8px;padding:8px 10px;margin-top:8px}
+.ok-note{font-size:12.5px;color:var(--verde);background:var(--verde-s);border-radius:8px;padding:8px 10px;margin-top:8px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:flex-end}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px}
+.timeline{list-style:none;margin:0;padding:0}
+.timeline li{display:flex;gap:12px;padding:8px 0;border-bottom:1px dashed #E7E9ED;font-size:13px}
+.timeline li:last-child{border-bottom:0}
+.timeline .when{width:140px;flex:none;color:var(--gris)}
+.timeline .who{color:var(--gris);font-size:12px}
+/* modal doc */
+.modal{position:fixed;inset:0;z-index:60;display:none;background:rgba(16,20,28,.55);padding:24px;overflow:auto}
+.modal.on{display:block}
+.mbox{max-width:860px;margin:0 auto;background:#E9EBEF;border-radius:14px;overflow:hidden}
+.mbar{display:flex;gap:8px;align-items:center;padding:12px 14px;background:#fff;border-bottom:1px solid var(--linea);position:sticky;top:0;flex-wrap:wrap}
+.mbar b{flex:1}
+.paper{background:#fff;margin:20px auto;width:min(760px,calc(100% - 28px));padding:56px 64px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-family:Merriweather,Georgia,serif;font-size:13.5px;line-height:1.7;color:#111}
+.paper h1{font-size:15px;text-align:center;margin:0 0 4px;letter-spacing:.02em}
+.paper .enc{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--rojo);padding-bottom:10px;margin-bottom:22px;font-family:Inter,sans-serif}
+.paper .enc .em{font-weight:700;font-size:15px}
+.paper .enc .sub{font-size:11px;color:#555}
+.paper .ref{font-family:Inter,sans-serif;font-size:11px;color:#555;text-align:right}
+.paper p{margin:0 0 12px;text-align:justify}
+.paper .blk{background:#F7F7F7;border-left:3px solid #999;padding:10px 14px;margin:8px 0 14px;white-space:pre-wrap}
+.paper ol{margin:0 0 12px;padding-left:22px}
+.paper .firmas{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:50px}
+.paper .firma{border-top:1px solid #222;padding-top:6px;font-size:12px}
+.paper .blank{display:inline-block;min-width:120px;border-bottom:1px solid #333}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:10px 16px;border-radius:10px;z-index:80;font-size:13px;opacity:0;transition:.2s;pointer-events:none}
+.toast.on{opacity:1}
+/* confirm */
+.cf{position:fixed;inset:0;background:rgba(16,20,28,.5);z-index:90;display:none;align-items:center;justify-content:center;padding:20px}
+.cf.on{display:flex}
+.cf .box{background:#fff;border-radius:14px;padding:20px;max-width:420px;width:100%}
+.cf .box p{margin:0 0 16px}
+.tplgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.tpl{padding:18px;display:flex;flex-direction:column;gap:8px}
+.tpl .ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:19px}
+.tpl h4{margin:0;font-size:15px}
+.tpl p{margin:0;color:var(--gris);font-size:13px;flex:1}
+.wk{padding:14px 16px;border-bottom:1px solid #EEF0F3;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.wk:last-child{border-bottom:0}
+.wk .nm{font-weight:600;min-width:200px;flex:1}
+.wk .ch{display:flex;gap:6px;flex-wrap:wrap}
+.ai{background:linear-gradient(135deg,#FFF6F0,#F3EEFF);border-color:#E3D6F5}.ai-row{display:none;align-items:center;gap:10px;flex-wrap:wrap}body.has-ai .ai-row{display:flex}
+.login{position:fixed;inset:0;background:var(--tinta);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.login.on{display:flex}
+.login .box{background:#fff;border-radius:16px;padding:26px;max-width:400px;width:100%}
+.login h2{margin:10px 0 4px;font-size:19px}
+.login .err{color:var(--rojo-osc);font-size:13px;min-height:18px;margin-top:8px}
+.sigwrap{background:#fff;border:2px dashed #C9CED6;border-radius:12px;touch-action:none}
+.sigwrap canvas{width:100%;height:220px;display:block;cursor:crosshair}
+.sigimg{height:62px;display:block;margin:-60px 0 2px}
+.firma.signed{border-top-color:#222}
+#printArea{display:none}
+@media print{
+  body *{visibility:hidden}
+  #printArea,#printArea *{visibility:visible}
+  #printArea{display:block;position:absolute;left:0;top:0;width:100%}
+  #printArea .paper{box-shadow:none;margin:0;width:100%;padding:0}
+  @page{size:letter;margin:2cm}
+}
+.av{width:34px;height:34px;border-radius:50%;background:#EEF0F3;display:grid;place-items:center;font-weight:600;font-size:12px;color:var(--gris)}
+@media (max-width:720px){
+  .grid,.grid3{grid-template-columns:1fr}
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .paper{padding:30px 22px}
+  .hide-m{display:none}
+  main{padding:14px}
+  header{padding:12px 14px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">PV</div>
+  <div><h1>Procesos Disciplinarios</h1><small>PLAN VE S.A.S · EDS Terpel Av. Boyacá</small></div>
+  <div class="sp"></div>
+  <span id="syncState" style="font-size:12px;color:#AEB4BF"></span>
+  <button class="btn" id="btnSalir" title="Cerrar sesión">⎋ <span id="quien"></span></button><button class="btn pri" id="btnNuevo">＋ Nuevo caso</button>
+</header>
+<nav class="tabs" id="tabs">
+  <button data-v="casos" class="on">Casos</button>
+  <button data-v="trabajadores">Por trabajador</button>
+  <button data-v="plantillas">Plantillas</button>
+  <button data-v="config">Configuración</button>
+</nav>
+<main id="main"></main>
+
+<div class="overlay" id="ov"></div>
+<aside class="drawer" id="drawer"></aside>
+<div class="modal" id="modal"></div>
+<div class="cf" id="cf"><div class="box"><p id="cfMsg"></p><div class="actions"><button class="btn" id="cfNo">Cancelar</button><button class="btn pri" id="cfSi">Confirmar</button></div></div></div>
+<div class="toast" id="toast"></div>
+<div id="printArea"></div>
+<div class="login" id="login"><form class="box" id="loginForm">
+  <div class="logo" style="width:44px;height:44px">PV</div>
+  <h2>Procesos Disciplinarios</h2><p class="muted" style="margin:0 0 16px">PLAN VE S.A.S · Acceso solo para administración y RRHH</p>
+  <div id="urlRow" style="display:none;margin-bottom:12px"><label class="fl">URL del Apps Script (se configura una sola vez)</label><input class="in" id="lgUrl" placeholder="https://script.google.com/macros/s/…/exec"></div>
+  <label class="fl">Su nombre (queda en la trazabilidad)</label><input class="in" id="lgNombre" required placeholder="Ej. Sylvia Torres">
+  <label class="fl" style="margin-top:12px">Clave de acceso</label><input class="in" id="lgClave" type="password" required>
+  <div class="err" id="lgErr"></div>
+  <button class="btn pri" style="width:100%;justify-content:center;margin-top:6px" type="submit">Entrar</button>
+</form></div>
+<div class="modal" id="sigModal"><div class="mbox" style="max-width:560px"><div class="mbar"><b id="sigTit">Firma</b><button class="btn sm" id="sigClr">Borrar</button><button class="btn sm" id="sigNo">Cancelar</button><button class="btn sm pri" id="sigOk">Guardar firma</button></div>
+<div style="padding:16px"><p class="muted" style="margin:0 0 8px" id="sigSub"></p><div class="sigwrap"><canvas id="sigCanvas"></canvas></div><p class="hint">Firme con el dedo o el mouse dentro del recuadro.</p></div></div></div>
+
+<script>
+(()=>{
+/* ================= utilidades ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const hoyISO=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const pd=s=>{if(!s)return null;const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const fLarga=s=>{const d=pd(s);return d?`${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`:''};
+const fCorta=s=>{const d=pd(s);return d?`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`:'—'};
+const fHora=h=>{if(!h)return '';let [H,M]=h.split(':').map(Number);const ap=H>=12?'p. m.':'a. m.';H=H%12||12;return `${H}:${String(M).padStart(2,'0')} ${ap}`};
+const fStamp=iso=>{try{const d=new Date(iso);return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`}catch(e){return ''}};
+const addDays=(s,n)=>{const d=pd(s);if(!d)return '';d.setDate(d.getDate()+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const clean=o=>JSON.parse(JSON.stringify(o));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const ini=n=>(n||'?').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),2600)}
+function confirmar(msg){return new Promise(res=>{$('#cfMsg').textContent=msg;$('#cf').classList.add('on');const done=v=>{$('#cf').classList.remove('on');$('#cfSi').onclick=$('#cfNo').onclick=null;res(v)};$('#cfSi').onclick=()=>done(true);$('#cfNo').onclick=()=>done(false)})}
+const B='<span class="blank">&nbsp;</span>';
+const v=(x,alt)=>x?esc(x):(alt||B);
+
+/* ================= catálogos ================= */
+const TIPOS={
+  archivo:{l:'Archivo — sin sanción',san:false},
+  verbal:{l:'Llamado de atención verbal (con constancia)',san:true},
+  escrito:{l:'Llamado de atención escrito',san:true},
+  suspension:{l:'Suspensión del contrato sin remuneración',san:true},
+  terminacion:{l:'Terminación del contrato con justa causa',san:false}
+};
+const ESTADOS={
+  borrador:{l:'Borrador',c:'t-arc',p:0},
+  citado:{l:'Citado a descargos',c:'t-cit',p:1},
+  descargos:{l:'Descargos rendidos',c:'t-des',p:2},
+  decision:{l:'Respuesta RRHH emitida',c:'t-dec',p:3},
+  sancion:{l:'Sanción notificada',c:'t-san',p:4},
+  cerrado:{l:'Cerrado',c:'t-cer',p:5}
+};
+const DEF_CFG={empresa:'PLAN VE S.A.S',nit:'900.912.699-6',sede:'EDS Terpel Av. Boyacá',direccion:'Av. Boyacá No. 77A-15, Bogotá D.C.',ciudad:'Bogotá D.C.',lugar:'Oficina de administración de la EDS, Av. Boyacá No. 77A-15',
+  firmaAdmin:'Sylvia Torres Gómez',cargoAdmin:'Representante Legal',firmaRRHH:'',cargoRRHH:'Recursos Humanos',diasRecurso:2,diasDefensa:5,diasDecision:30,instanciaRecurso:'el superior jerárquico de quien tomó la decisión',reglamento:'Reglamento Interno de Trabajo de PLAN VE S.A.S. (actualizado 2026)'};
+/* Extractos del RIT 2026 (Drive: RIT ACTUALIZADO 2026 - PLAN VE BOYACA) para el asistente */
+const RIT={"art48": "ART. 48.—Son obligaciones especiales del trabajador:\n1. Realizar personalmente la labor en los términos estipulados; observar los preceptos de este reglamento, acatar y cumplir las órdenes e instrucciones que de manera particular le imparta la empresa o sus representantes según el orden jerárquico establecido. 2. No comunicar a terceros salvo autorización expresa las informaciones que sean de naturaleza reservada y cuya divulgación pueda ocasionar perjuicios a la empresa, lo que no obsta para denunciar delitos comunes o violaciones del contrato o de las normas legales de trabajo ante las autoridades competentes. 3. Conservar y restituir en buen estado, salvo deterioro natural, los instrumentos y útiles que\nles hayan facilitado y las materias primas sobrantes. 4. Guardar rigurosamente la moral en las relaciones con sus superiores y compañeros. 5. Comunicar oportunamente a la empresa las observaciones que estimen conducentes a\nevitarle daño y perjuicios. 6. Prestar la colaboración posible en caso de siniestro o riesgo inminentes que afecten o\namenacen las personas o las cosas de la empresa. 7. Observar las medidas preventivas higiénicas prescritas por el médico de la empresa o por las autoridades del ramo y observar con suma diligencia y cuidados las instrucciones y\nórdenes preventivas de accidentes o de enfermedades profesionales. 8. Registrar en las oficinas de la empresa su domicilio y dirección y dar aviso oportuno de cualquier cambio que ocurra (CST, art. 58), así como su número de teléfono y correo electrónico. 9. Mantener en excelentes condiciones de orden y aseo el puesto de trabajo asignado en cada\nturno. 10. Consignar los sobres de las ventas de cada turno según los protocolos establecidos por la empresa para evitar riesgos de seguridad y descuadres en los turnos. No se deben acumular los sobres en el puesto de trabajo, estos deben ser consignados en el consignatario a medida que se van acumulando cada 200.000 pesos o la suma que se establezca en los manuales de operación o sus superiores le indiquen. 11. Respetar y acatar la misión, visión y principios corporativos de la Empresa. 12. Acatar rigurosamente los procedimientos y el conducto regular previsto por la empresa en\nmateria administrativa y laboral. 13. Para el óptimo desarrollo de las actividades laborales deberán velar por su excelente\npresentación personal. 14. Recibir y aceptar las ordenes, instrucciones y correcciones relacionadas con el trabajo, con su verdadera intención que es, en todo caso, la de encaminar y perfeccionar los esfuerzos en provecho propio y de la empresa en general. 15. Procurar el mayor rendimiento y productividad en el desempeño de sus funciones. 16. Portar en lugar visible los documentos de identificación empresarial. 17. Tratar a los superiores, compañeros de trabajo, clientes de la empresa y público en general\ncon respeto y cortesía. 18. Informar inmediatamente sobre cualquier accidente, daño, perdida etc., que sufran los equipos, muebles, enseres, productos, materias primas o vehículos de la empresa, por leves que estos sean, procurando el máximo rendimiento y el mínimo de desperdicios de los mismos.\n19. Reportar en forma inmediata ante el superior, la ocurrencia de accidentes en desarrollo de\nla actividad laboral. 20. Acudir en forma inmediata a las evaluaciones medicas ocupacionales cuando así lo\ndetermine el empleador. 21. Dar cumplimiento estricto a las normas y procedimientos del SISTEMA DE GESTIÓN DE\nCALIDAD establecidos por la empresa. 22. Dar cumplimiento estricto a las normas y procedimientos de todos los SISTEMAS DE\nSEGURIDAD Y PREVENCIÓN establecidos por la empresa. 23. Dar cumplimiento estricto a las normas y procedimientos de todos los SISTEMAS DE SEGURIDAD Y PREVENCIÓN establecidos por las autoridades de TRANSITO, BOMBEROS, POLICIA ANTINARCOTICOS, ARMADA, DIAN, SANITARIAS, etc. 24. Colaborar en todo momento con las autoridades y denunciar ante este cualquier hecho que atente, amenace o ponga en peligro la seguridad de las personas y bienes relacionados con la Empresa. 25. Permitir las requisas y registros indicados por la empresa al momento de ingreso o salida de\nla empresa. 26. Asistir puntualmente a los cursos de capacitación o perfeccionamiento organizados por la\nempresa, o cualquier otra entidad, cuando se haya seleccionado como participante. 27. Manejar con suma delicadeza los dineros que por cualquier razón o por motivo del cargo, le hayan confiado y darle rigurosamente el destino que le hayan indicado las instrucciones de su superior inmediato. 28. Presentarse a laborar con el uniforme y dotación asignada por la empresa y cuidar de él. 29. En caso de que la empresa por una equivocación entregue o consigne al empleado una suma mayor de dinero a la que legalmente se le esté adeudando, o que no le corresponda, éste se obliga a no disponer de ella y a proceder en forma inmediata a su reintegro a la empresa dando aviso de dicha circunstancia. 30. Presentarse a los inventarios de materiales y herramientas de trabajo, respondiendo por la\ncalidad y cantidades entregadas. 31. Observar lo estrictamente establecido por la empresa en los procedimientos de\nadministración de personal. 32. Poner a disposición de la empresa en forma inmediata, la información relacionada con claves, códigos de acceso a computador, o sistemas de seguridad, cuando haya sido autorizado para ello. 33. Hacer uso únicamente de los programas de computador autorizados por la empresa. 34. Someterse a las pruebas de seguridad, así como pruebas de alcoholemia que en cualquier momento ordene la empresa o autoridades competentes, tendientes a verificar las óptimas condiciones físicas y mentales del trabajador, necesarias para la adecuada prestación del servicio, evitando riegos para la seguridad e integridad de los bienes de la empresa y de todo el personal. 35. Observar y cumplir de manera estricta las políticas, instrucciones y procedimientos establecidos por la empresa, en especial aquellas relacionadas con compras, tesorería, contabilidad, gestión humana, comercial, política en conflicto de intereses.", "art50": "ART. 50. —Se prohíbe a los trabajadores:\n1. La empresa prohíbe estrictamente cualquier acto que afecte la dignidad de las personas por motivos\nde: ● Sexo o identidad de género\n● Orientación sexual\n● Edad\n● Origen familiar o nacionalidad\n● Condición económica o social\n● Ideología política o creencias religiosas\n● Estado civil, situación de maternidad o responsabilidades familiares\n● Condición de discapacidad\n● Apariencia física o cualquier otra condición personal 2. Sustraer del establecimiento los útiles de trabajo, las materias primas o productos elaborados sin\npermiso de la empresa. 3. Presentarse al trabajo en estado de embriaguez o bajo la influencia de narcótico o de drogas\nenervantes. 4. Conservar armas de cualquier clase en el sitio de trabajo a excepción de las que con autorización legal\npuedan llevar los celadores.\n5. Faltar al trabajo sin justa causa de impedimento o sin permiso de la empresa, excepto en los casos de\nhuelga, en los cuales deben abandonar el lugar de trabajo. 6. Disminuir intencionalmente el ritmo de ejecución del trabajo, suspender labores, promover suspensiones intempestivas del trabajo e incitar a su declaración o mantenimiento, sea que se participe o no en ellas. 7. Hacer colectas, rifas o suscripciones o cualquier otra clase de propaganda en los lugares de trabajo. 8. Coartar la libertad para trabajar o no trabajar o para afiliarse o no a un sindicato o permanecer en él o\nretirarse. 9. Usar los útiles o herramientas suministradas por la empresa en objetivos distintos del trabajo\ncontratado (CST, art. 60). 10. Tomar el dinero de las ventas con intenciones de llevárselo. 11. Realizar prácticas deshonestas en su trabajo que perjudiquen a la empresa, a los clientes o a sus\ncompañeros de trabajo. 12. Usar los útiles o herramientas suministradas por la empresa en objetivos distintos del\ntrabajo contratado. 13. Alterar, manipular irregularmente, falsear y/u omitir los mecanismos de control de productos, insumos, acceso a instalaciones, inventarios y/o personas en beneficio propio y/o de terceros. 14. Utilizar de manera indebida y/o en exceso el tiempo de labores y el asignado y/o autorizado\npara permisos, licencias, diligencias y en general actividades de trabajo.\n1. Recibir visitas dentro de las instalaciones de la empresa y/o permitir que personas extrañas\ningresen a sus instalaciones, sin autorización del superior competente. 2. Hacer uso y/o permanecer en las instalaciones de la empresa para realizar actividades no\nprogramadas y/o no laborales, sin autorización del superior competente. 3. Ingresar y/o retirarse de las instalaciones de la empresa por sitios y/o en condiciones no\nautorizados. 4. Evadirse del lugar de trabajo antes de finalizar la jornada de trabajo sin autorización del\nsuperior competente. 5. Omitir y/o dilatar injustificadamente los procedimientos administrativos, financieros y/o operativos de la empresa, en especial aquellos que determinen interrupción o afectación grave de la operación y/o de las expectativas económicas de la misma. 6. Omitir o permitir que otras personas omitan las condiciones y requerimientos de seguridad\ny protección personal en las labores a su cargo. 7. Ingresar, conservar, usar y/o ingerir dentro de la empresa y en cualquier cantidad productos tóxicos, explosivos, barbitúricos, estupefacientes, drogas enervantes o cualquier sustancia o producto semejante. 8. Ingresar, conservar, usar y/o ingerir dentro de la empresa y en cualquier cantidad licores embriagantes, salvo que se trate de actividades sociales programadas por la empresa, caso en el cual la distribución y consumo estará restringido, condicionado y autorizado previamente por la Gerencia General. 9. Fumar y/o consumir cualquier tipo de tabaco fuera de las áreas permitidas y demarcadas debidamente por la empresa para tal efecto; y/o hacerlo fuera de los horarios establecidos para tal efecto. 10. No usar en la forma indicada la ropa de trabajo, los uniformes especiales o los elementos\nde protección, según cada caso. 11. No acatar las órdenes e instrucciones sobre seguridad y vigilancia de las instalaciones de la\nempresa que le imparta el empleador o sus representantes. 12. Presentar cuentas de gastos ficticios o reportar como cumplidas visitas o tareas no efectuadas; así como modificar o alterar cualquier documento que tenga que presentar a la empresa para reportar alguna actividad o gasto del colaborador en el que tuvo que incurrir para el desarrollo de las tareas a él asignadas.\n13. Ofrecer y/o comercializar por cuenta propia o la de terceros productos y/o servicios de cualquier tipo no autorizados por el empleador, en especial, los relacionados directa o indirectamente con los intereses comerciales de la empresa. 14. Destruir y/o entregar información técnica, tecnológica y/o comercial de cualquier tipo a\nclientes o competidores que pueda afectar los intereses comerciales del empleador. 15. Participar directa o indirectamente en la conformación de sociedades o establecimientos de comercio que se relacionen directa y/o indirectamente con la actividad comercial de la empresa, sin contar con la autorización expresa y previa del empleador. 16. Comprometer la entrega de servicios y/o productos por cuenta del empleador sin consultar\npreviamente su disponibilidad técnica, comercial y/o económica.\n17. Ofrecer, sin consultar previamente al empleador, descuentos y/o condiciones comerciales\nno establecidas y/o autorizadas de forma general por la empresa a sus clientes. 18. Comercializar los productos y/o materiales que la empresa le obsequie y/o venda para su beneficio personal, en especial, cuando dicha comercialización le represente un beneficio económico al colaborador. 19. Maltratar y/o violentar de cualquier forma o por cualquier medio a los compañeros de trabajo, clientes, proveedores y/o contratantes del empleador, relacionados con la actividad comercial de la empresa. 20. Utilizar en asuntos personales y/o prohibidos legalmente, las herramientas de comunicación empresarial y/o internet incluyendo la utilización de buzones de correo electrónico externo y/o interno suministrado por la empresa. 21. Utilizar cualquier aparato de comunicación personal y/o de entretenimiento en el área y/u horas de trabajo; salvo autorización expresa de la Gerencia o dirección de recursos humanos, dependiendo del cargo, labor y/o área de trabajo; en especial, cuando su utilización represente un riesgo industrial y/o de salud ocupacional. 22. Sustraer y/o intercambiar repuestos de los equipos a su cargo sin autorización de la empresa\ny/o sin justificación técnica en la respectiva hoja de vida de los mismos. 23. Desconocer, desatender y/o incumplir las políticas que de forma particular y/o general establezca el empleador sobre uso de productos químicos; trabajo en alturas; solicitud de permisos; confidencialidad; vestuario; uso de herramientas informáticas y/o comunicación; pausas activas; acceso y comportamiento en instalaciones; uso de zonas comunes; manejo de herramientas y/o cualquier otra que llegare a establecer el empleador en uso legítimo de su poder subordinante conforme a las condiciones y restricciones que establece el literal b) del Artículo 23 del Código Sustantivo de Trabajo. 24. Ingresar y/o retirar cualquier elemento a la empresa no autorizado y/o impedir su\ninspección por parte de los superiores y/o servicio de seguridad del empleador. 25. Obligar y/o presionar por cualquier medio y/o forma a un compañero de trabajo y/o\nsubalterno para que le conceda un préstamo de dinero y/o bienes. 26. Pegar y/o distribuir información escrita en las instalaciones de la empresa sin autorización\nprevia de la dirección de recursos humanos. 27. Dormir durante la jornada laboral. 28. Sobrefacturar o dejar de cobrar productos o servicios en las cuentas de los clientes. 29. Ejecutar u omitir cualquier acto que ponga en peligro su seguridad, la de sus compañeros\nde trabajo, clientes, equipos o bienes de la empresa. 30. Suministrar a extraños, sin autorización expresa de las directivas de la empresa, datos relacionados con la organización o con cualquiera de los sistemas, servicios o procedimientos de la empresa. 31. Aprovecharse, con beneficios propio o ajeno de los estudios, descubrimientos, inventos, informaciones o mejoras hechas por el empleador, o con intervención de él, durante la vigencia del contrato del trabajo, y que tengan relación con las labores o funciones que aquel desempeña.\n32. Retirarse de su trabajo durante las horas de servicio, aun por breve tiempo, sin autorización\nde su jefe inmediato. 33. Ocuparse en asuntos distintos de su labor durante las horas de trabajo, tales como juegos,\nburlas o en cualquier otra forma. 34. Promover discordias entre los compañeros de trabajo, incitar al desconocimiento de\nórdenes impartidas, creando un mal ambiente de trabajo.\n35. Discutir sobre la política, religión u otras materias ajenas al trabajo o perseguir a sus\ncompañeros por estas mismas circunstancias. 36. Ejecutar defectuosamente el trabajo. 37. Interponer o hacer interponer medios de cualquier naturaleza para que en trabajo propio o en de otro u otros empleados y el de las maquinas o equipos situados en el lugar de trabajo, no salgan en la cantidad, calidad y tiempo fijados por la Empresa. 38. Causar cualquier daño en la labor confiada, o en las instalaciones, equipos, productos y\nelementos de la empresa. 39. Confiar a otro colaborador, sin la autorización correspondiente, la ejecución del propio\ntrabajo, o vehículo, instrumentos, elementos y materiales de la empresa. 40. Vender, cambiar, prestar o negociar en cualquier forma algún objeto de propiedad de la\nempresa. 41. Retirar archivos o dar a conocer documentos sin autorización del superior jerárquico. 42. Esconder los trabajos defectuosos o no informar inmediatamente de los errores cometidos. 43. Rendir información, declaración o dictámenes falsos que afecten los intereses de la empresa\no le causen trastornos en sus actividades. 44. Llegar con retardo al trabajo en las horas de entrada en la mañana, en la tarde o en un turno, repetir los retardos al trabajo, faltar durante la jornada, durante la mañana, durante la tarde o durante un turno; retirase del trabajo antes de la hora indicada. 45. Levantarse del puesto de trabajo o dar por terminada la labor antes de la señal fijada para\nello por la empresa. 46. Manejar u operar vehículos, montacargas, equipos o maquinas que no se le hayan asignado\no sin la debida autorización del jefe inmediato. 47. Realizar llamadas telefónicas personales, locales o larga distancia y utilizar el Internet para actividades personales, sin autorización previa del jefe inmediato, a menos que sea urgente. 48. Hacer mal uso de los servicios sanitarios, duchas, lavamanos, escribir en las paredes y\nmantener sucios y desordenados los lockers y demás sitios. 49. No acatar las órdenes e instrucciones que sobre seguridad y vigilancia de las instalaciones\nde los celadores de las empresas contratantes del empleador. 50. Tomar medicina o instrumentos médicos del dispensario o de los botiquines sin causa\njustificada. 51. Introducir paquetes u objetos similares a las instalaciones de la empresa y negarse a revelar\no mostrar su contenido. 52. Jugar de mano o jugar dinero en cualquier forma dentro del establecimiento, sea o no en\nhoras o días de trabajo. 53. Haber presentado para la admisión en la empresa, o presentar después para cualquier efecto, cualquier documento o información falsos, dolosos, incompletos, enmendados o no ceñidos a la estricta verdad. 54. Presentar o proponer, para liquidaciones parciales de cesantías, promesas de compra-venta\nu otros documentos semejantes ficticios, falsos o dolosos. 55. Amenazar o agredir en cualquier forma a superiores o a compañeros de trabajo, o\ncalificarlos con apodos, palabras groseras o actos semejantes. 56. Transportar en vehículos de la empresa, sin previa autorización del jefe respectivo personas\nu objetos ajenos a ella. 57. Manejar vehículos de la empresa sin licencia o con la licencia u otros documentos vencidos.\n58. Dejar que los vehículos de la empresa sean movidos o conducidos por personas diferentes\nal respectivo conductor.\n59. Sacar de la empresa o de los sitios indicados por ella, vehículos de propiedad de esta, sin la\nautorización correspondiente. 60. Salir de la empresa con paquetes, bolsas u objetos semejantes a menos que el empleado haga ver su contenido al representante de la empresa o al empleador designado que haga sus veces. 61. Las demás que resulten de la naturaleza misma del trabajo confiado, del contrato, de las disposiciones legales, de este mismo reglamento y de los diversos Estatutos y normas de la Empresa. 62. Prestar servicios a cualquier otra empresa o mantener con ella intereses comerciales,\ntécnicos o semejantes en asuntos relacionados con la empresa. 63. Crear claves o códigos de acceso a los computadores, sin autorización previa escrita de su\njefe inmediato. 64. Permitir la permanencia de personas extrañas o ajenas a la empresa en el sitio de trabajo. 65. Realizar cualquier trabajo o maniobra sin el uso completo de los elementos de protección personal suministrados por la empresa, o sin verificar las medidas de seguridad establecidas para ello. 66. Dar información a terceros sobre volúmenes de ventas, recaudos de dineros, forma y días de pago de las nóminas, sitios de bodegas, habitación, rutas, honorarios de movimientos, clase de vehículos, dirección, teléfonos, etc., de los dueños o compañeros de trabajo o cualquier otra información que pueda poner en peligro la seguridad de los mismos.\nPARÁGRAFO. La violación de las prohibiciones aquí consignadas son calificadas en este reglamento como faltas graves, para todos los efectos establecidos en el código Sustantivo del Trabajo.", "art51a54": "CAPÍTULO XIII Escala de faltas y sanciones disciplinarias\nART. 51.— Se considera falta disciplinaria por parte del colaborador y por lo tanto dará lugar a la imposición de la sanción correspondiente, el incumplimiento de las obligaciones y la incursión en las prohibiciones consignadas en la ley, la convención, el reglamento y las directivas y políticas internas de la empresa. La empresa no puede imponer a sus trabajadores sanciones no previstas en este reglamento, en pactos, convenciones colectivas, fallos arbitrales o en el contrato de trabajo (CST, art. 114).\nART. 52—Se establecen las siguientes clases de faltas leves, y sus sanciones disciplinarias, así:\n1. El retardo hasta de diez (10) minutos en la hora de entrada sin excusa suficiente, cuando no cause perjuicio de consideración a la empresa, implica por primera vez, llamado de atención verbal; por la segunda vez llamado de atención escrito con copia a la hoja de vida; por la tercera vez suspensión en el trabajo hasta por cuatro (4) días y por cuarta vez suspensión en el trabajo hasta por ocho (8) días.\n2. Los retardos superiores a diez (10) minutos o la falta en el trabajo en la mañana o en la tarde, sin excusa suficiente cuando no causa perjuicio de consideración a la empresa, implica por primera vez suspensión en el trabajo hasta por cuatro (4) días y por segunda vez suspensión en el trabajo hasta por ocho (8) días.\n3. La falta total al trabajo durante el día sin excusa suficiente, cuando no cause perjuicio de consideración a la empresa implica, por primera vez, suspensión en el trabajo hasta por ocho (8) días y por segunda vez, suspensión en el trabajo hasta por dos (2) meses.\n4. La violación leve por parte del colaborador de las obligaciones contractuales o reglamentarias implica por primera vez, suspensión en el trabajo hasta por ocho (8) días y por segunda vez suspensión en el trabajo hasta por dos (2) meses.\n5. Hacer caso omiso de las advertencias y disposiciones que se hayan hecho públicas por medio de avisos, circulares, comunicados y/o cartelones en las diferentes dependencias de la empresa, implica por primera vez, llamado de atención o suspensión en el trabajo hasta por ocho (8) días, según la gravedad de la falta y por segunda vez, suspensión en el trabajo hasta por dos (2) meses.\nLa imposición de multas no impide que la empresa prescinda del pago del salario correspondiente al tiempo dejado de trabajar.\nNo obstante, lo anterior, la empresa analizará de conformidad con cada caso en concreto la gravedad de la falta y el perjuicio causado a la empresa para imponer la sanción que corresponda según lo señalado en el presente reglamento. El valor de las multas se consignará en cuenta especial para dedicarse exclusivamente a premios o regalos para los trabajadores del establecimiento que más puntual y eficientemente, cumplan sus obligaciones.\nART. 53.—Constituyen faltas graves:\na) El retardo hasta de 10 minutos en la hora de entrada al trabajo sin excusa suficiente, por\nquinta vez.\nb) La falta total del colaborador en la mañana o en el turno correspondiente, sin excusa\nsuficiente, por tercera vez.\nc) La falta total del colaborador a sus labores durante el día sin excusa suficiente, por segunda\nvez.\nd) La falta total del colaborador a sus labores durante tres (3) días, sin excusa suficiente, por\nprimera vez.\ne) Violación grave por parte del colaborador de las obligaciones contractuales o\nreglamentarias.\nf) La falta de respeto hacia sus superiores, compañeros de trabajo y clientes.\ng) Violación grave por parte del colaborador a las prohibiciones previstas en este reglamento.\nPARÁGRAFO PRIMERO. El incumplimiento o la infracción por el empleado de las demás obligaciones contractuales o reglamentarias, de carácter grave a juicio de la empresa y según su importancia, podrán ser sancionadas así: con la suspensión en el trabajo hasta por (8) días por la primera vez, y con la suspensión hasta de (2) meses en caso de reincidencia a menos que la gravedad de la falta\nconstituya justa causa para la terminación unilateral del contrato con justa causa por parte del empleador.\nPARAGRAFO SEGUNDO. En todo caso, la terminacion del contrato de trabajo NO es una sancion disciplinaria.\nPARAGRAFO TERCERO. Para todos los efectos legales, durante la suspensión de labores impuesta como sanción disciplinaria, se entiende suspendido el contrato individual de trabajo respectivo, de acuerdo con lo dispuesto en los artículos 51 y 53 del Código Sustantivo del Trabajo y normas concordantes.\nPARAGRAFO CUARTO. Una falta podrá ser comprobada por cualquier medio de prueba legalmente admitido.\nART. 54.— En todas las actuaciones para aplicar sanciones disciplinarias, se deberán aplicar las garantías del debido proceso, esto es, como mínimo los siguientes principios: dignidad, presunción de inocencia, in dubio pro disciplinado, proporcionalidad, derecho a la defensa, contradicción y controversia de las pruebas, intimidad, lealtad y buena fe, imparcialidad, respeto al buen nombre y a la honra, y non bis in idem. También se deberá aplicar como mínimo el siguiente procedimiento:\n1. Comunicación formal de la apertura del proceso al trabajador o trabajadora.\n2. La indicación de hechos, conductas u omisiones que motivan el proceso, la cual deberá ser por escrito.\n3. El traslado al trabajador o trabajadora de todas y cada una de las pruebas que fundamentan los hechos, conductas u omisiones del proceso.\n4. La indicación de un término durante el cual el trabajador o trabajadora pueda manifestarse frente a los motivos del proceso, controvertir las pruebas y allegar las que considere necesarias para sustentar su defensa el cual en todo caso no podrá ser inferior a 5 días. En caso de que la defensa del trabajador frente a los hechos, conductas u omisiones. que motivaron el proceso sea verbal, se hará un acta en la que se transcribirá la versión o descargos rendidos por el trabajador.\n5. El pronunciamiento definitivo debidamente motivado identificando específicamente la(s) causa(s) o motivo(s) de la decisión.\n6. De ser el caso, la imposición de una sanción proporcional a los hechos u omisiones que la motivaron.\n7. La posibilidad del trabajador de impugnar la decisión.\nPARÁGRAFO PRIMERO: Las decisiones disciplinarias, serán comunicadas personalmente al colaborador. Las decisiones podrán ser apeladas, por escrito y dirigida ante el superior jerárquico de quien tomó la decisión, dentro de los dos días hábiles siguientes, contadas a partir del día siguiente del recibido de la comunicación que contiene la decisión de primera instancia.\nPARÁGRAFO SEGUNDO: La empresa emitirá una decisión por escrito y debidamente motivada, en la cual se detallará la conducta investigada, la normativa aplicable y las consideraciones que fundamentan la determinación adoptada; la cual podrá consistir en el archivo del proceso o la imposición de una sanción conforme a lo dispuesto en el presente reglamento. Para la toma de la decisión, una vez surtida la diligencia de descargos, la empresa contará con un término máximo de treinta (30) días hábiles para emitir el respectivo pronunciamiento. La decisión disciplinaria deberá ser notificada al trabajador por el medio más expedito, ya sea de manera personal, por correo electrónico o mediante comunicación enviada a la dirección registrada en su hoja de vida\nPARAGRAFO TERCERO: Si el trabajador o trabajadora se encuentra afiliado a una organización sindical, podrá estar asistido o acompañado por uno (1) o dos (2) representantes del sindicato que sean trabajadores de la empresa y se encuentren presentes al momento de la diligencia, y estos tendrán el derecho de velar por el cumplimiento de los principios de derecho de defensa y debido proceso del trabajador sindicalizado, dando fe de ellos al final del procedimiento.\nPARAGRAFO CUARTO: El trabajador con discapacidad deberá contar con medidas y ajustes razonables que garanticen la comunicación y comprensión recíproca en el marco del debido proceso."};
+const FALTAS={
+  '':{l:'— Sin clasificar —'},
+  r10:{l:'Leve · Retardo hasta 10 min sin excusa (Art. 52 num. 1)',esc:['Llamado de atención verbal','Llamado de atención escrito con copia a hoja de vida','Suspensión hasta 4 días','Suspensión hasta 8 días','Falta grave (Art. 53 lit. a)']},
+  r10m:{l:'Leve · Retardo > 10 min o falta en la mañana/tarde (Art. 52 num. 2)',esc:['Suspensión hasta 4 días','Suspensión hasta 8 días','Falta grave (Art. 53 lit. b)']},
+  dia:{l:'Leve · Falta total al trabajo durante el día (Art. 52 num. 3)',esc:['Suspensión hasta 8 días','Suspensión hasta 2 meses / falta grave (Art. 53 lit. c)']},
+  oblig:{l:'Leve · Violación leve de obligaciones contractuales o reglamentarias (Art. 52 num. 4)',esc:['Suspensión hasta 8 días','Suspensión hasta 2 meses']},
+  avisos:{l:'Leve · Caso omiso de avisos, circulares o comunicados (Art. 52 num. 5)',esc:['Llamado de atención o suspensión hasta 8 días, según gravedad','Suspensión hasta 2 meses']},
+  grave:{l:'Grave · Violación grave de obligaciones o prohibiciones / falta de respeto (Art. 53, Art. 50)',esc:['Suspensión hasta 8 días, o justa causa de terminación si así se califica','Suspensión hasta 2 meses, o justa causa de terminación']},
+  otra:{l:'Otra (describir en normas)'}
+};
+
+/* ================= estado ================= */
+let casos=[], cfg={...DEF_CFG}, db=null, usr=null, myId=null, names={}, modoLocal=false;
+let vista='casos', filtroEstado='activos', q='', abierto=null, paso=1;
+
+/* ================= almacenamiento: Google Sheets (Apps Script) ================= */
+const GAS_URL_DEFAULT='';           // ← URL del Apps Script publicado (…/exec)
+const LS='discip_plan_ve_gh_v1';
+let sesion={url:'',clave:'',nombre:''};
+try{sesion={...sesion,...JSON.parse(localStorage.getItem(LS+'_s')||'{}')}}catch(e){}
+const gasUrl=()=>GAS_URL_DEFAULT||sesion.url;
+let enCurso=0, pendientes=0;
+async function api(action,extra){
+  const r=await fetch(gasUrl(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,clave:sesion.clave,usuario:sesion.nombre,...extra}),redirect:'follow'});
+  const j=await r.json();
+  if(!j.ok){const e=new Error(j.error||'error');e.code=j.error;throw e}
+  return j;
+}
+function estado(t){$('#syncState').textContent=t}
+const colas={};
+function guardarCaso(c){
+  c.actualizado=new Date().toISOString();
+  const i=casos.findIndex(x=>x.id===c.id); if(i>=0)casos[i]=c; else casos.push(c);
+  render();
+  const data=clean(c);Object.keys(data).forEach(k=>{if(k[0]==='_'&&k!=='_entLog'&&k!=='_ultNot'&&k!=='_ultRec'&&k!=='_cump'&&k!=='_nom')delete data[k]});
+  const ult=(c.historial||[]).slice(-1)[0];
+  pendientes++;estado('Guardando…');
+  colas[c.id]=(colas[c.id]||Promise.resolve()).then(()=>api('save',{caso:data,accion:ult?ult.accion:''}))
+    .then(()=>{pendientes--;if(!pendientes)estado('● Guardado')})
+    .catch(e=>{pendientes--;estado('⚠ Sin guardar');toast(e.code==='clave'?'Clave inválida: vuelva a entrar':'No se pudo guardar en la hoja. Revise la conexión.')});
+  return colas[c.id];
+}
+function borrarCaso(id){
+  const c=casos.find(x=>x.id===id);
+  casos=casos.filter(c=>c.id!==id); render();
+  api('delete',{id,accion:'Caso eliminado: '+(c?c.consecutivo:'')}).catch(e=>toast('No se pudo eliminar en la hoja'));
+}
+function guardarCfg(){api('cfg',{cfg:clean(cfg)}).then(()=>toast('Configuración guardada')).catch(e=>toast('No se pudo guardar'))}
+function log(c,accion){c.historial=c.historial||[];c.historial.push({t:new Date().toISOString(),accion,por:sesion.nombre||''})}
+
+async function cargar(silencioso){
+  if(pendientes||enCurso)return;
+  enCurso++;
+  try{
+    const j=await api('list');
+    const abiertoNuevo=casos.find(x=>x._nuevo);
+    casos=(j.casos||[]).map(x=>{const prev=casos.find(y=>y.id===x.id);return x});
+    if(abiertoNuevo&&!casos.find(x=>x.id===abiertoNuevo.id))casos.push(abiertoNuevo);
+    if(j.cfg)cfg={...DEF_CFG,...j.cfg};
+    estado('● Sincronizado '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}));
+    if(!document.querySelector('#drawer.on'))render();
+    return true;
+  }catch(e){
+    if(e.code==='clave'||e.code==='sin_clave'){mostrarLogin(e.code==='sin_clave'?'El script no tiene clave configurada (ver instrucciones).':'Clave incorrecta.');return false}
+    estado('⚠ Sin conexión');if(!silencioso)toast('No se pudo leer la hoja de Google');return false;
+  }finally{enCurso--}
+}
+function mostrarLogin(msg){
+  $('#login').classList.add('on');$('#urlRow').style.display=GAS_URL_DEFAULT?'none':'block';
+  $('#lgUrl').value=sesion.url||'';$('#lgNombre').value=sesion.nombre||'';$('#lgClave').value='';$('#lgErr').textContent=msg||'';
+}
+$('#loginForm').onsubmit=async e=>{
+  e.preventDefault();
+  sesion={url:($('#lgUrl').value||'').trim(),nombre:$('#lgNombre').value.trim(),clave:$('#lgClave').value};
+  if(!gasUrl()){$('#lgErr').textContent='Falta la URL del Apps Script.';return}
+  $('#lgErr').textContent='Verificando…';
+  try{await api('list')}catch(x){$('#lgErr').textContent=x.code==='clave'?'Clave incorrecta.':(x.code==='sin_clave'?'El script no tiene clave configurada.':'No se pudo conectar con el script. Revise la URL.');return}
+  try{localStorage.setItem(LS+'_s',JSON.stringify(sesion))}catch(x){}
+  $('#login').classList.remove('on');$('#quien').textContent=sesion.nombre;await cargar();rutaHash();
+};
+$('#btnSalir').onclick=async()=>{if(await confirmar('¿Cerrar sesión en este dispositivo?')){sesion.clave='';try{localStorage.setItem(LS+'_s',JSON.stringify(sesion))}catch(x){}casos=[];render();mostrarLogin()}};
+async function iniciar(){
+  render();
+  if(!gasUrl()||!sesion.clave||!sesion.nombre){mostrarLogin();return}
+  $('#quien').textContent=sesion.nombre;
+  estado('Conectando…');
+  if(await cargar())rutaHash();
+  setInterval(()=>{if(!document.hidden)cargar(true)},30000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)cargar(true)});
+}
+/* Enlace directo para imprimir: …/disciplinario/#imprimir-<id>-<doc> */
+function rutaHash(){
+  const m=(location.hash||'').match(/^#imprimir-([a-z0-9]+)-(citacion|acta|respuesta|sancion)$/i);
+  if(!m)return;const c=casos.find(x=>x.id===m[1]);if(!c){toast('Caso no encontrado');return}
+  verDoc(m[2],c);
+}
+window.addEventListener('hashchange',rutaHash);
+
+/* ================= lógica de casos ================= */
+function nuevoConsecutivo(){
+  const y=new Date().getFullYear();let max=0;
+  casos.forEach(c=>{const m=(c.consecutivo||'').match(/^DISC-(\d{4})-(\d+)$/);if(m&&+m[1]===y)max=Math.max(max,+m[2])});
+  return `DISC-${y}-${String(max+1).padStart(3,'0')}`;
+}
+function antecedentes(c){
+  const ced=(c.trabajador&&c.trabajador.cedula||'').trim(), nom=(c.trabajador&&c.trabajador.nombre||'').trim().toLowerCase();
+  return casos.filter(x=>x.id!==c.id&&((ced&&x.trabajador&&x.trabajador.cedula===ced)||(!ced&&nom&&(x.trabajador&&x.trabajador.nombre||'').trim().toLowerCase()===nom)));
+}
+function sancionesPrevias(c){return antecedentes(c).filter(x=>x.decision&&TIPOS[x.decision.tipo]&&TIPOS[x.decision.tipo].san&&(x.creado||'')<(c.creado||'z'))}
+function pasoActual(c){
+  const e=c.estado||'borrador';
+  if(e==='borrador'||e==='citado')return e==='borrador'?1:2;
+  if(e==='descargos')return 3;
+  if(e==='decision')return (c.decision&&TIPOS[c.decision.tipo]&&TIPOS[c.decision.tipo].san)?4:4;
+  return 4;
+}
+function diasAbierto(c){if(!c.creado)return 0;return Math.floor((Date.now()-new Date(c.creado).getTime())/864e5)}
+
+/* ================= render principal ================= */
+function render(){
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===vista));
+  const m=$('#main');
+  let h='';
+  if(vista==='casos')h+=vCasos();
+  else if(vista==='trabajadores')h+=vTrabajadores();
+  else if(vista==='plantillas')h+=vPlantillas();
+  else h+=vConfig();
+  m.innerHTML=h;
+  bindMain();
+}
+function cuenta(){
+  const y=String(new Date().getFullYear());
+  return {
+    activos:casos.filter(c=>c.estado!=='cerrado').length,
+    citado:casos.filter(c=>c.estado==='citado'||c.estado==='borrador').length,
+    descargos:casos.filter(c=>c.estado==='descargos').length,
+    decision:casos.filter(c=>c.estado==='decision'||c.estado==='sancion').length,
+    cerrado:casos.filter(c=>c.estado==='cerrado').length,
+    susp:casos.filter(c=>c.decision&&c.decision.tipo==='suspension'&&(c.creado||'').startsWith(y)).length
+  };
+}
+function vCasos(){
+  const k=cuenta();
+  const K=(id,n,l,col)=>`<div class="kpi ${filtroEstado===id?'on':''}" data-f="${id}"><div class="n">${n}</div><div class="l"><span class="dot" style="background:${col}"></span>${l}</div></div>`;
+  let h=`<div class="kpis">
+    ${K('activos',k.activos,'Casos abiertos','var(--tinta)')}
+    ${K('citado',k.citado,'Esperando descargos','var(--azul)')}
+    ${K('descargos',k.descargos,'Pendiente respuesta RRHH','var(--ambar)')}
+    ${K('decision',k.decision,'Pendiente notificar / cerrar','var(--morado)')}
+    ${K('cerrado',k.cerrado,'Cerrados','var(--verde)')}
+    ${K('todos',casos.length,'Todos · '+k.susp+' suspensiones este año','var(--gris2)')}
+  </div>
+  <div class="toolbar">
+    <div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" placeholder="Buscar por nombre, cédula, consecutivo o hecho…" value="${esc(q)}"></div>
+  </div>`;
+  let lista=casos.slice();
+  if(filtroEstado==='activos')lista=lista.filter(c=>c.estado!=='cerrado');
+  else if(filtroEstado==='citado')lista=lista.filter(c=>c.estado==='citado'||c.estado==='borrador');
+  else if(filtroEstado==='decision')lista=lista.filter(c=>c.estado==='decision'||c.estado==='sancion');
+  else if(filtroEstado!=='todos')lista=lista.filter(c=>c.estado===filtroEstado);
+  if(q){const s=q.toLowerCase();lista=lista.filter(c=>[c.consecutivo,c.trabajador&&c.trabajador.nombre,c.trabajador&&c.trabajador.cedula,c.hechos,c.trabajador&&c.trabajador.cargo].join(' ').toLowerCase().includes(s))}
+  lista.sort((a,b)=>(b.creado||'').localeCompare(a.creado||''));
+  if(!lista.length){
+    h+=`<div class="card"><div class="empty"><b>${casos.length?'No hay casos con este filtro':'Aún no hay casos registrados'}</b>${casos.length?'Pruebe con otro filtro o búsqueda.':'Cree el primero con “＋ Nuevo caso”. Cada caso guarda la citación, los descargos, la respuesta de RRHH y la sanción, con fecha y responsable.'}</div></div>`;
+    return h;
+  }
+  h+=`<div class="card" style="overflow:auto"><table><thead><tr><th>Consecutivo</th><th>Trabajador</th><th class="hide-m">Hechos</th><th>Estado</th><th class="hide-m">Avance</th><th class="hide-m">Decisión</th><th class="hide-m">Abierto</th></tr></thead><tbody>`;
+  lista.forEach(c=>{
+    const e=ESTADOS[c.estado||'borrador'];const p=e.p;
+    const pipe=[1,2,3,4].map(i=>`<i class="${i<=p?'ok':(i===p+1?'cur':'')}"></i>`).join('');
+    const dec=c.decision&&c.decision.tipo?TIPOS[c.decision.tipo].l.split('(')[0].replace('del contrato ',''):'—';
+    const prev=sancionesPrevias(c).length;
+    h+=`<tr class="row" data-id="${c.id}">
+      <td class="mono">${esc(c.consecutivo)}</td>
+      <td><b>${esc(c.trabajador&&c.trabajador.nombre)}</b><div class="muted" style="font-size:12px">${esc(c.trabajador&&c.trabajador.cargo||'')} ${c.trabajador&&c.trabajador.cedula?'· C.C. '+esc(c.trabajador.cedula):''}${prev?` · <span style="color:var(--rojo-osc);font-weight:600">${prev} antecedente${prev>1?'s':''}</span>`:''}</div></td>
+      <td class="hide-m muted" style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.hechos||'')}</td>
+      <td><span class="tag ${e.c}">${e.l}</span></td>
+      <td class="hide-m"><div class="pipe">${pipe}</div></td>
+      <td class="hide-m" style="font-size:13px">${esc(dec)}${c.decision&&c.decision.tipo==='suspension'&&c.decision.dias?' · '+c.decision.dias+' d':''}</td>
+      <td class="hide-m muted">${c.estado==='cerrado'?'—':diasAbierto(c)+' d'}</td></tr>`;
+  });
+  h+='</tbody></table></div>';
+  return h;
+}
+function vTrabajadores(){
+  const g={};
+  casos.forEach(c=>{const t=c.trabajador||{};const k=(t.cedula||t.nombre||'?').trim().toLowerCase();(g[k]=g[k]||{t,c:[]}).c.push(c)});
+  const arr=Object.values(g).sort((a,b)=>b.c.length-a.c.length);
+  let h=`<div class="toolbar"><div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Buscar trabajador…" value="${esc(q)}"></div></div>`;
+  const s=q.toLowerCase();
+  const fil=arr.filter(x=>!s||[x.t.nombre,x.t.cedula,x.t.cargo].join(' ').toLowerCase().includes(s));
+  if(!fil.length)return h+`<div class="card"><div class="empty"><b>Sin trabajadores con procesos</b>Aquí verá la hoja disciplinaria de cada persona: todos sus casos, sanciones y reincidencias.</div></div>`;
+  h+='<div class="card">';
+  fil.forEach(x=>{
+    const sus=x.c.filter(c=>c.decision&&c.decision.tipo==='suspension');
+    const dias=sus.reduce((a,c)=>a+(+c.decision.dias||0),0);
+    const llam=x.c.filter(c=>c.decision&&(c.decision.tipo==='escrito'||c.decision.tipo==='verbal')).length;
+    h+=`<div class="wk"><div class="av">${esc(ini(x.t.nombre))}</div><div class="nm">${esc(x.t.nombre)}<div class="muted" style="font-weight:400;font-size:12px">${esc(x.t.cargo||'')} ${x.t.cedula?'· C.C. '+esc(x.t.cedula):''}</div></div>
+    <div class="muted" style="font-size:12.5px;min-width:220px">${x.c.length} caso${x.c.length>1?'s':''} · ${llam} llamado${llam!==1?'s':''} de atención · ${sus.length} suspensión${sus.length!==1?'es':''}${dias?' ('+dias+' días)':''}</div>
+    <div class="ch">${x.c.sort((a,b)=>(a.creado||'').localeCompare(b.creado||'')).map(c=>`<button class="tag ${ESTADOS[c.estado||'borrador'].c}" style="border:0;cursor:pointer" data-open="${c.id}" title="${esc(ESTADOS[c.estado||'borrador'].l)}">${esc(c.consecutivo)}</button>`).join('')}</div></div>`;
+  });
+  return h+'</div>';
+}
+function vPlantillas(){
+  const T=(id,ic,bg,t,d)=>`<div class="card tpl"><div class="ic" style="background:${bg}">${ic}</div><h4>${t}</h4><p>${d}</p><div><button class="btn sm" data-tpl="${id}">Ver plantilla en blanco</button></div></div>`;
+  return `<p class="muted" style="margin-top:0">Las plantillas se llenan solas con los datos del caso desde cada paso. Aquí puede verlas en blanco para revisarlas, copiarlas o imprimir formatos vacíos.</p>
+  <div class="tplgrid">
+    ${T('citacion','✉️','var(--azul-s)','1. Citación a descargos','Cargos concretos, pruebas, fecha, hora y lugar de la diligencia, y los derechos del trabajador (debido proceso).')}
+    ${T('acta','📝','var(--ambar-s)','2. Acta de diligencia de descargos','Registro de lo que dijo el trabajador, asistentes, pruebas aportadas y firmas. Apoya la trazabilidad.')}
+    ${T('respuesta','⚖️','var(--morado-s)','3. Respuesta de RRHH (decisión)','Decisión motivada tras los descargos: análisis, conclusión, medida adoptada y recurso.')}
+    ${T('sancion','🚩','var(--rojo-suave)','4. Llamado de atención / Suspensión','Comunicación de la sanción: llamado verbal o escrito, o suspensión con fechas y reintegro.')}
+  </div>`;
+}
+function vConfig(){
+  const F=(k,l,full,h)=>`<div class="${full?'full':''}"><label class="fl">${l}</label><input class="in" data-cfg="${k}" value="${esc(cfg[k])}">${h?`<div class="hint">${h}</div>`:''}</div>`;
+  return `<div class="sec" style="max-width:860px"><h3>Datos que aparecen en los documentos</h3>
+  <div class="grid">
+    ${F('empresa','Empleador')}${F('nit','NIT')}
+    ${F('sede','Establecimiento')}${F('direccion','Dirección')}
+    ${F('ciudad','Ciudad (encabezado de cartas)')}${F('lugar','Lugar habitual de la diligencia de descargos',false)}
+    ${F('firmaAdmin','Firma — Administración')}${F('cargoAdmin','Cargo')}
+    ${F('firmaRRHH','Firma — Recursos Humanos','', 'Quien firma la respuesta y la sanción. Si se deja vacío firma la administración.')}${F('cargoRRHH','Cargo RRHH')}
+    ${F('diasDefensa','Días mínimos entre la citación y los descargos','', 'RIT Art. 54 num. 4: no inferior a 5 días.')}${F('diasDecision','Días hábiles máximos para decidir','', 'RIT Art. 54 par. 2: 30 días hábiles.')}${F('diasRecurso','Días hábiles para apelar','', 'RIT Art. 54 par. 1: 2 días hábiles.')}${F('instanciaRecurso','Ante quién se presenta el recurso')}
+    ${F('reglamento','Nombre del Reglamento Interno',true,'Se cita en las cartas. Revise que coincida con el reglamento vigente y su procedimiento disciplinario.')}
+  </div>
+  <div class="actions"><button class="btn pri" id="saveCfg">Guardar configuración</button></div></div>`;
+}
+function bindMain(){
+  document.querySelectorAll('.kpi').forEach(k=>k.onclick=()=>{filtroEstado=k.dataset.f;render()});
+  const qi=$('#q');if(qi){qi.oninput=e=>{q=e.target.value;const pos=e.target.selectionStart;render();const n=$('#q');n.focus();n.setSelectionRange(pos,pos)}}
+  document.querySelectorAll('tr.row').forEach(r=>r.onclick=()=>abrir(r.dataset.id));
+  document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>abrir(b.dataset.open));
+  document.querySelectorAll('[data-tpl]').forEach(b=>b.onclick=()=>verDoc(b.dataset.tpl,null));
+  const sc=$('#saveCfg');if(sc)sc.onclick=()=>{document.querySelectorAll('[data-cfg]').forEach(i=>cfg[i.dataset.cfg]=i.value.trim());cfg.diasRecurso=parseInt(cfg.diasRecurso)||2;cfg.diasDefensa=parseInt(cfg.diasDefensa)||5;cfg.diasDecision=parseInt(cfg.diasDecision)||30;guardarCfg()};
+}
+$('#tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;vista=b.dataset.v;q='';render()};
+$('#btnNuevo').onclick=()=>{
+  const c={id:uid(),consecutivo:nuevoConsecutivo(),estado:'borrador',creado:new Date().toISOString(),trabajador:{},hechos:'',fechaHechos:'',normas:'',pruebas:'',citacion:{fechaEmision:hoyISO(),lugar:cfg.lugar},descargos:{},decision:{},sancion:{},historial:[]};
+  log(c,'Caso creado');
+  abierto=c.id;paso=1;casos.push(c);renderDrawer();abrirDrawer();
+  c._nuevo=true;
+};
+
+/* ================= drawer de caso ================= */
+function abrir(id){abierto=id;const c=casos.find(x=>x.id===id);paso=c?pasoActual(c):1;renderDrawer();abrirDrawer()}
+function abrirDrawer(){$('#ov').classList.add('on');$('#drawer').classList.add('on')}
+function cerrarDrawer(){
+  const c=casos.find(x=>x.id===abierto);
+  if(c&&c._nuevo){casos=casos.filter(x=>x.id!==c.id)}
+  abierto=null;$('#ov').classList.remove('on');$('#drawer').classList.remove('on');render();
+}
+$('#ov').onclick=cerrarDrawer;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#modal').classList.contains('on'))$('#modal').classList.remove('on');else if(abierto)cerrarDrawer()}});
+
+function renderDrawer(){
+  const c=casos.find(x=>x.id===abierto);if(!c)return;
+  const e=ESTADOS[c.estado||'borrador'];const p=e.p;
+  const t=c.trabajador||{};
+  const san=c.decision&&TIPOS[c.decision.tipo]&&TIPOS[c.decision.tipo].san;
+  const S=(n,k,tt,d,ok,off)=>`<div class="step ${ok?'ok':''} ${paso===n?'sel':''} ${off?'off':''}" data-paso="${n}"><div class="k">${ok?'✓ ':''}Paso ${n}</div><div class="t">${tt}</div><div class="d">${d}</div></div>`;
+  const prev=sancionesPrevias(c);
+  let h=`<div class="dh"><div><div class="mono muted">${esc(c.consecutivo)}</div><h2>${esc(t.nombre||'Nuevo caso')}</h2><div style="margin-top:6px"><span class="tag ${e.c}">${e.l}</span></div></div><div class="sp"></div>
+    ${c._nuevo?'':`<button class="btn sm ghost" id="delCaso" title="Eliminar caso">🗑</button>`}<button class="btn sm" id="xDrawer">Cerrar ✕</button></div><div class="db">
+  <div class="steps">
+    ${S(1,'cit','Citación','Cargos y fecha',p>=1)}
+    ${S(2,'des','Descargos','Versión del trabajador',p>=2,p<1)}
+    ${S(3,'dec','Respuesta RRHH','Decisión motivada',p>=3,p<2)}
+    ${S(4,'san','Sanción y cierre',san?'Notificación':'Cierre del caso',p>=5||(p>=4&&!san),p<3)}
+  </div>`;
+  if(prev.length)h+=`<div class="warn" style="margin:-4px 0 14px"><b>Reincidencia:</b> este trabajador tiene ${prev.length} sanción(es) previa(s): ${prev.map(x=>esc(x.consecutivo)+' ('+esc(TIPOS[x.decision.tipo].l.split('(')[0].trim())+')').join(', ')}.</div>`;
+  if(paso===1)h+=pasoCitacion(c);
+  if(paso===2)h+=pasoDescargos(c);
+  if(paso===3)h+=pasoRespuesta(c);
+  if(paso===4)h+=pasoSancion(c);
+  h+=`<div class="sec"><h3>🕓 Trazabilidad del caso</h3><ul class="timeline">${(c.historial||[]).slice().reverse().map(x=>`<li><span class="when mono">${fStamp(x.t)}</span><span>${esc(x.accion)}${x.por?` <span class="who">· ${esc(names[x.por]||x.por)}</span>`:''}</span></li>`).join('')||'<li class="muted">Sin movimientos</li>'}</ul></div></div>`;
+  $('#drawer').innerHTML=h;
+  bindDrawer(c);
+}
+const fld=(path,label,c,opt={})=>{
+  const val=path.split('.').reduce((o,k)=>o&&o[k],c)??'';
+  const cls=opt.full?'full':'';
+  if(opt.type==='textarea')return `<div class="${cls}"><label class="fl">${label}</label><textarea class="in" data-f="${path}" ${opt.ph?`placeholder="${esc(opt.ph)}"`:''} ${opt.rows?`style="min-height:${opt.rows*22}px"`:''}>${esc(val)}</textarea>${opt.hint?`<div class="hint">${opt.hint}</div>`:''}</div>`;
+  if(opt.type==='select')return `<div class="${cls}"><label class="fl">${label}</label><select class="in" data-f="${path}">${opt.options.map(([k,l])=>`<option value="${k}" ${val===k?'selected':''}>${esc(l)}</option>`).join('')}</select>${opt.hint?`<div class="hint">${opt.hint}</div>`:''}</div>`;
+  return `<div class="${cls}"><label class="fl">${label}</label><input class="in" type="${opt.type||'text'}" data-f="${path}" value="${esc(val)}" ${opt.ph?`placeholder="${esc(opt.ph)}"`:''} ${opt.list?`list="${opt.list}"`:''}>${opt.hint?`<div class="hint">${opt.hint}</div>`:''}</div>`;
+};
+function pasoCitacion(c){
+  const personas={};casos.forEach(x=>{const t=x.trabajador||{};if(t.nombre)personas[t.nombre]=t});
+  const dl=`<datalist id="dlTrab">${Object.keys(personas).map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`;
+  const enviada=c.estado!=='borrador';
+  return `<div class="sec"><h3>👤 Trabajador</h3><div class="grid3">
+    ${fld('trabajador.nombre','Nombre completo *',c,{list:'dlTrab'})}${dl}
+    ${fld('trabajador.cedula','Cédula *',c)}
+    ${fld('trabajador.cargo','Cargo',c,{ph:'Promotor(a) de servicio'})}
+    ${fld('trabajador.turno','Turno',c,{ph:'Ej. Turno 2 (2 p. m. – 10 p. m.)'})}
+    ${fld('trabajador.ingreso','Fecha de ingreso',c,{type:'date'})}
+    ${fld('trabajador.correo','Correo o celular (opcional)',c)}
+  </div></div>
+  <div class="sec"><h3>📌 Hechos y cargos</h3><div class="grid">
+    ${fld('fechaHechos','Fecha de los hechos *',c,{type:'date'})}
+    ${fld('lugarHechos','Lugar / isla',c,{ph:'Isla 3, POS 2'})}
+    ${fld('hechos','Descripción concreta de los hechos *',c,{type:'textarea',full:true,rows:5,ph:'Qué pasó, cuándo, dónde, cómo se detectó. Sea específico: hora, valores, cliente, factura…'})}
+    ${fld('falta','Clasificación según el RIT',c,{type:'select',full:true,options:Object.entries(FALTAS).map(([k,x])=>[k,x.l])})}
+    <div class="full ai-row"><button class="btn sm ai" id="aiCargos">✨ Redactar hechos y normas con Claude</button><span class="hint">Pule la redacción y busca en el RIT los artículos y numerales que aplican. Usted revisa antes de guardar.</span></div>
+    ${fld('normas','Normas presuntamente incumplidas',c,{type:'textarea',full:true,ph:'Ej. Art. __ del Reglamento Interno de Trabajo; numeral __ del contrato; protocolo de facturación POS; Art. 58 CST (obligaciones del trabajador)…'})}
+    ${fld('pruebas','Pruebas con que cuenta la empresa',c,{type:'textarea',full:true,ph:'Ej. video de cámara isla 3 (10:42 a. m.), reporte Sicom del turno, queja del cliente, cuadre de caja…',hint:'Se le ponen en conocimiento al trabajador en la citación.'})}
+  </div></div>
+  <div class="sec"><h3>📅 Diligencia de descargos</h3><div class="grid3">
+    ${fld('citacion.fechaEmision','Fecha de la citación',c,{type:'date'})}
+    ${fld('citacion.fecha','Fecha de la diligencia *',c,{type:'date'})}
+    ${fld('citacion.hora','Hora *',c,{type:'time'})}
+    ${fld('citacion.lugar','Lugar',c,{full:true})}
+    ${fld('citacion.entregada','Fecha en que se entregó al trabajador',c,{type:'date',hint:'Llénela cuando el trabajador reciba y firme.'})}
+  </div>
+  <div id="avisoCit"></div>
+  <div class="actions">
+    <button class="btn" data-doc="citacion">👁 Ver / descargar citación</button>
+    <button class="btn pri" id="okCit">${enviada?'Guardar cambios':'Guardar y marcar como citado'}</button>
+  </div></div>`;
+}
+function pasoDescargos(c){
+  const d=c.descargos||{};
+  return `<div class="sec"><h3>📝 Resultado de la diligencia</h3><div class="grid">
+    ${fld('descargos.asistio','¿Asistió el trabajador?',c,{type:'select',options:[['si','Sí, asistió y rindió descargos'],['escrito','Presentó descargos por escrito'],['no','No asistió (sin justificación)'],['justifico','No asistió, justificó y se reprogramó']]})}
+    ${fld('descargos.fecha','Fecha en que se realizó',c,{type:'date'})}
+    ${fld('descargos.horaInicio','Hora de inicio',c,{type:'time'})}
+    ${fld('descargos.horaFin','Hora de cierre',c,{type:'time'})}
+    ${fld('descargos.presentes','Por la empresa estuvieron',c,{ph:'Nombre y cargo'})}
+    ${fld('descargos.acompanantes','Acompañantes del trabajador',c,{ph:'Nombres (si los hubo)'})}
+    ${fld('descargos.version','Versión del trabajador (resumen fiel de lo que dijo) *',c,{type:'textarea',full:true,rows:6,ph:'PREGUNTADO: ¿Cuándo fue contratado por PLAN VE S.A.S.? CONTESTÓ: …\nPREGUNTADO: ¿Qué cargo desempeña? CONTESTÓ: …\nRegistre fielmente lo que dijo el trabajador.'})}
+    ${fld('descargos.pruebasAportadas','Pruebas que aportó o pidió el trabajador',c,{type:'textarea',full:true})}
+    ${fld('descargos.observaciones','Observaciones',c,{type:'textarea',full:true,ph:'Ej. se negó a firmar el acta; firmaron dos testigos.'})}
+  </div>
+  <div class="actions"><button class="btn" data-doc="acta">👁 Ver / descargar acta</button><button class="btn pri" id="okDes">${c.estado==='citado'||c.estado==='borrador'?'Registrar descargos':'Guardar cambios'}</button></div></div>`;
+}
+function pasoRespuesta(c){
+  const prev=sancionesPrevias(c).length;
+  return `<div class="sec"><h3>⚖️ Respuesta de RRHH</h3><div class="grid">
+    ${fld('decision.fecha','Fecha de la respuesta',c,{type:'date'})}
+    ${fld('decision.responsable','Responsable de RRHH',c,{ph:cfg.firmaRRHH||cfg.firmaAdmin})}
+    ${fld('decision.analisis','Análisis / consideraciones *',c,{type:'textarea',full:true,rows:6,ph:'Valore los descargos frente a las pruebas: ¿se probaron los hechos?, ¿las explicaciones justifican la conducta?, gravedad, antecedentes, proporcionalidad.'})}
+    ${fld('decision.tipo','Decisión *',c,{type:'select',full:true,options:[['','— Seleccione —'],...Object.entries(TIPOS).map(([k,x])=>[k,x.l])]})}
+    <div class="full" id="decExtra"></div>
+  </div>
+  ${prev?`<div class="hint">Antecedentes con sanción: <b>${prev}</b>. Esto puede considerarse reincidencia al graduar la sanción.</div>`:''}
+  ${escalaHtml(c)}${plazoDecision(c)}
+  <div class="ai-row" style="margin-top:10px"><button class="btn sm ai" id="aiDec">✨ Proponer análisis y sanción con Claude</button><span class="hint">Cruza hechos, pruebas, descargos, antecedentes y la escala del RIT. Es una propuesta: la decisión es suya.</span></div>
+  <div id="avisoDec"></div>
+  <div class="actions"><button class="btn" data-doc="respuesta">👁 Ver / descargar respuesta</button><button class="btn pri" id="okDec">Guardar decisión</button></div></div>`;
+}
+function vecesFalta(c){if(!c.falta||!FALTAS[c.falta]||!FALTAS[c.falta].esc)return 0;return antecedentes(c).filter(x=>x.falta===c.falta&&x.decision&&TIPOS[x.decision.tipo]&&TIPOS[x.decision.tipo].san&&(x.creado||'')<(c.creado||'z')).length}
+function escalaHtml(c){const f=FALTAS[c.falta||''];if(!f||!f.esc)return '';const n=vecesFalta(c);const i=Math.min(n,f.esc.length-1);
+  return `<div class="ok-note" style="background:var(--azul-s);color:var(--azul);margin-top:10px"><b>Escala del RIT:</b> ${esc(f.l)}<br>Sería la vez número <b>${n+1}</b> que se sanciona esta falta → sanción prevista: <b>${esc(f.esc[i])}</b>.</div>`}
+function habiles(desde,hasta){let d=pd(desde),h=pd(hasta),n=0;if(!d||!h)return 0;while(d<h){d.setDate(d.getDate()+1);const w=d.getDay();if(w!==0&&w!==6)n++}return n}
+function plazoDecision(c){const d=c.descargos&&c.descargos.fecha;if(!d||c.estado!=='descargos')return '';const n=habiles(d,hoyISO());const max=+cfg.diasDecision||30;
+  return n>max?`<div class="warn">Han pasado ${n} días hábiles desde los descargos; el RIT da máximo ${max} para decidir.</div>`:`<div class="hint" style="margin-top:8px">Plazo para decidir: van ${n} de ${max} días hábiles desde los descargos (sin contar festivos).</div>`}
+function decExtra(c){
+  const t=c.decision&&c.decision.tipo;
+  if(t==='suspension')return `<div class="grid3">
+    ${fld('decision.dias','Días de suspensión *',c,{type:'number'})}
+    ${fld('decision.inicio','Desde *',c,{type:'date'})}
+    ${fld('decision.fin','Hasta (inclusive)',c,{type:'date',hint:'Se calcula con los días; ajústelo si salta descansos.'})}
+    ${fld('decision.reintegro','Fecha de reintegro',c,{type:'date'})}
+  </div>`;
+  if(t==='terminacion')return `<div class="warn">La terminación con justa causa no es una sanción disciplinaria y requiere carta de terminación aparte (Art. 62 CST), indicando la causal y los hechos. Revísela con su abogado antes de notificar.</div>${fld('decision.causal','Causal invocada',c,{full:true,ph:'Art. 62, literal A, numeral __ CST / Reglamento art. __'})}`;
+  if(t==='archivo')return `<div class="ok-note">El caso se archivará sin sanción. Igual queda registrado en la hoja disciplinaria del trabajador.</div>`;
+  return '';
+}
+function pasoSancion(c){
+  const t=c.decision&&c.decision.tipo;const san=t&&TIPOS[t].san;
+  if(!t)return `<div class="sec"><div class="empty"><b>Primero registre la respuesta de RRHH</b>En el paso 3 se define si hay sanción.</div></div>`;
+  return `<div class="sec"><h3>${san?'🚩 Notificación de la sanción':'✅ Cierre del caso'}</h3>
+  <p class="muted" style="margin-top:-4px">Decisión: <b style="color:var(--tinta)">${esc(TIPOS[t].l)}</b>${t==='suspension'?` · ${esc(c.decision.dias||'?')} día(s), del ${fCorta(c.decision.inicio)} al ${fCorta(c.decision.fin)}`:''}</p>
+  <div class="grid">
+    ${fld('sancion.notificada','Fecha de notificación al trabajador',c,{type:'date'})}
+    ${fld('sancion.firmo','Constancia de recibido',c,{type:'select',options:[['','— Seleccione —'],['si','El trabajador firmó el recibido'],['testigos','Se negó a firmar — firmaron dos testigos'],['correo','Enviada por correo / WhatsApp con confirmación']]})}
+    ${fld('sancion.testigos','Testigos (si aplica)',c,{full:true})}
+    ${fld('sancion.recurso','¿Presentó recurso?',c,{type:'select',options:[['','No / pendiente'],['no','No presentó recurso en el plazo'],['confirmada','Presentó recurso — se confirmó la decisión'],['modificada','Presentó recurso — se modificó la decisión'],['revocada','Presentó recurso — se revocó la decisión']]})}
+    ${fld('sancion.fechaRecurso','Fecha respuesta al recurso',c,{type:'date'})}
+    ${t==='suspension'?fld('sancion.cumplida','¿Se cumplió la suspensión y se reintegró?',c,{type:'select',options:[['','Pendiente'],['si','Sí, cumplió y se reintegró'],['no','No / novedad']]}):''}
+    ${fld('sancion.nomina','Reportado a nómina / hoja de vida',c,{type:'select',options:[['','Pendiente'],['si','Sí, copia en hoja de vida y novedad reportada']]})}
+    ${fld('sancion.notas','Notas',c,{type:'textarea',full:true})}
+  </div>
+  <div class="actions">${san?`<button class="btn" data-doc="sancion">👁 Ver / descargar ${t==='suspension'?'suspensión':'llamado de atención'}</button>`:''}
+  <button class="btn" id="okSan">Guardar</button>
+  <button class="btn pri" id="cerrarCaso" ${c.estado==='cerrado'?'disabled':''}>${c.estado==='cerrado'?'Caso cerrado':'Cerrar caso'}</button></div></div>`;
+}
+function setPath(o,path,val){const ks=path.split('.');let x=o;ks.slice(0,-1).forEach(k=>{x[k]=x[k]&&typeof x[k]==='object'?x[k]:{};x=x[k]});x[ks[ks.length-1]]=val}
+function bindDrawer(c){
+  $('#xDrawer').onclick=cerrarDrawer;
+  const del=$('#delCaso');if(del)del.onclick=async()=>{if(await confirmar(`¿Eliminar el caso ${c.consecutivo}? Esta acción borra toda su trazabilidad y no se puede deshacer.`)){borrarCaso(c.id);abierto=null;$('#ov').classList.remove('on');$('#drawer').classList.remove('on');toast('Caso eliminado')}};
+  document.querySelectorAll('.step').forEach(s=>s.onclick=()=>{if(s.classList.contains('off'))return;leer(c);paso=+s.dataset.paso;renderDrawer()});
+  document.querySelectorAll('[data-doc]').forEach(b=>b.onclick=()=>{leer(c);verDoc(b.dataset.doc,c)});
+  // autocompletar trabajador
+  const nom=document.querySelector('[data-f="trabajador.nombre"]');
+  if(nom)nom.addEventListener('change',()=>{const p=casos.find(x=>x.id!==c.id&&x.trabajador&&x.trabajador.nombre===nom.value);if(p){['cedula','cargo','turno','ingreso','correo'].forEach(k=>{const i=document.querySelector(`[data-f="trabajador.${k}"]`);if(i&&!i.value&&p.trabajador[k])i.value=p.trabajador[k]})}});
+  // decision extra
+  const de=$('#decExtra');
+  const pintaExtra=()=>{if(!de)return;leer(c);de.innerHTML=decExtra(c);bindSusp(c);validarDec(c)};
+  if(de){pintaExtra();document.querySelector('[data-f="decision.tipo"]').onchange=pintaExtra}
+  const g=(id,fn)=>{const b=$(id);if(b)b.onclick=fn};
+  g('#aiCargos',()=>aiCargos(c));g('#aiDec',()=>aiDecision(c));
+  const sf=document.querySelector('[data-f="falta"]');if(sf)sf.onchange=()=>leer(c);
+  g('#okCit',()=>{leer(c);
+    const t=c.trabajador||{};const faltan=[];if(!t.nombre)faltan.push('nombre');if(!t.cedula)faltan.push('cédula');if(!c.fechaHechos)faltan.push('fecha de los hechos');if(!c.hechos)faltan.push('hechos');if(!c.citacion.fecha)faltan.push('fecha de la diligencia');if(!c.citacion.hora)faltan.push('hora');
+    if(faltan.length){$('#avisoCit').innerHTML=`<div class="warn">Faltan: ${faltan.join(', ')}.</div>`;return}
+    const base=c.citacion.entregada||c.citacion.fechaEmision;const dd=Math.round((pd(c.citacion.fecha)-pd(base))/864e5);const minD=+cfg.diasDefensa||5;
+    if(base&&dd<minD&&!c._okPlazo){$('#avisoCit').innerHTML=`<div class="warn">Entre la citación (${fCorta(base)}) y la diligencia hay solo ${dd} día(s). El RIT (Art. 54 num. 4) exige un término no inferior a ${minD} días. Sugerencia: ${fCorta(addDays(base,minD))} o después. Pulse guardar otra vez para continuar de todas formas.</div>`;c._okPlazo=1;return}
+    const nuevo=c._nuevo;delete c._nuevo;
+    if(c.estado==='borrador'){c.estado='citado';log(c,`Citación a descargos emitida para el ${fCorta(c.citacion.fecha)} ${fHora(c.citacion.hora)}`)}else log(c,'Citación actualizada');
+    if(c.citacion.entregada&&!c._entLog){log(c,`Citación entregada al trabajador (${fCorta(c.citacion.entregada)})`);c._entLog=true}
+    guardarCaso(c);paso=2;renderDrawer();toast(nuevo?'Caso creado y citado':'Guardado')});
+  g('#okDes',()=>{leer(c);
+    if(!c.descargos.asistio){c.descargos.asistio='si'}
+    if(!c.descargos.fecha)c.descargos.fecha=c.citacion.fecha||hoyISO();
+    if(!c.descargos.version&&c.descargos.asistio!=='no'&&c.descargos.asistio!=='justifico'){toast('Escriba la versión del trabajador');return}
+    if(c.descargos.asistio==='justifico'){log(c,'Trabajador justificó inasistencia; diligencia por reprogramar');guardarCaso(c);renderDrawer();return}
+    const primera=['borrador','citado'].includes(c.estado);
+    if(primera)c.estado='descargos';
+    log(c,primera?(c.descargos.asistio==='no'?`No asistió a la diligencia del ${fCorta(c.descargos.fecha)}`:`Descargos rendidos el ${fCorta(c.descargos.fecha)}`):'Acta de descargos actualizada');
+    guardarCaso(c);paso=3;renderDrawer();toast('Descargos registrados')});
+  g('#okDec',()=>{leer(c);
+    const d=c.decision;if(!d.tipo){toast('Seleccione la decisión');return}if(!d.analisis){toast('Escriba el análisis de la decisión');return}
+    if(d.tipo==='suspension'&&(!d.dias||!d.inicio)){toast('Indique días y fecha de inicio de la suspensión');return}
+    if(!d.fecha)d.fecha=hoyISO();
+    const primera=c.estado==='descargos'||c.estado==='citado';
+    if(['borrador','citado','descargos'].includes(c.estado))c.estado='decision';
+    log(c,`${primera?'Respuesta de RRHH emitida':'Respuesta de RRHH modificada'}: ${TIPOS[d.tipo].l}${d.tipo==='suspension'?' ('+d.dias+' días)':''}`);
+    guardarCaso(c);paso=4;renderDrawer();toast('Decisión guardada')});
+  const guardaSan=(cerrar)=>{leer(c);const s=c.sancion||{};
+    const msgs=[];
+    if(s.notificada&&s.notificada!==c._ultNot){msgs.push(`Decisión notificada al trabajador (${fCorta(s.notificada)})`);c._ultNot=s.notificada;if(c.estado==='decision'&&TIPOS[c.decision.tipo].san)c.estado='sancion'}
+    if(s.recurso&&s.recurso!==c._ultRec){const m={no:'No presentó recurso',confirmada:'Recurso resuelto: decisión confirmada',modificada:'Recurso resuelto: decisión modificada',revocada:'Recurso resuelto: decisión revocada'};msgs.push(m[s.recurso]);c._ultRec=s.recurso}
+    if(s.cumplida==='si'&&!c._cump){msgs.push('Suspensión cumplida y trabajador reintegrado');c._cump=1}
+    if(s.nomina==='si'&&!c._nom){msgs.push('Copia en hoja de vida / novedad de nómina reportada');c._nom=1}
+    msgs.forEach(m=>log(c,m));
+    if(cerrar){c.estado='cerrado';c.cerrado=new Date().toISOString();log(c,'Caso cerrado')}
+    else if(!msgs.length)log(c,'Seguimiento actualizado');
+    guardarCaso(c);renderDrawer();toast(cerrar?'Caso cerrado':'Guardado')};
+  g('#okSan',()=>guardaSan(false));
+  g('#cerrarCaso',async()=>{leer(c);const san=TIPOS[c.decision.tipo].san;
+    if(san&&!(c.sancion&&c.sancion.notificada)){if(!await confirmar('No hay fecha de notificación de la sanción. ¿Cerrar el caso de todas formas?'))return}
+    guardaSan(true)});
+}
+function bindSusp(c){
+  const dias=document.querySelector('[data-f="decision.dias"]'),ini=document.querySelector('[data-f="decision.inicio"]'),fin=document.querySelector('[data-f="decision.fin"]'),rei=document.querySelector('[data-f="decision.reintegro"]');
+  if(!dias)return;
+  const calc=()=>{const n=parseInt(dias.value);if(n>0&&ini.value){fin.value=addDays(ini.value,n-1);rei.value=addDays(ini.value,n)}leer(c);validarDec(c)};
+  dias.oninput=calc;ini.onchange=calc;fin.onchange=()=>{if(fin.value)rei.value=addDays(fin.value,1)};
+}
+function validarDec(c){
+  const a=$('#avisoDec');if(!a)return;const d=c.decision||{};let m='';
+  if(d.tipo==='suspension'){const n=+d.dias||0;const prev=sancionesPrevias(c).length;
+    if(!prev&&n>8)m='Por primera vez, la suspensión no puede exceder de ocho (8) días (Art. 112 CST).';
+    else if(n>60)m='En ningún caso la suspensión puede exceder de dos (2) meses (Art. 112 CST).';
+    else if(prev&&n>8)m='Suspensión mayor a 8 días: verifique que la reincidencia esté prevista en el Reglamento Interno.';
+  }
+  a.innerHTML=m?`<div class="warn">${m}</div>`:'';
+}
+function leer(c){document.querySelectorAll('#drawer [data-f]').forEach(i=>setPath(c,i.dataset.f,i.value.trim()))}
+
+/* ================= documentos ================= */
+function encabezado(c,titulo){
+  return `<div class="enc"><div><div class="em">${esc(cfg.empresa)}</div><div class="sub">${cfg.nit?'NIT '+esc(cfg.nit)+' · ':''}${esc(cfg.sede)} · ${esc(cfg.direccion)}</div></div><div class="ref">${c?esc(c.consecutivo):'DISC-____-___'}<br>${titulo}</div></div>`;
+}
+const firmante=(rrhh)=>rrhh&&cfg.firmaRRHH?{n:cfg.firmaRRHH,c:cfg.cargoRRHH}:{n:cfg.firmaAdmin,c:cfg.cargoAdmin};
+function destinatario(c){const t=(c&&c.trabajador)||{};return `<p>Señor(a)<br><b>${v(t.nombre&&t.nombre.toUpperCase())}</b><br>C.C. ${v(t.cedula)}<br>Cargo: ${v(t.cargo)}<br>${esc(cfg.sede)}</p>`}
+let docActual='';
+function sigDe(c,quien){const f=c&&c.firmas&&c.firmas[docActual]&&c.firmas[docActual][quien];return f&&f.img?f:null}
+function sigHtml(f){return f?`<img class="sigimg" src="${f.img}" alt="firma">`:''}
+function recibido(c){const t=(c&&c.trabajador)||{};const f=sigDe(c,'trabajador');return `<div class="firmas"><div class="firma ${f?'signed':''}" style="${f?'margin-top:30px':''}">${sigHtml(f)}<b>Recibí copia:</b><br>${v(t.nombre)}<br>C.C. ${v(t.cedula)}<br>Fecha: ${f?fCorta(f.fecha):B}</div><div class="firma"><b>Testigos (si el trabajador se niega a firmar):</b><br>1. ${B} C.C. ${B}<br>2. ${B} C.C. ${B}</div></div>`}
+function firmaEmp(rrhh,nombre){const f=firmante(rrhh);const s=window.__caso?sigDe(window.__caso,'empresa'):null;return `<p style="margin-top:34px">Atentamente,</p><div style="margin-top:${s?'72':'46'}px;width:280px" class="firma">${sigHtml(s)}<b>${esc(nombre||f.n)}</b><br>${esc(f.c)}<br>${esc(cfg.empresa)}</div>`}
+function docCitacion(c){
+  const ci=(c&&c.citacion)||{};
+  return encabezado(c,'Citación a descargos')+
+  `<p>${esc(cfg.ciudad)}, ${ci.fechaEmision?fLarga(ci.fechaEmision):B}</p>${destinatario(c)}
+  <p><b>Asunto: Citación a diligencia de descargos</b></p>
+  <p>Respetado(a) señor(a):</p>
+  <p>Por medio de la presente, y en cumplimiento del procedimiento disciplinario previsto en el artículo 54 del ${esc(cfg.reglamento)}, ${esc(cfg.empresa)} le comunica la apertura de un proceso disciplinario y le cita a <b>diligencia de descargos</b> que se llevará a cabo el día <b>${ci.fecha?fLarga(ci.fecha):B}</b>, a las <b>${ci.hora?fHora(ci.hora):B}</b>, en ${v(ci.lugar||cfg.lugar)}, con el fin de que usted rinda su versión sobre los hechos que se describen a continuación, ocurridos el ${c&&c.fechaHechos?fLarga(c.fechaHechos):B}${c&&c.lugarHechos?' en '+esc(c.lugarHechos):''}:</p>
+  <p><b>1. Hechos que se le imputan</b></p><div class="blk">${c&&c.hechos?esc(c.hechos):'\n\n\n'}</div>
+  <p><b>2. Normas presuntamente incumplidas</b></p><div class="blk">${c&&c.normas?esc(c.normas):'Obligaciones y prohibiciones establecidas en el '+esc(cfg.reglamento)+', en el contrato de trabajo y en los artículos 58 y 60 del Código Sustantivo del Trabajo.\n'}</div>
+  <p><b>3. Pruebas</b></p><p>La empresa cuenta con las siguientes pruebas, que se ponen en su conocimiento y que usted puede consultar previamente en la administración:</p><div class="blk">${c&&c.pruebas?esc(c.pruebas):'\n\n'}</div>
+  <p><b>4. Sus derechos en esta diligencia</b></p>
+  <ol><li>Ser escuchado(a) y rendir sus descargos de forma verbal o por escrito.</li>
+  <li>Controvertir las pruebas presentadas y aportar o solicitar las que considere pertinentes.</li>
+  <li>Si se encuentra afiliado(a) a una organización sindical, estar asistido(a) por uno (1) o dos (2) representantes del sindicato que sean trabajadores de la empresa (Art. 54, parágrafo tercero del Reglamento Interno de Trabajo).</li>
+  <li>Contar con un término no inferior a ${esc(cfg.diasDefensa||5)} días, contados desde la entrega de esta comunicación, para preparar su defensa. Si lo prefiere, puede presentar sus descargos por escrito antes de la fecha de la diligencia.</li>
+  <li>Recibir una decisión motivada y, si no está de acuerdo con ella, apelarla por escrito ante ${esc(cfg.instanciaRecurso)} dentro de los ${esc(cfg.diasRecurso)} días hábiles siguientes al recibo de la comunicación.</li></ol>
+  <p>Le informamos que, si no asiste sin una justa causa debidamente comprobada, la empresa continuará con el procedimiento y adoptará la decisión que corresponda con base en las pruebas disponibles.</p>
+  ${firmaEmp(false)}${recibido(c)}`;
+}
+function docActa(c){
+  const ci=(c&&c.citacion)||{},d=(c&&c.descargos)||{},t=(c&&c.trabajador)||{};
+  const asis={si:'asistió y rindió descargos verbalmente',escrito:'presentó sus descargos por escrito, los cuales se anexan',no:'no asistió a la diligencia, sin presentar justificación',justifico:'no asistió y justificó su inasistencia; la diligencia se reprogramará'}[d.asistio]||B;
+  return encabezado(c,'Acta de descargos')+
+  `<h1>ACTA DE DILIGENCIA DE DESCARGOS</h1><p style="text-align:center;margin-bottom:22px">${c?esc(c.consecutivo):''}</p>
+  <p>En ${esc(cfg.ciudad)}, el día ${d.fecha?fLarga(d.fecha):(ci.fecha?fLarga(ci.fecha):B)}, siendo las ${d.horaInicio?fHora(d.horaInicio):B}, en ${v(ci.lugar||cfg.lugar)}, se reunieron:</p>
+  <p><b>Por la empresa:</b> ${v(d.presentes)}<br><b>Trabajador(a):</b> ${v(t.nombre)}, C.C. ${v(t.cedula)}, cargo ${v(t.cargo)}<br><b>Acompañantes del trabajador:</b> ${d.acompanantes?esc(d.acompanantes):'Ninguno'}</p>
+  <p>Con el fin de escuchar en descargos al trabajador(a), según citación entregada el ${ci.entregada?fLarga(ci.entregada):B}, respecto de los hechos ocurridos el ${c&&c.fechaHechos?fLarga(c.fechaHechos):B}:</p>
+  <div class="blk">${c&&c.hechos?esc(c.hechos):'\n\n'}</div>
+  <p>Se le informaron sus derechos: ser escuchado(a), controvertir las pruebas, aportar las que considere y estar acompañado(a). Se le pusieron de presente las pruebas que obran en el expediente.</p>
+  <p><b>Resultado:</b> el trabajador(a) ${asis}.</p>
+  <p><b>Versión del trabajador(a):</b></p><div class="blk">${d.version?esc(d.version):'\n\n\n\n\n'}</div>
+  <p><b>Pruebas aportadas o solicitadas por el trabajador(a):</b></p><div class="blk">${d.pruebasAportadas?esc(d.pruebasAportadas):'Ninguna.\n'}</div>
+  ${d.observaciones?`<p><b>Observaciones:</b></p><div class="blk">${esc(d.observaciones)}</div>`:''}
+  <p>Se le preguntó al trabajador(a) si tenía algo más que agregar y si fue tratado(a) con respeto durante la diligencia. Se da por terminada siendo las ${d.horaFin?fHora(d.horaFin):B}. Leída y aprobada, firman quienes intervinieron.</p>
+  <div class="firmas"><div class="firma ${sigDe(c,'trabajador')?'signed':''}" style="${sigDe(c,'trabajador')?'margin-top:30px':''}">${sigHtml(sigDe(c,'trabajador'))}<b>Trabajador(a)</b><br>${v(t.nombre)}<br>C.C. ${v(t.cedula)}</div><div class="firma"><b>Por la empresa</b><br>${v(d.presentes||firmante(false).n)}</div><div class="firma"><b>Acompañante / Testigo</b><br>${B}<br>C.C. ${B}</div><div class="firma"><b>Acompañante / Testigo</b><br>${B}<br>C.C. ${B}</div></div>`;
+}
+function docRespuesta(c){
+  const ci=(c&&c.citacion)||{},d=(c&&c.descargos)||{},de=(c&&c.decision)||{};
+  const tipo=de.tipo&&TIPOS[de.tipo];
+  const asis=d.asistio==='no'?`usted no asistió a la diligencia programada para el ${ci.fecha?fLarga(ci.fecha):B}, ni presentó justificación`:`usted rindió descargos el ${d.fecha?fLarga(d.fecha):B}`;
+  let res='';
+  if(!c||!tipo)res=`<p>Por lo anterior, la empresa decide: ${B}${B}${B}</p>`;
+  else if(de.tipo==='archivo')res=`<p>Por lo anterior, la empresa decide <b>archivar el presente proceso sin imponer sanción</b>. Sin perjuicio de lo anterior, se le recuerda la importancia de cumplir estrictamente sus obligaciones y los protocolos de la estación.</p>`;
+  else if(de.tipo==='terminacion')res=`<p>Por lo anterior, la empresa ha decidido <b>dar por terminado su contrato de trabajo con justa causa</b>${de.causal?', con fundamento en '+esc(de.causal):''}. La decisión se le comunica en carta de terminación separada.</p>`;
+  else if(de.tipo==='suspension')res=`<p>Por lo anterior, la empresa decide imponerle la sanción de <b>suspensión del contrato de trabajo sin remuneración por ${esc(de.dias||'__')} día(s)</b>, desde el ${de.inicio?fLarga(de.inicio):B} hasta el ${de.fin?fLarga(de.fin):B}, inclusive, debiendo reintegrarse a sus labores el ${de.reintegro?fLarga(de.reintegro):B}, de conformidad con los artículos 52 y 53 del ${esc(cfg.reglamento)} y el artículo 112 del Código Sustantivo del Trabajo. Durante la suspensión se entiende suspendido el contrato de trabajo (Art. 53, parágrafo tercero del RIT; arts. 51 y 53 CST).</p>`;
+  else res=`<p>Por lo anterior, la empresa decide imponerle un <b>${esc(tipo.l.toLowerCase())}</b>, del cual quedará copia en su hoja de vida.</p>`;
+  return encabezado(c,'Respuesta de RRHH')+
+  `<p>${esc(cfg.ciudad)}, ${de.fecha?fLarga(de.fecha):B}</p>${destinatario(c)}
+  <p><b>Asunto: Decisión del proceso disciplinario ${c?esc(c.consecutivo):''}</b></p>
+  <p>Respetado(a) señor(a):</p>
+  <p>En atención a la citación a descargos del ${ci.fechaEmision?fLarga(ci.fechaEmision):B}, relacionada con los hechos ocurridos el ${c&&c.fechaHechos?fLarga(c.fechaHechos):B}, le informamos que ${asis}.</p>
+  <p><b>1. Hechos</b></p><div class="blk">${c&&c.hechos?esc(c.hechos):'\n\n'}</div>
+  ${d.asistio!=='no'?`<p><b>2. Resumen de sus descargos</b></p><div class="blk">${d.version?esc(d.version):'\n\n'}</div>`:''}
+  <p><b>${d.asistio!=='no'?'3':'2'}. Consideraciones de la empresa</b></p><div class="blk">${de.analisis?esc(de.analisis):'\n\n\n'}</div>
+  <p><b>${d.asistio!=='no'?'4':'3'}. Decisión</b></p>${res}
+  ${de.tipo!=='archivo'&&de.tipo!=='terminacion'?`<p>Contra esta decisión procede la apelación, por escrito, ante ${esc(cfg.instanciaRecurso)}, dentro de los ${esc(cfg.diasRecurso)} días hábiles siguientes, contados a partir del día siguiente al recibo de esta comunicación (Art. 54, parágrafo primero del ${esc(cfg.reglamento)}).</p>`:''}
+  ${firmaEmp(true,de.responsable)}${recibido(c)}`;
+}
+function docSancion(c){
+  const de=(c&&c.decision)||{};const t=de.tipo||'escrito';
+  const susp=t==='suspension';const verbal=t==='verbal';
+  const titulo=susp?'SUSPENSIÓN DISCIPLINARIA':(verbal?'CONSTANCIA DE LLAMADO DE ATENCIÓN VERBAL':'LLAMADO DE ATENCIÓN ESCRITO');
+  let cuerpo;
+  if(susp)cuerpo=`<p>Como resultado del proceso disciplinario ${c?esc(c.consecutivo):B}, en el cual se garantizó su derecho de defensa, la empresa le comunica que se le impone la sanción de <b>suspensión del contrato de trabajo sin remuneración por ${esc(de.dias||'____')} día(s)</b>:</p>
+  <div class="blk">Desde: ${de.inicio?fLarga(de.inicio):'______________'}
+Hasta (inclusive): ${de.fin?fLarga(de.fin):'______________'}
+Fecha de reintegro: ${de.reintegro?fLarga(de.reintegro):'______________'}</div>
+  <p>Durante este período no deberá presentarse a laborar y no se causará salario por los días de suspensión, sin perjuicio de la continuidad de su vinculación laboral. Esta sanción se impone conforme al ${esc(cfg.reglamento)} y al artículo 112 del Código Sustantivo del Trabajo.</p>`;
+  else if(verbal)cuerpo=`<p>Se deja constancia de que el día ${de.fecha?fLarga(de.fecha):B} se le realizó <b>llamado de atención verbal</b> como resultado del proceso disciplinario ${c?esc(c.consecutivo):B}.</p>`;
+  else cuerpo=`<p>Como resultado del proceso disciplinario ${c?esc(c.consecutivo):B}, en el cual se garantizó su derecho de defensa, la empresa le formula el presente <b>llamado de atención por escrito</b>.</p>`;
+  return encabezado(c,'Sanción disciplinaria')+
+  `<p>${esc(cfg.ciudad)}, ${(c&&c.decision&&c.decision.fecha)?fLarga(c.decision.fecha):B}</p>${destinatario(c)}
+  <p><b>Asunto: ${titulo}</b></p><p>Respetado(a) señor(a):</p>
+  ${cuerpo}
+  <p><b>Motivo:</b></p><div class="blk">${c&&c.hechos?esc(c.hechos):'\n\n'}</div>
+  ${c&&c.normas?`<p><b>Normas incumplidas:</b></p><div class="blk">${esc(c.normas)}</div>`:''}
+  <p>La empresa le recuerda la obligación de cumplir con el ${esc(cfg.reglamento)}, los protocolos de la estación y las instrucciones de sus superiores. Le advertimos que la reincidencia en esta o en otras faltas dará lugar a sanciones más severas, conforme al reglamento, e incluso podría constituir justa causa para la terminación del contrato si así se encuentra calificada.</p>
+  <p>Copia de esta comunicación se archivará en su hoja de vida.</p>
+  <p>Si no está de acuerdo, puede apelar por escrito ante ${esc(cfg.instanciaRecurso)} dentro de los ${esc(cfg.diasRecurso)} días hábiles siguientes al recibo de esta comunicación.</p>
+  ${firmaEmp(true,de.responsable)}${recibido(c)}`;
+}
+const DOCS={citacion:['Citación a descargos',docCitacion],acta:['Acta de descargos',docActa],respuesta:['Respuesta de RRHH',docRespuesta],sancion:['Sanción disciplinaria',docSancion]};
+function verDoc(tipo,c){
+  const [tit,fn]=DOCS[tipo];
+  docActual=tipo;window.__caso=c;
+  const html=fn(c);
+  const m=$('#modal');
+  m.innerHTML=`<div class="mbox"><div class="mbar"><b>${tit}${c?' · '+esc(c.trabajador&&c.trabajador.nombre||''):' · plantilla en blanco'}</b>
+  <button class="btn sm pri" id="dPrint">🖨 Imprimir para firmar</button>${c&&!c._nuevo?`<button class="btn sm" id="dSig">✍️ Firma trabajador</button><button class="btn sm" id="dSigE">✍️ Firma empresa</button><button class="btn sm" id="dLink">🔗 Link</button>`:''}<button class="btn sm" id="dWord">Word</button><button class="btn sm" id="dCopy">Copiar</button><button class="btn sm" id="dX">Cerrar</button></div>
+  <div class="paper" id="paper">${html}</div></div>`;
+  m.classList.add('on');m.scrollTop=0;
+  $('#dX').onclick=()=>{m.classList.remove('on');if(location.hash.startsWith('#imprimir-'))history.replaceState(null,'',location.pathname)};
+  $('#dPrint').onclick=()=>{$('#printArea').innerHTML=`<div class="paper">${html}</div>`;if(c&&!c._nuevo){log(c,`Documento impreso: ${tit}`);guardarCaso(c);if(abierto)renderDrawer()}setTimeout(()=>window.print(),150)};
+  const ds=$('#dSig');if(ds)ds.onclick=()=>firmar(c,tipo,'trabajador',tit);
+  const dse=$('#dSigE');if(dse)dse.onclick=()=>firmar(c,tipo,'empresa',tit);
+  const dl=$('#dLink');if(dl)dl.onclick=async()=>{const u=location.origin+location.pathname+'#imprimir-'+c.id+'-'+tipo;try{await navigator.clipboard.writeText(u);toast('Link copiado: ábralo en cualquier equipo con sesión para imprimir')}catch(e){prompt('Copie el link',u)}};
+  m.onclick=e=>{if(e.target===m)m.classList.remove('on')};
+  $('#dCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('#paper').innerText);toast('Texto copiado')}catch(e){toast('No se pudo copiar; seleccione el texto manualmente')}};
+  const nombre=`${c?c.consecutivo+' - ':''}${tit}${c&&c.trabajador&&c.trabajador.nombre?' - '+c.trabajador.nombre:''}`.replace(/[\\/:*?"<>|]/g,'');
+  const archivo=(word)=>`<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>${esc(nombre)}</title><style>
+  @page{size:letter;margin:2.2cm}body{font-family:Georgia,'Times New Roman',serif;font-size:12pt;line-height:1.55;color:#111;max-width:760px;margin:30px auto;padding:0 20px}
+  h1{font-size:13pt;text-align:center}.enc{display:flex;justify-content:space-between;border-bottom:2px solid #D7141A;padding-bottom:8px;margin-bottom:20px;font-family:Arial,sans-serif}.em{font-weight:bold;font-size:13pt}.sub,.ref{font-size:9pt;color:#555}.ref{text-align:right}
+  p{text-align:justify;margin:0 0 10px}.blk{background:#F5F5F5;border-left:3px solid #999;padding:8px 12px;margin:6px 0 12px;white-space:pre-wrap}
+  .firmas{display:grid;grid-template-columns:1fr 1fr;gap:36px;margin-top:44px}.firma{border-top:1px solid #222;padding-top:5px;font-size:10.5pt}.blank{display:inline-block;min-width:110px;border-bottom:1px solid #333}
+  @media print{body{margin:0}}</style></head><body>${html}${word?'':'<script>window.onload=()=>setTimeout(()=>window.print(),300)<\/script>'}</body></html>`;
+  const guardar=(ext,data)=>{
+    const blob=data instanceof Blob?data:new Blob([data],{type:'text/html'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nombre+'.'+ext;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+    toast('Archivo descargado');
+  };
+  $('#dWord').onclick=async()=>{try{const blob=await docxDe(html);guardar('docx',blob)}catch(e){toast('No se pudo generar el Word')}};
+}
+/* ===== Firma en pantalla ===== */
+function firmar(c,tipo,quien,tit){
+  const mo=$('#sigModal'),cv=$('#sigCanvas');
+  $('#sigTit').textContent=(quien==='trabajador'?'Firma del trabajador':'Firma de la empresa')+' · '+tit;
+  $('#sigSub').textContent=quien==='trabajador'?((c.trabajador&&c.trabajador.nombre)||'')+' — C.C. '+((c.trabajador&&c.trabajador.cedula)||''):firmante(tipo!=='citacion').n;
+  mo.classList.add('on');
+  const r=cv.getBoundingClientRect(),dpr=window.devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;
+  const x=cv.getContext('2d');x.scale(dpr,dpr);x.lineWidth=2.4;x.lineCap='round';x.lineJoin='round';x.strokeStyle='#0B2A6B';
+  let dib=false,trazo=false,lp=null;
+  const pt=e=>{const b=cv.getBoundingClientRect();return [e.clientX-b.left,e.clientY-b.top]};
+  cv.onpointerdown=e=>{dib=true;lp=pt(e);cv.setPointerCapture(e.pointerId)};
+  cv.onpointermove=e=>{if(!dib)return;const p=pt(e);x.beginPath();x.moveTo(lp[0],lp[1]);x.lineTo(p[0],p[1]);x.stroke();lp=p;trazo=true};
+  cv.onpointerup=cv.onpointercancel=()=>{dib=false};
+  $('#sigClr').onclick=()=>{x.clearRect(0,0,cv.width,cv.height);trazo=false};
+  $('#sigNo').onclick=()=>mo.classList.remove('on');
+  $('#sigOk').onclick=()=>{
+    if(!trazo){toast('Falta la firma');return}
+    // recorte y reducción para que pese poco
+    const out=document.createElement('canvas');out.width=360;out.height=Math.round(360*cv.height/cv.width);
+    out.getContext('2d').drawImage(cv,0,0,out.width,out.height);
+    const img=out.toDataURL('image/png');
+    c.firmas=c.firmas||{};c.firmas[tipo]=c.firmas[tipo]||{};c.firmas[tipo][quien]={img,fecha:hoyISO(),t:new Date().toISOString()};
+    log(c,`${tit}: firmada en pantalla por ${quien==='trabajador'?'el trabajador':'la empresa'}`);
+    guardarCaso(c);mo.classList.remove('on');verDoc(tipo,c);if(abierto)renderDrawer();toast('Firma guardada');
+  };
+}
+/* ===== Generador DOCX simple (sin librerías) ===== */
+async function docxDe(html){
+  const tmp=document.createElement('div');tmp.innerHTML=html;
+  const X=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const runs=(node,bold)=>{let out='';node.childNodes.forEach(n=>{
+    if(n.nodeType===3){const parts=n.textContent.split('\n');parts.forEach((t,i)=>{if(i)out+='<w:r><w:br/></w:r>';if(t)out+=`<w:r>${bold?'<w:rPr><w:b/></w:rPr>':''}<w:t xml:space="preserve">${X(t)}</w:t></w:r>`})}
+    else if(n.nodeName==='BR')out+='<w:r><w:br/></w:r>';
+    else if(n.nodeName==='B'||n.nodeName==='STRONG')out+=runs(n,true);
+    else if(n.classList&&n.classList.contains('blank'))out+=`<w:r><w:t xml:space="preserve">______________</w:t></w:r>`;
+    else out+=runs(n,bold)});return out};
+  const P=(inner,opts={})=>`<w:p><w:pPr>${opts.center?'<w:jc w:val="center"/>':'<w:jc w:val="both"/>'}<w:spacing w:after="160"/>${opts.shade?'<w:shd w:val="clear" w:fill="F2F2F2"/><w:ind w:left="200" w:right="200"/>':''}${opts.ind?'<w:ind w:left="360" w:hanging="360"/>':''}</w:pPr>${inner}</w:p>`;
+  let body='';
+  const walk=el=>{el.childNodes.forEach(n=>{
+    if(n.nodeType!==1)return;
+    const cl=n.classList;
+    if(cl.contains('enc')){const em=n.querySelector('.em'),sub=n.querySelector('.sub'),ref=n.querySelector('.ref');
+      body+=P(`<w:r><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="D7141A"/></w:rPr><w:t>${X(em.textContent)}</w:t></w:r>`)+P(`<w:r><w:rPr><w:sz w:val="18"/><w:color w:val="555555"/></w:rPr><w:t xml:space="preserve">${X(sub.textContent)}</w:t></w:r><w:r><w:br/></w:r><w:r><w:rPr><w:sz w:val="18"/><w:color w:val="555555"/></w:rPr><w:t xml:space="preserve">${X(ref.innerHTML.replace(/<br\s*\/?>/gi,' · ').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&'))}</w:t></w:r>`);return}
+    if(n.nodeName==='H1'){body+=P(`<w:r><w:rPr><w:b/><w:sz w:val="26"/></w:rPr><w:t>${X(n.textContent)}</w:t></w:r>`,{center:true});return}
+    if(n.nodeName==='P'){body+=P(runs(n),{center:n.style.textAlign==='center'});return}
+    if(cl.contains('blk')){body+=P(runs(n),{shade:true});return}
+    if(n.nodeName==='OL'){[...n.children].forEach((li,i)=>body+=P(`<w:r><w:t xml:space="preserve">${i+1}. </w:t></w:r>`+runs(li),{ind:true}));return}
+    if(cl.contains('firmas')){body+=P('');[...n.children].forEach(f=>{body+=P('')+P('<w:r><w:t>_________________________________</w:t></w:r>'+'<w:r><w:br/></w:r>'+runs(f))});return}
+    if(cl.contains('firma')){body+=P('')+P('<w:r><w:t>_________________________________</w:t></w:r><w:r><w:br/></w:r>'+runs(n));return}
+    walk(n)})};
+  walk(tmp);
+  const doc=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1300" w:right="1300" w:bottom="1300" w:left="1300" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="22"/><w:lang w:val="es-CO"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`;
+  const files={
+    '[Content_Types].xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>`,
+    '_rels/.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`,
+    'word/_rels/document.xml.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
+    'word/document.xml':doc,'word/styles.xml':styles};
+  return zip(files);
+}
+function crcT(){const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[i]=c>>>0}return t}
+const CRC=crcT();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function zip(files){
+  const enc=new TextEncoder();const parts=[],central=[];let off=0;
+  Object.entries(files).forEach(([name,txt])=>{
+    const nb=enc.encode(name),db_=enc.encode(txt),crc=crc32(db_);
+    const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);h.setUint16(10,0,true);h.setUint16(12,0x21,true);h.setUint32(14,crc,true);h.setUint32(18,db_.length,true);h.setUint32(22,db_.length,true);h.setUint16(26,nb.length,true);h.setUint16(28,0,true);
+    parts.push(new Uint8Array(h.buffer),nb,db_);
+    const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,0,true);c.setUint16(12,0,true);c.setUint16(14,0x21,true);c.setUint32(16,crc,true);c.setUint32(20,db_.length,true);c.setUint32(24,db_.length,true);c.setUint16(28,nb.length,true);c.setUint32(42,off,true);
+    central.push(new Uint8Array(c.buffer),nb);
+    off+=30+nb.length+db_.length;
+  });
+  const csize=central.reduce((a,b)=>a+b.length,0);
+  const e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,Object.keys(files).length,true);e.setUint16(10,Object.keys(files).length,true);e.setUint32(12,csize,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...central,new Uint8Array(e.buffer)]);
+}
+
+
+/* ================= asistente Claude (sample) ================= */
+let sampleFn=null;
+(async()=>{try{sampleFn=window.claude&&window.claude.use?await window.claude.use('sample'):null}catch(e){sampleFn=null}if(sampleFn)document.body.classList.add('has-ai')})();
+async function pedirJSON(prompt,btn){
+  if(!sampleFn){toast('El asistente no está disponible en esta vista');return null}
+  const txt=btn.textContent;btn.disabled=true;btn.textContent='✨ Pensando…';
+  try{
+    const r=await sampleFn(prompt,{modelTier:'default'});
+    const m=(r&&r.text||'').match(/\{[\s\S]*\}/);if(!m)throw {message:'respuesta sin formato'};
+    return JSON.parse(m[0]);
+  }catch(e){toast(e&&e.code==='rate_limited'?'Demasiadas solicitudes; espere un momento':'El asistente no pudo responder');return null}
+  finally{btn.disabled=false;btn.textContent=txt}
+}
+const setF=(path,val)=>{const i=document.querySelector(`#drawer [data-f="${path}"]`);if(i&&val!=null&&val!==''){i.value=val;i.style.background='#FFFBEA';setTimeout(()=>i.style.background='',2500)}};
+async function aiCargos(c){
+  leer(c);
+  if(!c.hechos){toast('Escriba primero lo que pasó, aunque sea en borrador');return}
+  const p=`Eres asesor de recursos humanos en Colombia para PLAN VE S.A.S., una estación de servicio (EDS Terpel). Ayuda a preparar una CITACIÓN A DESCARGOS.
+Borrador de hechos escrito por la administradora: «${c.hechos}»
+Fecha de los hechos: ${c.fechaHechos||'no indicada'}. Lugar: ${c.lugarHechos||'no indicado'}. Cargo del trabajador: ${(c.trabajador&&c.trabajador.cargo)||'promotor(a)'}.
+Pruebas mencionadas: ${c.pruebas||'ninguna'}. Normas que ya escribió: ${c.normas||'ninguna'}.
+
+REGLAMENTO INTERNO DE TRABAJO (extractos):
+${RIT.art48}
+
+${RIT.art50}
+
+${RIT.art51a54}
+
+Tareas:
+1) Reescribe los hechos en tono formal, en tercera persona, concretos (fecha, hora, lugar, conducta), sin dar por probada la culpa (presunción de inocencia: usa "presuntamente"). NO inventes datos que no estén en el borrador; si falta un dato importante, escribe [completar: …].
+2) Indica las normas presuntamente incumplidas citando artículo y numeral exactos del RIT (Art. 48 obligaciones, Art. 50 prohibiciones) y, si aplica, CST art. 58 o 60. Solo cita numerales cuyo texto realmente corresponda a los hechos.
+3) Clasifica la falta con UNA de estas claves: r10 (retardo hasta 10 min), r10m (retardo mayor a 10 min o falta en la mañana/tarde), dia (falta todo el día), oblig (violación leve de obligaciones), avisos (caso omiso de avisos/circulares), grave (violación grave, prohibición del Art. 50 o falta de respeto), otra.
+Responde SOLO un JSON: {"hechos":"…","normas":"…","falta":"clave","nota":"una frase con lo que falta verificar"}`;
+  const r=await pedirJSON(p,$('#aiCargos'));if(!r)return;
+  setF('hechos',r.hechos);setF('normas',r.normas);if(r.falta&&FALTAS[r.falta])setF('falta',r.falta);
+  leer(c);toast(r.nota?('Revise: '+r.nota):'Propuesta lista; revísela antes de guardar');
+}
+async function aiDecision(c){
+  leer(c);
+  const prev=antecedentes(c).filter(x=>x.decision&&x.decision.tipo).map(x=>`${x.consecutivo} (${fCorta(x.fechaHechos)}): ${FALTAS[x.falta||'']?FALTAS[x.falta||''].l:'sin clasificar'} → ${TIPOS[x.decision.tipo].l}${x.decision.dias?' '+x.decision.dias+' días':''}`).join('\n')||'Ninguno';
+  const f=FALTAS[c.falta||''];const n=vecesFalta(c);
+  const p=`Eres asesor de recursos humanos en Colombia para PLAN VE S.A.S. (EDS Terpel). Propón la RESPUESTA DE RRHH (decisión motivada) de un proceso disciplinario.
+Hechos imputados: «${c.hechos||''}»
+Normas citadas: ${c.normas||'no indicadas'}
+Pruebas de la empresa: ${c.pruebas||'no indicadas'}
+Clasificación de la falta: ${f?f.l:'sin clasificar'}. Veces sancionado antes por esta misma falta: ${n}. Escala del RIT para esta falta: ${f&&f.esc?f.esc.join(' | '):'no aplica'}
+Asistencia a descargos: ${(c.descargos&&c.descargos.asistio)||'no registrada'}
+Versión del trabajador: «${(c.descargos&&c.descargos.version)||'no rindió'}»
+Pruebas aportadas por el trabajador: ${(c.descargos&&c.descargos.pruebasAportadas)||'ninguna'}
+Antecedentes disciplinarios: ${prev}
+
+REGLAMENTO (escala y procedimiento):
+${RIT.art51a54}
+
+Reglas: aplica presunción de inocencia e in dubio pro disciplinado: si las pruebas no demuestran los hechos o la justificación es válida, propón archivo. La sanción debe estar prevista en el RIT y ser proporcional; primera suspensión máximo 8 días, reincidencia máximo 2 meses (CST art. 112). La terminación NO es sanción disciplinaria (RIT Art. 53 par. 2); solo propónla si la falta es grave y está calificada como justa causa. No inventes hechos.
+Escribe el análisis en tono formal, dirigido al trabajador ("usted"), de 2 a 4 párrafos: valoración de pruebas, valoración de los descargos, antecedentes y fundamento normativo.
+Responde SOLO un JSON: {"analisis":"…","tipo":"archivo|verbal|escrito|suspension|terminacion","dias":número o null,"fundamento":"una frase con la regla del RIT aplicada"}`;
+  const r=await pedirJSON(p,$('#aiDec'));if(!r)return;
+  setF('decision.analisis',r.analisis);
+  if(r.tipo&&TIPOS[r.tipo]){const s=document.querySelector('[data-f="decision.tipo"]');s.value=r.tipo;s.dispatchEvent(new Event('change'))}
+  if(r.tipo==='suspension'&&r.dias){setTimeout(()=>{setF('decision.dias',String(r.dias));const d=document.querySelector('[data-f="decision.dias"]');if(d)d.dispatchEvent(new Event('input'))},30)}
+  toast(r.fundamento||'Propuesta lista; revísela antes de guardar');
+}
+
+iniciar();
+})();
+</script>
+</body>
+</html>
