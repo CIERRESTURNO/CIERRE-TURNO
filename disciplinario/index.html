@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Procesos Disciplinarios · PLAN VE S.A.S</title>
-<meta name="theme-color" content="#1B1F27">
+<meta name="theme-color" content="#FB5314">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Disciplinarios">
@@ -13,23 +13,25 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --rojo:#D7141A; --rojo-osc:#A50F14; --rojo-suave:#FDECEC;
-  --tinta:#1B1F27; --gris:#5E6673; --gris2:#8B93A1; --linea:#E4E7EC; --fondo:#F5F6F8; --blanco:#fff;
+  --rojo:#F04E12; --rojo-osc:#C93F0B; --rojo-suave:#FFEDE4; --naranja:#FB5314; --gris-pv:#A7A6A7;
+  --tinta:#3B3B3B; --gris:#6B6B6B; --gris2:#A7A6A7; --linea:#E6E4E3; --fondo:#F7F6F5; --blanco:#fff;
   --azul:#1F5FBF; --azul-s:#E8F0FC; --ambar:#B26A00; --ambar-s:#FFF4E0; --verde:#17804A; --verde-s:#E5F5EC; --morado:#6B3FB5; --morado-s:#F0EAFB;
   --r:12px; --sombra:0 1px 2px rgba(16,24,40,.06),0 4px 12px rgba(16,24,40,.06);
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--fondo);color:var(--tinta);font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.45}
+html,body{margin:0;background:var(--fondo);color:var(--tinta);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.5}
 button,input,select,textarea{font:inherit;color:inherit}
-header{background:var(--tinta);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+header{background:#fff;color:var(--tinta);border-bottom:4px solid var(--naranja);padding:10px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
 .logo{width:36px;height:36px;border-radius:9px;background:var(--rojo);display:grid;place-items:center;font-weight:700;font-size:15px;flex:none}
 header h1{font-size:16px;margin:0;font-weight:600}
-header small{display:block;color:#AEB4BF;font-size:12px;font-weight:400}
+header small{display:block;color:var(--gris);font-size:12.5px;font-weight:400}
+.pvlogo{display:block;height:46px;width:auto}
+.pvlogo text{font-family:Anton,'Arial Black',Impact,sans-serif}
 header .sp{flex:1}
-.btn{border:1px solid var(--linea);background:#fff;border-radius:9px;padding:8px 14px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn{border:1.5px solid var(--linea);background:#fff;border-radius:10px;padding:10px 16px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .btn:hover{background:#F2F4F7}
 .btn.pri{background:var(--rojo);border-color:var(--rojo);color:#fff}
 .btn.pri:hover{background:var(--rojo-osc)}
@@ -37,8 +39,8 @@ header .sp{flex:1}
 .btn.ghost{background:transparent;border-color:transparent}
 .btn.ghost:hover{background:#EEF0F3}
 .btn:disabled{opacity:.45;cursor:not-allowed}
-header .btn{border-color:#3A404C;background:#262B35;color:#fff}
-header .btn:hover{background:#323844}
+header .btn{border-color:var(--linea);background:#fff;color:var(--tinta)}
+header .btn:hover{background:var(--fondo)}
 header .btn.pri{background:var(--rojo);border-color:var(--rojo)}
 nav.tabs{display:flex;gap:4px;padding:0 22px;background:#fff;border-bottom:1px solid var(--linea);overflow-x:auto}
 nav.tabs button{border:0;background:none;padding:13px 14px;cursor:pointer;color:var(--gris);font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
@@ -89,7 +91,7 @@ tr:last-child td{border-bottom:0}
 .dh .sp{flex:1}
 .db{overflow:auto;padding:18px 20px 40px;flex:1}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
-.step{background:#fff;border:1px solid var(--linea);border-radius:10px;padding:10px 12px;cursor:pointer;position:relative}
+.step-old{background:#fff;border:1px solid var(--linea);border-radius:10px;padding:10px 12px;cursor:pointer;position:relative}
 .step .k{font-size:11px;color:var(--gris2);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .step .t{font-weight:600;font-size:13px;margin-top:2px}
 .step .d{font-size:12px;color:var(--gris);margin-top:2px}
@@ -104,9 +106,9 @@ tr:last-child td{border-bottom:0}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .full{grid-column:1/-1}
-label.fl{display:block;font-size:12px;font-weight:600;color:var(--gris);margin-bottom:4px}
-.in{width:100%;padding:8px 10px;border:1px solid var(--linea);border-radius:8px;background:#fff}
-.in:focus{outline:2px solid #F7B9BB;border-color:var(--rojo)}
+label.fl{display:block;font-size:13.5px;font-weight:600;color:var(--tinta);margin-bottom:5px}
+.in{width:100%;padding:11px 12px;border:1.5px solid #D9D6D4;border-radius:10px;background:#fff;font-size:16px}
+.in:focus{outline:3px solid #FFD3BF;border-color:var(--naranja)}
 textarea.in{min-height:84px;resize:vertical}
 .hint{font-size:12px;color:var(--gris);margin-top:4px}
 .warn{font-size:12.5px;color:var(--rojo-osc);background:var(--rojo-suave);border-radius:8px;padding:8px 10px;margin-top:8px}
@@ -126,7 +128,7 @@ textarea.in{min-height:84px;resize:vertical}
 .mbar b{flex:1}
 .paper{background:#fff;margin:20px auto;width:min(760px,calc(100% - 28px));padding:56px 64px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-family:Merriweather,Georgia,serif;font-size:13.5px;line-height:1.7;color:#111}
 .paper h1{font-size:15px;text-align:center;margin:0 0 4px;letter-spacing:.02em}
-.paper .enc{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--rojo);padding-bottom:10px;margin-bottom:22px;font-family:Inter,sans-serif}
+.paper .enc{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--naranja);padding-bottom:10px;margin-bottom:22px;font-family:Inter,sans-serif}
 .paper .enc .em{font-weight:700;font-size:15px}
 .paper .enc .sub{font-size:11px;color:#555}
 .paper .ref{font-family:Inter,sans-serif;font-size:11px;color:#555;text-align:right}
@@ -153,7 +155,7 @@ textarea.in{min-height:84px;resize:vertical}
 .wk .nm{font-weight:600;min-width:200px;flex:1}
 .wk .ch{display:flex;gap:6px;flex-wrap:wrap}
 .ai{background:linear-gradient(135deg,#FFF6F0,#F3EEFF);border-color:#E3D6F5}.ai-row{display:none;align-items:center;gap:10px;flex-wrap:wrap}body.has-ai .ai-row{display:flex}
-.login{position:fixed;inset:0;background:var(--tinta);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.login{position:fixed;inset:0;background:linear-gradient(160deg,#FB5314,#C93F0B);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
 .login.on{display:flex}
 .login .box{background:#fff;border-radius:16px;padding:26px;max-width:400px;width:100%}
 .login h2{margin:10px 0 4px;font-size:19px}
@@ -170,8 +172,39 @@ textarea.in{min-height:84px;resize:vertical}
   #printArea .paper{box-shadow:none;margin:0;width:100%;padding:0}
   @page{size:letter;margin:2cm}
 }
+.lista{display:grid;gap:10px}
+.caso{background:#fff;border:1.5px solid var(--linea);border-radius:14px;padding:14px 16px;display:flex;gap:14px;align-items:center;cursor:pointer;flex-wrap:wrap}
+.caso:hover{border-color:var(--naranja)}
+.caso .nm{font-weight:700;font-size:16px}
+.caso .sub{color:var(--gris);font-size:13px}
+.caso .sig{font-size:13px;color:var(--rojo-osc);font-weight:600}
+.barra{display:flex;gap:4px;width:120px}.barra i{flex:1;height:7px;border-radius:4px;background:#ECE9E7}.barra i.ok{background:var(--naranja)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1.5px solid var(--linea);background:#fff;border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px}
+.chip b{color:var(--naranja);margin-right:4px}
+.chip.on{background:var(--tinta);border-color:var(--tinta);color:#fff}.chip.on b{color:#FFB08F}
+.bigbtn{font-size:17px;padding:14px 22px;border-radius:12px}
+.guia{background:#FFF6F1;border:1.5px solid #FFD9C7;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:14.5px}
+.guia b{color:var(--rojo-osc)}
+details.mas{margin-top:14px;border-top:1px dashed var(--linea);padding-top:10px}
+details.mas summary{cursor:pointer;color:var(--gris);font-weight:600;font-size:14px;list-style:none}
+details.mas summary::before{content:'＋ '}details.mas[open] summary::before{content:'－ '}
+details.mas .grid,details.mas .grid3{margin-top:12px}
+.stepper{display:flex;gap:0;margin-bottom:14px;background:#fff;border:1.5px solid var(--linea);border-radius:14px;overflow:hidden}
+.stepper .st{flex:1;padding:10px 8px;text-align:center;cursor:pointer;border-right:1px solid var(--linea);font-size:13px;color:var(--gris)}
+.stepper .st:last-child{border-right:0}
+.stepper .st .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#ECE9E7;color:var(--tinta);font-weight:700;margin-bottom:3px}
+.stepper .st.ok .n{background:var(--naranja);color:#fff}
+.stepper .st.sel{background:#FFF6F1;color:var(--tinta);font-weight:700}
+.stepper .st.sel .n{outline:3px solid #FFD3BF}
+.stepper .st.off{opacity:.45;cursor:not-allowed}
 .av{width:34px;height:34px;border-radius:50%;background:#EEF0F3;display:grid;place-items:center;font-weight:600;font-size:12px;color:var(--gris)}
 @media (max-width:720px){
+  .actions .btn{flex:1 1 100%;justify-content:center}
+  .pvlogo{height:36px}
+  header h1{font-size:15px} header small{display:none}
+  .stepper .st{font-size:11.5px;padding:8px 4px}
+
   .grid,.grid3{grid-template-columns:1fr}
   .steps{grid-template-columns:repeat(2,1fr)}
   .paper{padding:30px 22px}
@@ -183,17 +216,17 @@ textarea.in{min-height:84px;resize:vertical}
 </head>
 <body>
 <header>
-  <div class="logo">PV</div>
-  <div><h1>Procesos Disciplinarios</h1><small>PLAN VE S.A.S · EDS Terpel Av. Boyacá</small></div>
+  <svg class="pvlogo" viewBox="0 0 300 110" role="img" aria-label="PLAN VE S.A.S."><text x="150" y="74" text-anchor="middle" font-size="78" letter-spacing="-1"><tspan fill="#FB5314">PLAN</tspan><tspan fill="#A7A6A7">VE</tspan></text><text x="150" y="102" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="15" fill="#A7A6A7" letter-spacing="9">S.A.S.</text></svg>
+  <div style="border-left:2px solid var(--linea);padding-left:14px"><h1>Procesos disciplinarios</h1><small>Citación · Descargos · Respuesta RRHH · Sanción</small></div>
   <div class="sp"></div>
-  <span id="syncState" style="font-size:12px;color:#AEB4BF"></span>
-  <button class="btn" id="btnSalir" title="Cerrar sesión">⎋ <span id="quien"></span></button><button class="btn pri" id="btnNuevo">＋ Nuevo caso</button>
+  <span id="syncState" style="font-size:12px;color:var(--gris)"></span>
+  <button class="btn" id="btnSalir" title="Cerrar sesión">👤 <span id="quien"></span></button><button class="btn pri bigbtn" id="btnNuevo">＋ Nuevo caso</button>
 </header>
 <nav class="tabs" id="tabs">
-  <button data-v="casos" class="on">Casos</button>
-  <button data-v="trabajadores">Por trabajador</button>
-  <button data-v="plantillas">Plantillas</button>
-  <button data-v="config">Configuración</button>
+  <button data-v="casos" class="on">📋 Casos</button>
+  <button data-v="trabajadores">👥 Trabajadores</button>
+  <button data-v="plantillas">📄 Formatos en blanco</button>
+  <button data-v="config">⚙️ Ajustes</button>
 </nav>
 <main id="main"></main>
 
@@ -204,13 +237,13 @@ textarea.in{min-height:84px;resize:vertical}
 <div class="toast" id="toast"></div>
 <div id="printArea"></div>
 <div class="login" id="login"><form class="box" id="loginForm">
-  <div class="logo" style="width:44px;height:44px">PV</div>
-  <h2>Procesos Disciplinarios</h2><p class="muted" style="margin:0 0 16px">PLAN VE S.A.S · Acceso solo para administración y RRHH</p>
+  <div style="display:flex;justify-content:center"><svg class="pvlogo" style="height:80px" viewBox="0 0 300 110" role="img" aria-label="PLAN VE S.A.S."><text x="150" y="74" text-anchor="middle" font-size="78" letter-spacing="-1"><tspan fill="#FB5314">PLAN</tspan><tspan fill="#A7A6A7">VE</tspan></text><text x="150" y="102" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="15" fill="#A7A6A7" letter-spacing="9">S.A.S.</text></svg></div>
+  <h2 style="text-align:center">Procesos disciplinarios</h2><p class="muted" style="margin:0 0 18px;text-align:center">Solo para administración y RRHH</p>
   <div id="urlRow" style="display:none;margin-bottom:12px"><label class="fl">URL del Apps Script (se configura una sola vez)</label><input class="in" id="lgUrl" placeholder="https://script.google.com/macros/s/…/exec"></div>
-  <label class="fl">Su nombre (queda en la trazabilidad)</label><input class="in" id="lgNombre" required placeholder="Ej. Sylvia Torres">
-  <label class="fl" style="margin-top:12px">Clave de acceso</label><input class="in" id="lgClave" type="password" required>
+  <label class="fl">1. Escriba su nombre</label><input class="in" id="lgNombre" required placeholder="Ej. Sylvia Torres">
+  <label class="fl" style="margin-top:14px">2. Escriba la clave</label><input class="in" id="lgClave" type="password" required>
   <div class="err" id="lgErr"></div>
-  <button class="btn pri" style="width:100%;justify-content:center;margin-top:6px" type="submit">Entrar</button>
+  <button type="submit" class="btn pri bigbtn" style="width:100%;justify-content:center;margin-top:8px">3. Entrar</button>
 </form></div>
 <div class="modal" id="sigModal"><div class="mbox" style="max-width:560px"><div class="mbar"><b id="sigTit">Firma</b><button class="btn sm" id="sigClr">Borrar</button><button class="btn sm" id="sigNo">Cancelar</button><button class="btn sm pri" id="sigOk">Guardar firma</button></div>
 <div style="padding:16px"><p class="muted" style="margin:0 0 8px" id="sigSub"></p><div class="sigwrap"><canvas id="sigCanvas"></canvas></div><p class="hint">Firme con el dedo o el mouse dentro del recuadro.</p></div></div></div>
@@ -399,47 +432,37 @@ function cuenta(){
 }
 function vCasos(){
   const k=cuenta();
-  const K=(id,n,l,col)=>`<div class="kpi ${filtroEstado===id?'on':''}" data-f="${id}"><div class="n">${n}</div><div class="l"><span class="dot" style="background:${col}"></span>${l}</div></div>`;
-  let h=`<div class="kpis">
-    ${K('activos',k.activos,'Casos abiertos','var(--tinta)')}
-    ${K('citado',k.citado,'Esperando descargos','var(--azul)')}
-    ${K('descargos',k.descargos,'Pendiente respuesta RRHH','var(--ambar)')}
-    ${K('decision',k.decision,'Pendiente notificar / cerrar','var(--morado)')}
-    ${K('cerrado',k.cerrado,'Cerrados','var(--verde)')}
-    ${K('todos',casos.length,'Todos · '+k.susp+' suspensiones este año','var(--gris2)')}
+  const C=(id,n,l)=>`<button class="chip ${filtroEstado===id?'on':''}" data-f="${id}"><b>${n}</b>${l}</button>`;
+  let h=`<div class="chips">
+    ${C('activos',k.activos,'Abiertos')}${C('citado',k.citado,'Esperan descargos')}${C('descargos',k.descargos,'Por decidir')}${C('decision',k.decision,'Por notificar')}${C('cerrado',k.cerrado,'Cerrados')}${C('todos',casos.length,'Todos')}
   </div>
-  <div class="toolbar">
-    <div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <input id="q" placeholder="Buscar por nombre, cédula, consecutivo o hecho…" value="${esc(q)}"></div>
-  </div>`;
+  <div class="toolbar"><div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" class="in" style="padding-left:36px" placeholder="Buscar por nombre o cédula…" value="${esc(q)}"></div></div>`;
   let lista=casos.slice();
   if(filtroEstado==='activos')lista=lista.filter(c=>c.estado!=='cerrado');
   else if(filtroEstado==='citado')lista=lista.filter(c=>c.estado==='citado'||c.estado==='borrador');
   else if(filtroEstado==='decision')lista=lista.filter(c=>c.estado==='decision'||c.estado==='sancion');
   else if(filtroEstado!=='todos')lista=lista.filter(c=>c.estado===filtroEstado);
-  if(q){const s=q.toLowerCase();lista=lista.filter(c=>[c.consecutivo,c.trabajador&&c.trabajador.nombre,c.trabajador&&c.trabajador.cedula,c.hechos,c.trabajador&&c.trabajador.cargo].join(' ').toLowerCase().includes(s))}
+  if(q){const s=q.toLowerCase();lista=lista.filter(c=>[c.consecutivo,c.trabajador&&c.trabajador.nombre,c.trabajador&&c.trabajador.cedula,c.hechos].join(' ').toLowerCase().includes(s))}
   lista.sort((a,b)=>(b.creado||'').localeCompare(a.creado||''));
   if(!lista.length){
-    h+=`<div class="card"><div class="empty"><b>${casos.length?'No hay casos con este filtro':'Aún no hay casos registrados'}</b>${casos.length?'Pruebe con otro filtro o búsqueda.':'Cree el primero con “＋ Nuevo caso”. Cada caso guarda la citación, los descargos, la respuesta de RRHH y la sanción, con fecha y responsable.'}</div></div>`;
+    h+=`<div class="card"><div class="empty"><b>${casos.length?'No hay casos aquí':'Todavía no hay casos'}</b>${casos.length?'Pruebe con otro filtro.':'Pulse el botón naranja <b>＋ Nuevo caso</b> para empezar.'}</div></div>`;
     return h;
   }
-  h+=`<div class="card" style="overflow:auto"><table><thead><tr><th>Consecutivo</th><th>Trabajador</th><th class="hide-m">Hechos</th><th>Estado</th><th class="hide-m">Avance</th><th class="hide-m">Decisión</th><th class="hide-m">Abierto</th></tr></thead><tbody>`;
+  const SIG={"borrador": "Siguiente: terminar la citación", "citado": "Siguiente: registrar los descargos", "descargos": "Siguiente: respuesta de RRHH", "decision": "Siguiente: notificar y cerrar", "sancion": "Siguiente: cerrar el caso", "cerrado": "Caso cerrado"};
+  h+='<div class="lista">';
   lista.forEach(c=>{
     const e=ESTADOS[c.estado||'borrador'];const p=e.p;
-    const pipe=[1,2,3,4].map(i=>`<i class="${i<=p?'ok':(i===p+1?'cur':'')}"></i>`).join('');
-    const dec=c.decision&&c.decision.tipo?TIPOS[c.decision.tipo].l.split('(')[0].replace('del contrato ',''):'—';
-    const prev=sancionesPrevias(c).length;
-    h+=`<tr class="row" data-id="${c.id}">
-      <td class="mono">${esc(c.consecutivo)}</td>
-      <td><b>${esc(c.trabajador&&c.trabajador.nombre)}</b><div class="muted" style="font-size:12px">${esc(c.trabajador&&c.trabajador.cargo||'')} ${c.trabajador&&c.trabajador.cedula?'· C.C. '+esc(c.trabajador.cedula):''}${prev?` · <span style="color:var(--rojo-osc);font-weight:600">${prev} antecedente${prev>1?'s':''}</span>`:''}</div></td>
-      <td class="hide-m muted" style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.hechos||'')}</td>
-      <td><span class="tag ${e.c}">${e.l}</span></td>
-      <td class="hide-m"><div class="pipe">${pipe}</div></td>
-      <td class="hide-m" style="font-size:13px">${esc(dec)}${c.decision&&c.decision.tipo==='suspension'&&c.decision.dias?' · '+c.decision.dias+' d':''}</td>
-      <td class="hide-m muted">${c.estado==='cerrado'?'—':diasAbierto(c)+' d'}</td></tr>`;
+    const barra=[1,2,3,4].map(i=>`<i class="${i<=p?'ok':''}"></i>`).join('');
+    const prev=sancionesPrevias(c).length;const t=c.trabajador||{};
+    h+=`<div class="caso" data-id="${c.id}">
+      <div style="flex:1;min-width:200px"><div class="nm">${esc(t.nombre||'(sin nombre)')}</div>
+      <div class="sub">${esc(c.consecutivo)} · ${t.cedula?'C.C. '+esc(t.cedula)+' · ':''}${esc((c.hechos||'').slice(0,70))}${(c.hechos||'').length>70?'…':''}</div>
+      ${prev?`<div class="sub" style="color:var(--rojo-osc);font-weight:600">⚠ ${prev} sanción(es) anterior(es)</div>`:''}</div>
+      <div style="text-align:right"><span class="tag ${e.c}">${e.l}</span><div class="barra" style="margin:8px 0 4px auto">${barra}</div><div class="sig">${SIG[c.estado||'borrador']}</div></div>
+    </div>`;
   });
-  h+='</tbody></table></div>';
-  return h;
+  return h+'</div>';
 }
 function vTrabajadores(){
   const g={};
@@ -485,9 +508,9 @@ function vConfig(){
   <div class="actions"><button class="btn pri" id="saveCfg">Guardar configuración</button></div></div>`;
 }
 function bindMain(){
-  document.querySelectorAll('.kpi').forEach(k=>k.onclick=()=>{filtroEstado=k.dataset.f;render()});
+  document.querySelectorAll('.chip').forEach(k=>k.onclick=()=>{filtroEstado=k.dataset.f;render()});
   const qi=$('#q');if(qi){qi.oninput=e=>{q=e.target.value;const pos=e.target.selectionStart;render();const n=$('#q');n.focus();n.setSelectionRange(pos,pos)}}
-  document.querySelectorAll('tr.row').forEach(r=>r.onclick=()=>abrir(r.dataset.id));
+  document.querySelectorAll('.caso').forEach(r=>r.onclick=()=>abrir(r.dataset.id));
   document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>abrir(b.dataset.open));
   document.querySelectorAll('[data-tpl]').forEach(b=>b.onclick=()=>verDoc(b.dataset.tpl,null));
   const sc=$('#saveCfg');if(sc)sc.onclick=()=>{document.querySelectorAll('[data-cfg]').forEach(i=>cfg[i.dataset.cfg]=i.value.trim());cfg.diasRecurso=parseInt(cfg.diasRecurso)||2;cfg.diasDefensa=parseInt(cfg.diasDefensa)||5;cfg.diasDecision=parseInt(cfg.diasDecision)||30;guardarCfg()};
@@ -516,17 +539,18 @@ function renderDrawer(){
   const e=ESTADOS[c.estado||'borrador'];const p=e.p;
   const t=c.trabajador||{};
   const san=c.decision&&TIPOS[c.decision.tipo]&&TIPOS[c.decision.tipo].san;
-  const S=(n,k,tt,d,ok,off)=>`<div class="step ${ok?'ok':''} ${paso===n?'sel':''} ${off?'off':''}" data-paso="${n}"><div class="k">${ok?'✓ ':''}Paso ${n}</div><div class="t">${tt}</div><div class="d">${d}</div></div>`;
+  const S=(n,k,tt,d,ok,off)=>`<div class="st step ${ok?'ok':''} ${paso===n?'sel':''} ${off?'off':''}" data-paso="${n}"><span class="n">${ok?'✓':n}</span><br>${tt}</div>`;
   const prev=sancionesPrevias(c);
   let h=`<div class="dh"><div><div class="mono muted">${esc(c.consecutivo)}</div><h2>${esc(t.nombre||'Nuevo caso')}</h2><div style="margin-top:6px"><span class="tag ${e.c}">${e.l}</span></div></div><div class="sp"></div>
     ${c._nuevo?'':`<button class="btn sm ghost" id="delCaso" title="Eliminar caso">🗑</button>`}<button class="btn sm" id="xDrawer">Cerrar ✕</button></div><div class="db">
-  <div class="steps">
+  <div class="stepper">
     ${S(1,'cit','Citación','Cargos y fecha',p>=1)}
     ${S(2,'des','Descargos','Versión del trabajador',p>=2,p<1)}
     ${S(3,'dec','Respuesta RRHH','Decisión motivada',p>=3,p<2)}
     ${S(4,'san','Sanción y cierre',san?'Notificación':'Cierre del caso',p>=5||(p>=4&&!san),p<3)}
   </div>`;
   if(prev.length)h+=`<div class="warn" style="margin:-4px 0 14px"><b>Reincidencia:</b> este trabajador tiene ${prev.length} sanción(es) previa(s): ${prev.map(x=>esc(x.consecutivo)+' ('+esc(TIPOS[x.decision.tipo].l.split('(')[0].trim())+')').join(', ')}.</div>`;
+  h+=`<div class="guia">${{1: "<b>Paso 1 · Citación.</b> Llene los datos con asterisco (*) y pulse <b>Guardar</b>. Luego pulse <b>🖨 Imprimir citación</b> para que el trabajador la firme. La diligencia debe ser mínimo 5 días después.", 2: "<b>Paso 2 · Descargos.</b> El día de la diligencia, escriba lo que dijo el trabajador y pulse <b>Guardar</b>. Imprima el <b>acta</b> para que la firmen.", 3: "<b>Paso 3 · Respuesta de RRHH.</b> Escriba por qué se toma la decisión, elija la sanción (o archivo) y pulse <b>Guardar</b>. Imprima la <b>respuesta</b>.", 4: "<b>Paso 4 · Notificar y cerrar.</b> Imprima el llamado de atención o la suspensión, anote cuándo se entregó y pulse <b>Cerrar caso</b>."}[paso]}</div>`;
   if(paso===1)h+=pasoCitacion(c);
   if(paso===2)h+=pasoDescargos(c);
   if(paso===3)h+=pasoRespuesta(c);
@@ -546,65 +570,73 @@ function pasoCitacion(c){
   const personas={};casos.forEach(x=>{const t=x.trabajador||{};if(t.nombre)personas[t.nombre]=t});
   const dl=`<datalist id="dlTrab">${Object.keys(personas).map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`;
   const enviada=c.estado!=='borrador';
-  return `<div class="sec"><h3>👤 Trabajador</h3><div class="grid3">
+  return `<div class="sec"><h3>👤 ¿A quién se cita?</h3><div class="grid3">
     ${fld('trabajador.nombre','Nombre completo *',c,{list:'dlTrab'})}${dl}
     ${fld('trabajador.cedula','Cédula *',c)}
     ${fld('trabajador.cargo','Cargo',c,{ph:'Promotor(a) de servicio'})}
-    ${fld('trabajador.turno','Turno',c,{ph:'Ej. Turno 2 (2 p. m. – 10 p. m.)'})}
-    ${fld('trabajador.ingreso','Fecha de ingreso',c,{type:'date'})}
-    ${fld('trabajador.correo','Correo o celular (opcional)',c)}
-  </div></div>
-  <div class="sec"><h3>📌 Hechos y cargos</h3><div class="grid">
-    ${fld('fechaHechos','Fecha de los hechos *',c,{type:'date'})}
-    ${fld('lugarHechos','Lugar / isla',c,{ph:'Isla 3, POS 2'})}
-    ${fld('hechos','Descripción concreta de los hechos *',c,{type:'textarea',full:true,rows:5,ph:'Qué pasó, cuándo, dónde, cómo se detectó. Sea específico: hora, valores, cliente, factura…'})}
-    ${fld('falta','Clasificación según el RIT',c,{type:'select',full:true,options:Object.entries(FALTAS).map(([k,x])=>[k,x.l])})}
-    <div class="full ai-row"><button class="btn sm ai" id="aiCargos">✨ Redactar hechos y normas con Claude</button><span class="hint">Pule la redacción y busca en el RIT los artículos y numerales que aplican. Usted revisa antes de guardar.</span></div>
-    ${fld('normas','Normas presuntamente incumplidas',c,{type:'textarea',full:true,ph:'Ej. Art. __ del Reglamento Interno de Trabajo; numeral __ del contrato; protocolo de facturación POS; Art. 58 CST (obligaciones del trabajador)…'})}
-    ${fld('pruebas','Pruebas con que cuenta la empresa',c,{type:'textarea',full:true,ph:'Ej. video de cámara isla 3 (10:42 a. m.), reporte Sicom del turno, queja del cliente, cuadre de caja…',hint:'Se le ponen en conocimiento al trabajador en la citación.'})}
-  </div></div>
-  <div class="sec"><h3>📅 Diligencia de descargos</h3><div class="grid3">
-    ${fld('citacion.fechaEmision','Fecha de la citación',c,{type:'date'})}
-    ${fld('citacion.fecha','Fecha de la diligencia *',c,{type:'date'})}
-    ${fld('citacion.hora','Hora *',c,{type:'time'})}
-    ${fld('citacion.lugar','Lugar',c,{full:true})}
-    ${fld('citacion.entregada','Fecha en que se entregó al trabajador',c,{type:'date',hint:'Llénela cuando el trabajador reciba y firme.'})}
   </div>
+  <details class="mas"><summary>Más datos del trabajador (opcional)</summary><div class="grid3">
+    ${fld('trabajador.turno','Turno',c,{ph:'Ej. 6:00 a. m. – 2:00 p. m.'})}
+    ${fld('trabajador.ingreso','Fecha de ingreso',c,{type:'date'})}
+    ${fld('trabajador.correo','Correo o celular',c)}
+  </div></details></div>
+  <div class="sec"><h3>📌 ¿Qué pasó?</h3><div class="grid">
+    ${fld('fechaHechos','Fecha en que pasó *',c,{type:'date'})}
+    ${fld('falta','Tipo de falta (según el Reglamento)',c,{type:'select',options:Object.entries(FALTAS).map(([k,x])=>[k,x.l])})}
+    ${fld('hechos','Cuente lo que pasó *',c,{type:'textarea',full:true,rows:4,ph:'Ej. El 30 de octubre a las 10:42 a. m., en la isla 3, no facturó en el POS una venta de $80.000.'})}
+    ${fld('pruebas','Pruebas que tiene la empresa',c,{type:'textarea',full:true,ph:'Ej. video de la cámara, reporte del POS, queja del cliente…'})}
+    <div class="full ai-row"><button class="btn sm ai" id="aiCargos">✨ Redactar con Claude</button></div>
+  </div>
+  <details class="mas"><summary>Normas incumplidas y lugar (opcional)</summary><div class="grid">
+    ${fld('normas','Normas presuntamente incumplidas',c,{type:'textarea',full:true,hint:'Si lo deja vacío, la carta cita el Reglamento Interno y los arts. 58 y 60 del CST.'})}
+    ${fld('lugarHechos','Lugar / isla',c,{ph:'Isla 3'})}
+  </div></details></div>
+  <div class="sec"><h3>📅 ¿Cuándo es la diligencia de descargos?</h3><div class="grid">
+    ${fld('citacion.fecha','Fecha *',c,{type:'date',hint:'Mínimo 5 días después de entregar la citación.'})}
+    ${fld('citacion.hora','Hora *',c,{type:'time'})}
+  </div>
+  <details class="mas"><summary>Más datos de la citación (opcional)</summary><div class="grid">
+    ${fld('citacion.fechaEmision','Fecha de la carta',c,{type:'date'})}
+    ${fld('citacion.entregada','Fecha en que el trabajador la recibió',c,{type:'date'})}
+    ${fld('citacion.lugar','Lugar de la diligencia',c,{full:true})}
+  </div></details>
   <div id="avisoCit"></div>
   <div class="actions">
-    <button class="btn" data-doc="citacion">👁 Ver / descargar citación</button>
-    <button class="btn pri" id="okCit">${enviada?'Guardar cambios':'Guardar y marcar como citado'}</button>
+    <button class="btn" data-doc="citacion">🖨 Imprimir citación</button>
+    <button class="btn pri bigbtn" id="okCit">${enviada?'Guardar cambios':'Guardar ✓'}</button>
   </div></div>`;
 }
 function pasoDescargos(c){
-  const d=c.descargos||{};
-  return `<div class="sec"><h3>📝 Resultado de la diligencia</h3><div class="grid">
-    ${fld('descargos.asistio','¿Asistió el trabajador?',c,{type:'select',options:[['si','Sí, asistió y rindió descargos'],['escrito','Presentó descargos por escrito'],['no','No asistió (sin justificación)'],['justifico','No asistió, justificó y se reprogramó']]})}
-    ${fld('descargos.fecha','Fecha en que se realizó',c,{type:'date'})}
+  return `<div class="sec"><h3>📝 ¿Qué dijo el trabajador?</h3><div class="grid">
+    ${fld('descargos.asistio','¿Asistió?',c,{type:'select',options:[['si','Sí asistió'],['escrito','Envió sus descargos por escrito'],['no','No asistió (sin excusa)'],['justifico','No asistió pero se excusó (reprogramar)']]})}
+    ${fld('descargos.fecha','Fecha de la diligencia',c,{type:'date'})}
+    ${fld('descargos.version','Lo que dijo el trabajador *',c,{type:'textarea',full:true,rows:6,ph:'PREGUNTADO: ¿Qué cargo desempeña? CONTESTÓ: …\nPREGUNTADO: ¿Qué pasó el día …? CONTESTÓ: …'})}
+  </div>
+  <details class="mas"><summary>Más datos del acta (opcional)</summary><div class="grid">
     ${fld('descargos.horaInicio','Hora de inicio',c,{type:'time'})}
     ${fld('descargos.horaFin','Hora de cierre',c,{type:'time'})}
-    ${fld('descargos.presentes','Por la empresa estuvieron',c,{ph:'Nombre y cargo'})}
-    ${fld('descargos.acompanantes','Acompañantes del trabajador',c,{ph:'Nombres (si los hubo)'})}
-    ${fld('descargos.version','Versión del trabajador (resumen fiel de lo que dijo) *',c,{type:'textarea',full:true,rows:6,ph:'PREGUNTADO: ¿Cuándo fue contratado por PLAN VE S.A.S.? CONTESTÓ: …\nPREGUNTADO: ¿Qué cargo desempeña? CONTESTÓ: …\nRegistre fielmente lo que dijo el trabajador.'})}
-    ${fld('descargos.pruebasAportadas','Pruebas que aportó o pidió el trabajador',c,{type:'textarea',full:true})}
-    ${fld('descargos.observaciones','Observaciones',c,{type:'textarea',full:true,ph:'Ej. se negó a firmar el acta; firmaron dos testigos.'})}
-  </div>
-  <div class="actions"><button class="btn" data-doc="acta">👁 Ver / descargar acta</button><button class="btn pri" id="okDes">${c.estado==='citado'||c.estado==='borrador'?'Registrar descargos':'Guardar cambios'}</button></div></div>`;
+    ${fld('descargos.presentes','Por la empresa estuvo',c,{ph:'Nombre y cargo'})}
+    ${fld('descargos.acompanantes','Acompañantes del trabajador',c)}
+    ${fld('descargos.pruebasAportadas','Pruebas que entregó el trabajador',c,{type:'textarea',full:true})}
+    ${fld('descargos.observaciones','Observaciones',c,{type:'textarea',full:true,ph:'Ej. se negó a firmar; firmaron dos testigos.'})}
+  </div></details>
+  <div class="actions"><button class="btn" data-doc="acta">🖨 Imprimir acta</button><button class="btn pri bigbtn" id="okDes">Guardar ✓</button></div></div>`;
 }
 function pasoRespuesta(c){
-  const prev=sancionesPrevias(c).length;
-  return `<div class="sec"><h3>⚖️ Respuesta de RRHH</h3><div class="grid">
-    ${fld('decision.fecha','Fecha de la respuesta',c,{type:'date'})}
-    ${fld('decision.responsable','Responsable de RRHH',c,{ph:cfg.firmaRRHH||cfg.firmaAdmin})}
-    ${fld('decision.analisis','Análisis / consideraciones *',c,{type:'textarea',full:true,rows:6,ph:'Valore los descargos frente a las pruebas: ¿se probaron los hechos?, ¿las explicaciones justifican la conducta?, gravedad, antecedentes, proporcionalidad.'})}
-    ${fld('decision.tipo','Decisión *',c,{type:'select',full:true,options:[['','— Seleccione —'],...Object.entries(TIPOS).map(([k,x])=>[k,x.l])]})}
-    <div class="full" id="decExtra"></div>
-  </div>
-  ${prev?`<div class="hint">Antecedentes con sanción: <b>${prev}</b>. Esto puede considerarse reincidencia al graduar la sanción.</div>`:''}
+  return `<div class="sec"><h3>⚖️ ¿Qué decide RRHH?</h3>
   ${escalaHtml(c)}${plazoDecision(c)}
-  <div class="ai-row" style="margin-top:10px"><button class="btn sm ai" id="aiDec">✨ Proponer análisis y sanción con Claude</button><span class="hint">Cruza hechos, pruebas, descargos, antecedentes y la escala del RIT. Es una propuesta: la decisión es suya.</span></div>
+  <div class="grid" style="margin-top:12px">
+    ${fld('decision.tipo','Decisión *',c,{type:'select',full:true,options:[['','— Elija una —'],...Object.entries(TIPOS).map(([k,x])=>[k,x.l])]})}
+    <div class="full" id="decExtra"></div>
+    ${fld('decision.analisis','¿Por qué? (explicación para el trabajador) *',c,{type:'textarea',full:true,rows:5,ph:'Ej. Las pruebas (video y reporte del POS) muestran que… En sus descargos usted dijo que… Por esto…'})}
+    <div class="full ai-row"><button class="btn sm ai" id="aiDec">✨ Proponer con Claude</button></div>
+  </div>
+  <details class="mas"><summary>Fecha y responsable (opcional)</summary><div class="grid">
+    ${fld('decision.fecha','Fecha de la respuesta',c,{type:'date'})}
+    ${fld('decision.responsable','Quién firma',c,{ph:cfg.firmaRRHH||cfg.firmaAdmin})}
+  </div></details>
   <div id="avisoDec"></div>
-  <div class="actions"><button class="btn" data-doc="respuesta">👁 Ver / descargar respuesta</button><button class="btn pri" id="okDec">Guardar decisión</button></div></div>`;
+  <div class="actions"><button class="btn" data-doc="respuesta">🖨 Imprimir respuesta</button><button class="btn pri bigbtn" id="okDec">Guardar ✓</button></div></div>`;
 }
 function vecesFalta(c){if(!c.falta||!FALTAS[c.falta]||!FALTAS[c.falta].esc)return 0;return antecedentes(c).filter(x=>x.falta===c.falta&&x.decision&&TIPOS[x.decision.tipo]&&TIPOS[x.decision.tipo].san&&(x.creado||'')<(c.creado||'z')).length}
 function escalaHtml(c){const f=FALTAS[c.falta||''];if(!f||!f.esc)return '';const n=vecesFalta(c);const i=Math.min(n,f.esc.length-1);
@@ -626,22 +658,24 @@ function decExtra(c){
 }
 function pasoSancion(c){
   const t=c.decision&&c.decision.tipo;const san=t&&TIPOS[t].san;
-  if(!t)return `<div class="sec"><div class="empty"><b>Primero registre la respuesta de RRHH</b>En el paso 3 se define si hay sanción.</div></div>`;
-  return `<div class="sec"><h3>${san?'🚩 Notificación de la sanción':'✅ Cierre del caso'}</h3>
-  <p class="muted" style="margin-top:-4px">Decisión: <b style="color:var(--tinta)">${esc(TIPOS[t].l)}</b>${t==='suspension'?` · ${esc(c.decision.dias||'?')} día(s), del ${fCorta(c.decision.inicio)} al ${fCorta(c.decision.fin)}`:''}</p>
+  if(!t)return `<div class="sec"><div class="empty"><b>Primero complete el paso 3</b>Ahí se decide si hay sanción.</div></div>`;
+  return `<div class="sec"><h3>${san?'🚩 Entregar la sanción':'✅ Cerrar el caso'}</h3>
+  <p style="margin-top:-4px">Decisión: <b>${esc(TIPOS[t].l)}</b>${t==='suspension'?` · ${esc(c.decision.dias||'?')} día(s), del ${fCorta(c.decision.inicio)} al ${fCorta(c.decision.fin)}`:''}</p>
   <div class="grid">
-    ${fld('sancion.notificada','Fecha de notificación al trabajador',c,{type:'date'})}
-    ${fld('sancion.firmo','Constancia de recibido',c,{type:'select',options:[['','— Seleccione —'],['si','El trabajador firmó el recibido'],['testigos','Se negó a firmar — firmaron dos testigos'],['correo','Enviada por correo / WhatsApp con confirmación']]})}
-    ${fld('sancion.testigos','Testigos (si aplica)',c,{full:true})}
-    ${fld('sancion.recurso','¿Presentó recurso?',c,{type:'select',options:[['','No / pendiente'],['no','No presentó recurso en el plazo'],['confirmada','Presentó recurso — se confirmó la decisión'],['modificada','Presentó recurso — se modificó la decisión'],['revocada','Presentó recurso — se revocó la decisión']]})}
-    ${fld('sancion.fechaRecurso','Fecha respuesta al recurso',c,{type:'date'})}
-    ${t==='suspension'?fld('sancion.cumplida','¿Se cumplió la suspensión y se reintegró?',c,{type:'select',options:[['','Pendiente'],['si','Sí, cumplió y se reintegró'],['no','No / novedad']]}):''}
-    ${fld('sancion.nomina','Reportado a nómina / hoja de vida',c,{type:'select',options:[['','Pendiente'],['si','Sí, copia en hoja de vida y novedad reportada']]})}
-    ${fld('sancion.notas','Notas',c,{type:'textarea',full:true})}
+    ${fld('sancion.notificada','Fecha en que se le entregó',c,{type:'date'})}
+    ${fld('sancion.firmo','¿Firmó el recibido?',c,{type:'select',options:[['','— Elija —'],['si','Sí, firmó'],['testigos','No quiso firmar: firmaron 2 testigos'],['correo','Se envió por correo / WhatsApp']]})}
   </div>
-  <div class="actions">${san?`<button class="btn" data-doc="sancion">👁 Ver / descargar ${t==='suspension'?'suspensión':'llamado de atención'}</button>`:''}
+  <details class="mas"><summary>Apelación y seguimiento (opcional)</summary><div class="grid">
+    ${fld('sancion.testigos','Testigos',c,{full:true})}
+    ${fld('sancion.recurso','¿Apeló?',c,{type:'select',options:[['','No / pendiente'],['no','No apeló en el plazo'],['confirmada','Apeló: se confirmó'],['modificada','Apeló: se modificó'],['revocada','Apeló: se revocó']]})}
+    ${fld('sancion.fechaRecurso','Fecha respuesta a la apelación',c,{type:'date'})}
+    ${t==='suspension'?fld('sancion.cumplida','¿Cumplió la suspensión y volvió?',c,{type:'select',options:[['','Pendiente'],['si','Sí'],['no','No / novedad']]}):''}
+    ${fld('sancion.nomina','¿Se reportó a nómina / hoja de vida?',c,{type:'select',options:[['','Pendiente'],['si','Sí']]})}
+    ${fld('sancion.notas','Notas',c,{type:'textarea',full:true})}
+  </div></details>
+  <div class="actions">${san?`<button class="btn" data-doc="sancion">🖨 Imprimir ${t==='suspension'?'suspensión':'llamado de atención'}</button>`:''}
   <button class="btn" id="okSan">Guardar</button>
-  <button class="btn pri" id="cerrarCaso" ${c.estado==='cerrado'?'disabled':''}>${c.estado==='cerrado'?'Caso cerrado':'Cerrar caso'}</button></div></div>`;
+  <button class="btn pri bigbtn" id="cerrarCaso" ${c.estado==='cerrado'?'disabled':''}>${c.estado==='cerrado'?'Caso cerrado ✓':'Cerrar caso ✓'}</button></div></div>`;
 }
 function setPath(o,path,val){const ks=path.split('.');let x=o;ks.slice(0,-1).forEach(k=>{x[k]=x[k]&&typeof x[k]==='object'?x[k]:{};x=x[k]});x[ks[ks.length-1]]=val}
 function bindDrawer(c){
@@ -718,8 +752,9 @@ function validarDec(c){
 function leer(c){document.querySelectorAll('#drawer [data-f]').forEach(i=>setPath(c,i.dataset.f,i.value.trim()))}
 
 /* ================= documentos ================= */
+const LOGO_DOC=`<svg class="pvlogo" style="height:54px" viewBox="0 0 300 110" role="img" aria-label="PLAN VE S.A.S."><text x="150" y="74" text-anchor="middle" font-size="78" letter-spacing="-1"><tspan fill="#FB5314">PLAN</tspan><tspan fill="#A7A6A7">VE</tspan></text><text x="150" y="102" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="15" fill="#A7A6A7" letter-spacing="9">S.A.S.</text></svg>`;
 function encabezado(c,titulo){
-  return `<div class="enc"><div><div class="em">${esc(cfg.empresa)}</div><div class="sub">${cfg.nit?'NIT '+esc(cfg.nit)+' · ':''}${esc(cfg.sede)} · ${esc(cfg.direccion)}</div></div><div class="ref">${c?esc(c.consecutivo):'DISC-____-___'}<br>${titulo}</div></div>`;
+  return `<div class="enc"><div><div class="em" style="display:none">${esc(cfg.empresa)}</div><div style="width:150px;margin-bottom:2px">${LOGO_DOC}</div><div class="sub">${cfg.nit?'NIT '+esc(cfg.nit)+' · ':''}${esc(cfg.sede)} · ${esc(cfg.direccion)}</div></div><div class="ref">${c?esc(c.consecutivo):'DISC-____-___'}<br>${titulo}</div></div>`;
 }
 const firmante=(rrhh)=>rrhh&&cfg.firmaRRHH?{n:cfg.firmaRRHH,c:cfg.cargoRRHH}:{n:cfg.firmaAdmin,c:cfg.cargoAdmin};
 function destinatario(c){const t=(c&&c.trabajador)||{};return `<p>Señor(a)<br><b>${v(t.nombre&&t.nombre.toUpperCase())}</b><br>C.C. ${v(t.cedula)}<br>Cargo: ${v(t.cargo)}<br>${esc(cfg.sede)}</p>`}
