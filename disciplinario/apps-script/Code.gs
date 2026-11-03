@@ -19,7 +19,7 @@ const ENC = ['ID', 'Consecutivo', 'Trabajador', 'Cédula', 'Cargo', 'Estado', 'F
   'Fecha hechos', 'Fecha citación', 'Fecha descargos', 'Fecha respuesta', 'Fecha notificación', 'Actualizado', 'Último cambio por', 'DATOS'];
 const COL_DATOS = ENC.length; // columna Q en adelante
 
-const ESTADOS = { borrador: 'Borrador', citado: 'Citado a descargos', descargos: 'Descargos rendidos', decision: 'Respuesta RRHH emitida', sancion: 'Sanción notificada', cerrado: 'Cerrado' };
+const ESTADOS = { borrador: 'Borrador', reportado: 'Reportado · por citar', citado: 'Citado a descargos', descargos: 'Descargos rendidos', decision: 'Respuesta RRHH emitida', sancion: 'Sanción notificada', cerrado: 'Cerrado' };
 const TIPOS = { archivo: 'Archivo', verbal: 'Llamado de atención verbal', escrito: 'Llamado de atención escrito', suspension: 'Suspensión', terminacion: 'Terminación con justa causa' };
 
 function doGet() {
