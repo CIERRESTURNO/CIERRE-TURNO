@@ -272,7 +272,7 @@ let casos=[], cfg={...DEF_CFG}, db=null, usr=null, myId=null, names={}, modoLoca
 let vista='casos', filtroEstado='activos', q='', abierto=null, paso=1;
 
 /* ================= almacenamiento: Google Sheets (Apps Script) ================= */
-const GAS_URL_DEFAULT='';           // ← URL del Apps Script publicado (…/exec)
+const GAS_URL_DEFAULT='https://script.google.com/macros/s/AKfycbxS_R_RxAj9XEXzD1EeMm6Y-F0D2MM8SUtLcsxA_Uqb3A3zO_jxI87TDAgyUYvQVg51/exec';           // ← URL del Apps Script publicado (…/exec)
 const LS='discip_plan_ve_gh_v1';
 let sesion={url:'',clave:'',nombre:''};
 try{sesion={...sesion,...JSON.parse(localStorage.getItem(LS+'_s')||'{}')}}catch(e){}
