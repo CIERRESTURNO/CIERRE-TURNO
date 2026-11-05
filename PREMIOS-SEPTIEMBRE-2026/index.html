@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Premios Septiembre 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Bebas+Neue&family=Barlow+Semi+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --rojo:#F11C0C; --rojo-barra:#FF0000; --amarillo:#FFCC00; --amarillo-claro:#FFE066;
@@ -13,224 +14,108 @@
   --verde:#3AAA35; --rojo-neg:#E6193A; --blanco:#FFFFFF;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Barlow Semi Condensed','Calibri',sans-serif;
-  color:var(--texto);
-  background:linear-gradient(180deg,var(--cielo-top) 0%,var(--cielo-mid) 55%,var(--cielo-horiz) 100%);
-  min-height:100vh;
-  padding:0;
-}
+body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto);background:linear-gradient(180deg,var(--cielo-top) 0%,var(--cielo-mid) 55%,var(--cielo-horiz) 100%);min-height:100vh}
 .pagina{max-width:1180px;margin:0 auto;padding:30px 30px 80px}
-
-/* Logo esquina */
 .logo-eq{position:absolute;top:20px;right:30px;width:60px;height:60px;border-radius:50%;background:var(--rojo);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:10}
 .logo-eq::after{content:'';width:22px;height:30px;background:var(--amarillo);border-radius:50% 50% 50% 50% / 40% 40% 60% 60%;display:block;transform:rotate(-15deg)}
-
-/* Banderín de título */
-.banderin{
-  background:var(--rojo);
-  color:var(--blanco);
-  padding:16px 50px 16px 36px;
-  display:inline-block;
-  font-family:'Fredoka',sans-serif;
-  font-weight:700;
-  font-size:32px;
-  letter-spacing:.3px;
-  clip-path:polygon(0 0,100% 0,calc(100% - 28px) 100%,0 100%);
-  margin-bottom:10px;
-  line-height:1.1;
-}
-.subtitulo{color:var(--blanco);font-size:17px;margin-bottom:28px;font-weight:600;padding-left:4px;text-shadow:0 1px 2px rgba(0,0,0,.2)}
-
-/* Línea de acento blanco→amarillo→rojo */
+.banderin{background:var(--rojo);color:var(--blanco);padding:16px 50px 16px 36px;display:inline-block;font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;letter-spacing:.3px;clip-path:polygon(0 0,100% 0,calc(100% - 28px) 100%,0 100%);margin-bottom:10px;line-height:1.1}
 .acento{height:7px;background:linear-gradient(90deg,var(--blanco) 0%,var(--amarillo) 50%,var(--rojo) 100%);border-radius:4px;margin:14px 0 24px}
+.hero{position:relative;padding:40px 30px 30px;margin-bottom:18px}
+.hero-tit{font-family:'Bebas Neue',sans-serif;color:var(--blanco);font-size:70px;line-height:.95;letter-spacing:2px;text-shadow:0 3px 8px rgba(0,0,0,.25);margin-bottom:6px}
+.hero-sub{font-family:'Fredoka',sans-serif;color:var(--blanco);font-size:22px;font-weight:600;text-shadow:0 2px 4px rgba(0,0,0,.2)}
+.hero-eds{display:inline-block;background:rgba(5,45,55,.75);color:var(--blanco);padding:8px 20px;border-radius:24px;font-size:13px;font-weight:700;letter-spacing:2px;margin-top:14px}
 
-/* Portada */
-.hero{
-  position:relative;
-  padding:40px 30px 30px;
-  margin-bottom:18px;
-}
-.hero-tit{
-  font-family:'Bebas Neue',sans-serif;
-  color:var(--blanco);
-  font-size:78px;
-  line-height:.95;
-  letter-spacing:2px;
-  text-shadow:0 3px 8px rgba(0,0,0,.25);
-  margin-bottom:6px;
-}
-.hero-sub{
-  font-family:'Fredoka',sans-serif;
-  color:var(--blanco);
-  font-size:24px;
-  font-weight:600;
-  text-shadow:0 2px 4px rgba(0,0,0,.2);
-}
-.hero-eds{
-  display:inline-block;
-  background:rgba(5,45,55,.75);
-  color:var(--blanco);
-  padding:8px 20px;
-  border-radius:24px;
-  font-size:13px;
-  font-weight:700;
-  letter-spacing:2px;
-  margin-top:14px;
-}
+/* UPLOAD */
+.upload-section{background:var(--blanco);border-radius:24px;padding:28px;margin-bottom:18px;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.upload-section h2{font-family:'Fredoka',sans-serif;color:var(--display);font-size:22px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.upload-section .hint{font-size:13px;color:var(--texto);margin-bottom:16px;line-height:1.5}
+.drop{border:3px dashed var(--rojo);border-radius:16px;padding:30px;text-align:center;cursor:pointer;transition:all .15s;background:#fff5f5}
+.drop:hover,.drop.drag{background:#ffeaea;border-color:#a30014}
+.drop .ico{font-size:40px;margin-bottom:8px}
+.drop .t1{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:16px;margin-bottom:4px}
+.drop .t2{font-size:12px;color:var(--texto)}
+.drop input{display:none}
+.btn-pick{background:var(--rojo);color:var(--blanco);border:none;padding:11px 24px;border-radius:10px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-top:12px}
+.btn-pick:hover{background:#c91408}
+.file-ok{background:#d4f5d4;border:2px solid var(--verde);border-radius:12px;padding:12px 16px;margin-top:14px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--display);font-weight:600}
+.file-ok .ic{font-size:22px}
+.file-ok .x{margin-left:auto;background:none;border:none;color:var(--texto);cursor:pointer;font-size:18px;font-weight:700}
+.resumen-mes{background:var(--display);color:var(--blanco);border-radius:16px;padding:18px 22px;margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px}
+.resumen-mes .kpi .l{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.7px;font-weight:700}
+.resumen-mes .kpi .v{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--amarillo);margin-top:2px;line-height:1}
 
 /* Tarjetas */
-.card{
-  background:var(--aqua);
-  border-radius:24px;
-  padding:28px 32px;
-  margin-bottom:18px;
-  box-shadow:0 4px 16px rgba(0,0,0,.08);
-  position:relative;
-}
-.card-tit{
-  font-family:'Fredoka',sans-serif;
-  color:var(--display);
-  font-size:26px;
-  font-weight:700;
-  margin-bottom:6px;
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.card-tit .ico{
-  width:48px;height:48px;background:var(--rojo);border-radius:50%;
-  display:inline-flex;align-items:center;justify-content:center;
-  color:var(--blanco);font-size:22px;flex-shrink:0;
-}
-.card-sub{color:var(--texto);font-size:14px;margin-bottom:18px;padding-left:60px;line-height:1.5}
-
-/* Meta grande */
-.meta-caja{
-  background:var(--blanco);
-  border-radius:18px;
-  padding:20px 24px;
-  margin:12px 0 18px;
-  display:flex;
-  align-items:center;
-  gap:20px;
-  flex-wrap:wrap;
-}
-.meta-caja .meta-num{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:54px;
-  color:var(--rojo);
-  line-height:1;
-  border-left:10px solid var(--rojo-barra);
-  padding-left:14px;
-}
+.card{background:var(--aqua);border-radius:24px;padding:28px 32px;margin-bottom:18px;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.card-tit{font-family:'Fredoka',sans-serif;color:var(--display);font-size:24px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:12px}
+.card-sub{color:var(--texto);font-size:14px;margin-bottom:14px;line-height:1.5}
+.meta-caja{background:var(--blanco);border-radius:18px;padding:18px 22px;margin:12px 0 18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.meta-caja .meta-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--rojo);line-height:1;border-left:10px solid var(--rojo-barra);padding-left:14px}
 .meta-caja .meta-lbl{font-family:'Fredoka',sans-serif;font-weight:600;color:var(--display);font-size:16px;line-height:1.3}
-.meta-caja .meta-regla{
-  background:var(--amarillo);color:var(--display);font-weight:700;font-size:13px;
-  padding:6px 14px;border-radius:12px;margin-left:auto;font-family:'Fredoka',sans-serif;
-}
+.meta-caja .meta-regla{background:var(--amarillo);color:var(--display);font-weight:700;font-size:13px;padding:6px 14px;border-radius:12px;margin-left:auto;font-family:'Fredoka',sans-serif}
+.meta-caja .meta-regla.verde{background:var(--verde);color:var(--blanco)}
+.meta-caja .meta-regla.rojo{background:var(--rojo-neg);color:var(--blanco)}
 
-/* Grid de lugares */
-.lugares{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
-.lugar{
-  background:var(--blanco);
-  border-radius:16px;
-  padding:14px 16px;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  border:2px solid var(--aqua);
-}
-.lugar .num-circ{
-  width:52px;height:52px;border-radius:50%;background:var(--amarillo-claro);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  font-family:'Fredoka',sans-serif;font-weight:700;font-size:30px;color:var(--rojo);
-}
+.lugares{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+.lugar{background:var(--blanco);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;border:2px solid var(--aqua)}
+.lugar.auto{border-color:var(--verde);background:#f0fff0}
+.lugar.sin{border-color:#fde68a;background:#fffbea;opacity:.75}
+.lugar .num-circ{width:48px;height:48px;border-radius:50%;background:var(--amarillo-claro);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;color:var(--rojo)}
 .lugar .num-circ.oro{background:var(--amarillo);color:var(--rojo)}
 .lugar .cont{flex:1;min-width:0}
-.lugar .cont .pos-lbl{font-family:'Fredoka',sans-serif;font-size:11px;color:var(--texto);text-transform:uppercase;font-weight:600;letter-spacing:.5px}
-.lugar .cont input{
-  width:100%;border:none;border-bottom:2px dashed var(--rojo);
-  padding:4px 2px;font-family:inherit;font-size:16px;font-weight:600;color:var(--display);
-  background:transparent;outline:none;margin-top:2px;
-}
+.lugar .cont .pos-lbl{font-family:'Fredoka',sans-serif;font-size:10px;color:var(--texto);text-transform:uppercase;font-weight:600;letter-spacing:.5px}
+.lugar .cont .nombre-auto{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:15px;margin-top:2px}
+.lugar .cont .detalle{font-size:11px;color:var(--texto);margin-top:2px}
+.lugar .cont .detalle .ok{color:var(--verde);font-weight:700}
+.lugar .cont .detalle .fail{color:var(--rojo-neg);font-weight:700}
+.lugar .cont input{width:100%;border:none;border-bottom:2px dashed var(--rojo);padding:4px 2px;font-family:inherit;font-size:15px;font-weight:600;color:var(--display);background:transparent;outline:none;margin-top:2px}
 .lugar .cont input::placeholder{color:#b8d0d6;font-weight:400;font-style:italic;font-size:13px}
 .lugar .cont input:focus{border-bottom-color:var(--amarillo)}
-.lugar .premio-box{
-  background:var(--rojo);color:var(--blanco);padding:6px 12px;border-radius:12px;
-  font-family:'Fredoka',sans-serif;font-weight:700;font-size:14px;white-space:nowrap;
-}
-.lugar .premio-box.esp{background:var(--display);font-size:11px;padding:6px 10px;max-width:120px;line-height:1.2;text-align:center;white-space:normal}
+.lugar .premio-box{background:var(--rojo);color:var(--blanco);padding:6px 12px;border-radius:12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:13px;white-space:nowrap}
+.lugar .premio-box.esp{background:var(--display);font-size:10px;padding:6px 10px;max-width:130px;line-height:1.2;text-align:center;white-space:normal}
+.lugar .premio-box.anulado{background:#cbd5e1;text-decoration:line-through}
 
-/* Caja roja condición */
-.cond-roja{
-  background:var(--rojo);color:var(--blanco);padding:14px 22px;
-  border-radius:14px;margin-top:16px;font-size:15px;line-height:1.4;font-weight:600;
-  clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%);
-  padding-right:40px;
-}
+.cond-roja{background:var(--rojo);color:var(--blanco);padding:14px 22px;border-radius:14px;margin-top:16px;font-size:14px;line-height:1.4;font-weight:600;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%);padding-right:40px}
 .cond-roja strong{font-family:'Fredoka',sans-serif;font-weight:700}
-
-/* Nota pequeña */
-.nota{
-  background:rgba(255,255,255,.7);border-radius:12px;padding:10px 16px;
-  font-size:12px;color:var(--texto);line-height:1.4;margin-top:10px;
-}
+.nota{background:rgba(255,255,255,.7);border-radius:12px;padding:10px 16px;font-size:12px;color:var(--texto);line-height:1.4;margin-top:10px}
 .nota strong{color:var(--display);font-family:'Fredoka',sans-serif}
-
-/* Dashboard referencia */
-.dash-ref{
-  background:var(--display);color:var(--blanco);border-radius:18px;padding:18px 24px;
-  margin-bottom:18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;
-}
-.dash-ref .ic{width:56px;height:56px;background:var(--amarillo);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.dash-ref{background:var(--display);color:var(--blanco);border-radius:18px;padding:16px 22px;margin-bottom:18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.dash-ref .ic{width:52px;height:52px;background:var(--amarillo);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
 .dash-ref .txt{flex:1;min-width:200px}
-.dash-ref .txt .t{font-family:'Fredoka',sans-serif;font-weight:700;font-size:17px;margin-bottom:2px}
-.dash-ref .txt .d{font-size:12px;opacity:.9;line-height:1.4;word-break:break-all}
+.dash-ref .txt .t{font-family:'Fredoka',sans-serif;font-weight:700;font-size:15px;margin-bottom:2px}
+.dash-ref .txt .d{font-size:11px;opacity:.9;line-height:1.4;word-break:break-all}
 
-/* Resumen final */
-.resumen{
-  background:var(--display);color:var(--blanco);border-radius:24px;padding:28px 32px;margin-top:10px;
-}
-.resumen h3{
-  font-family:'Fredoka',sans-serif;font-weight:700;color:var(--amarillo);font-size:22px;
-  margin-bottom:16px;text-transform:uppercase;letter-spacing:1px;
-}
+.resumen{background:var(--display);color:var(--blanco);border-radius:24px;padding:28px 32px;margin-top:10px}
+.resumen h3{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--amarillo);font-size:20px;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px}
 .res-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .res-it{background:rgba(255,255,255,.08);border-radius:14px;padding:14px 18px;border:1px solid rgba(255,255,255,.12)}
 .res-it .l{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.7px;font-weight:700}
 .res-it .v{font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;color:var(--amarillo);margin-top:4px}
 .res-it.gr{grid-column:1/-1;background:rgba(255,204,0,.15);border-color:var(--amarillo)}
-.res-it.gr .v{font-size:32px}
+.res-it.gr .v{font-size:30px}
 
-/* Botones */
 .botones{text-align:center;margin-top:30px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn{
-  background:var(--rojo);color:var(--blanco);border:none;padding:14px 28px;
-  border-radius:12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:15px;
-  cursor:pointer;box-shadow:0 4px 12px rgba(241,28,12,.3);
-}
+.btn{background:var(--rojo);color:var(--blanco);border:none;padding:14px 28px;border-radius:12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 4px 12px rgba(241,28,12,.3)}
 .btn:hover{background:#c91408}
 .btn.sec{background:var(--display)}
 .btn.sec:hover{background:#021c22}
-
-/* Save indicator */
 .save-ok{position:fixed;bottom:22px;right:22px;background:var(--verde);color:#fff;padding:10px 18px;border-radius:12px;font-weight:700;font-size:13px;opacity:0;transition:opacity .25s;z-index:999;box-shadow:0 4px 14px rgba(58,170,53,.4);pointer-events:none;font-family:'Fredoka',sans-serif}
+.err-msg{background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:8px;font-size:12px;margin-top:10px}
+
+.hidden{display:none}
 
 @media print{
-  body{background:white;padding:0}
-  .hero{background:linear-gradient(180deg,var(--cielo-top) 0%,var(--cielo-mid) 55%,var(--cielo-horiz) 100%);-webkit-print-color-adjust:exact;print-color-adjust:exact;border-radius:16px;margin-bottom:20px}
-  .card,.resumen,.dash-ref{box-shadow:none;break-inside:avoid;page-break-inside:avoid}
-  .banderin,.lugar .num-circ,.lugar .premio-box,.cond-roja,.resumen,.meta-caja .meta-num,.hero-tit{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:white}
+  .hero{background:linear-gradient(180deg,var(--cielo-top),var(--cielo-horiz));-webkit-print-color-adjust:exact;print-color-adjust:exact;border-radius:16px;margin-bottom:20px}
+  .card,.resumen,.dash-ref,.upload-section{box-shadow:none;break-inside:avoid;page-break-inside:avoid}
+  .upload-section{display:none}
+  .banderin,.lugar .num-circ,.lugar .premio-box,.cond-roja,.resumen,.meta-caja .meta-num,.hero-tit,.resumen-mes{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .botones{display:none}
   .save-ok{display:none}
 }
-
 @media (max-width:640px){
-  .hero-tit{font-size:48px}
-  .banderin{font-size:22px;padding:12px 40px 12px 24px}
+  .hero-tit{font-size:44px}
+  .banderin{font-size:20px;padding:12px 40px 12px 22px}
   .card{padding:20px 18px}
-  .card-sub{padding-left:0}
   .pagina{padding:16px 14px 60px}
   .logo-eq{top:12px;right:14px;width:48px;height:48px}
 }
@@ -245,17 +130,37 @@ body{
   <!-- HERO -->
   <div class="hero">
     <div class="hero-tit">¡CON TODO,<br>EQUIPO PLAN VE!</div>
-    <div class="hero-sub">Resultados y premios · Septiembre 2026</div>
+    <div class="hero-sub">Premios y Reconocimientos · <span id="mes-label">Septiembre 2026</span></div>
     <div class="acento"></div>
     <div class="hero-eds">EDS TERPEL AV. BOYACÁ</div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="upload-section">
+    <h2>📁 Suba el archivo del mes</h2>
+    <div class="hint">
+      Al subir el Excel de "VENTAS Y FIDELIZADAS", se auto-completan solo los datos que vienen ahí:<br>
+      <span style="color:#3AAA35;font-weight:700">✓ Automático:</span> Top 5 Líquidos (con fideli &gt;85%) · Top 4 Extra · Total vendido · % Fidelización<br>
+      <span style="color:#E6193A;font-weight:700">✗ Manual (usted llena):</span> Equipo GNV · Ganadores NPS · Lubricantes · Premio de mi bolsillo
+    </div>
+
+    <div class="drop" id="drop" onclick="document.getElementById('fi').click()">
+      <div class="ico">📄</div>
+      <div class="t1">Arrastre aquí el Excel del mes</div>
+      <div class="t2">o haga clic para seleccionarlo</div>
+      <button class="btn-pick" onclick="event.stopPropagation();document.getElementById('fi').click()">Seleccionar archivo</button>
+      <input type="file" id="fi" accept=".xlsx,.xls" onchange="onFile(event.target.files[0])">
+    </div>
+    <div id="file-info"></div>
+    <div id="resumen-mes" class="hidden"></div>
   </div>
 
   <!-- DASHBOARD DE CONSULTA -->
   <div class="dash-ref">
     <div class="ic">📊</div>
     <div class="txt">
-      <div class="t">Consulte el ranking de septiembre en su Dashboard de Promotores</div>
-      <div class="d">Está guardado en su Mac: Documents / ARCHIVOS MADRE DE CLAUDE CUADRO DIARIO LIQUIDOS Y GNV / ARCHIVOS MADRE PROMOTORES RANKING / remixed-f0e19442.html</div>
+      <div class="t">Para consultar el ranking detallado, use su Dashboard de Promotores</div>
+      <div class="d">En su Mac: Documents / ARCHIVOS MADRE DE CLAUDE CUADRO DIARIO LIQUIDOS Y GNV / ARCHIVOS MADRE PROMOTORES RANKING / remixed-f0e19442.html</div>
     </div>
   </div>
 
@@ -263,21 +168,19 @@ body{
   <div style="margin-bottom:6px"><span class="banderin">⛽ Meta Líquidos</span></div>
   <div class="card">
     <div class="meta-caja">
-      <div>
-        <div class="meta-num">355.420</div>
-      </div>
+      <div><div class="meta-num">355.420</div></div>
       <div class="meta-lbl">GALONES DE META<br><span style="color:var(--rojo);font-weight:700">SÍ O SÍ</span></div>
-      <div class="meta-regla">Top 5 ranking + fidelización &gt; 85%</div>
+      <div class="meta-regla" id="meta-estado">Top 5 + fideli &gt; 85%</div>
     </div>
 
-    <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:15px;margin-top:10px;margin-bottom:8px">🏆 Los 5 primeros del ranking que cumplan 85% de fidelización ganan $200.000 cada uno</div>
+    <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:14px;margin-top:10px;margin-bottom:8px">🏆 Los 5 primeros del ranking que cumplan 85% de fidelización ganan $200.000 cada uno</div>
 
-    <div class="lugares">
-      <div class="lugar"><div class="num-circ oro">1</div><div class="cont"><div class="pos-lbl">Primer lugar</div><input type="text" placeholder="Nombre del promotor"></div><div class="premio-box">$200.000</div></div>
-      <div class="lugar"><div class="num-circ">2</div><div class="cont"><div class="pos-lbl">Segundo lugar</div><input type="text" placeholder="Nombre del promotor"></div><div class="premio-box">$200.000</div></div>
-      <div class="lugar"><div class="num-circ">3</div><div class="cont"><div class="pos-lbl">Tercer lugar</div><input type="text" placeholder="Nombre del promotor"></div><div class="premio-box">$200.000</div></div>
-      <div class="lugar"><div class="num-circ">4</div><div class="cont"><div class="pos-lbl">Cuarto lugar</div><input type="text" placeholder="Nombre del promotor"></div><div class="premio-box">$200.000</div></div>
-      <div class="lugar"><div class="num-circ">5</div><div class="cont"><div class="pos-lbl">Quinto lugar</div><input type="text" placeholder="Nombre del promotor"></div><div class="premio-box">$200.000</div></div>
+    <div class="lugares" id="lugares-liquidos">
+      <div class="lugar"><div class="num-circ oro">1</div><div class="cont"><div class="pos-lbl">Primer lugar</div><input type="text" placeholder="Nombre del promotor" data-key="liq1"></div><div class="premio-box">$200.000</div></div>
+      <div class="lugar"><div class="num-circ">2</div><div class="cont"><div class="pos-lbl">Segundo lugar</div><input type="text" placeholder="Nombre del promotor" data-key="liq2"></div><div class="premio-box">$200.000</div></div>
+      <div class="lugar"><div class="num-circ">3</div><div class="cont"><div class="pos-lbl">Tercer lugar</div><input type="text" placeholder="Nombre del promotor" data-key="liq3"></div><div class="premio-box">$200.000</div></div>
+      <div class="lugar"><div class="num-circ">4</div><div class="cont"><div class="pos-lbl">Cuarto lugar</div><input type="text" placeholder="Nombre del promotor" data-key="liq4"></div><div class="premio-box">$200.000</div></div>
+      <div class="lugar"><div class="num-circ">5</div><div class="cont"><div class="pos-lbl">Quinto lugar</div><input type="text" placeholder="Nombre del promotor" data-key="liq5"></div><div class="premio-box">$200.000</div></div>
     </div>
 
     <div class="cond-roja"><strong>Importante:</strong> Para ganar deben cumplir las DOS condiciones: estar en el Top 5 del ranking Y tener fidelización individual por encima del 85%.</div>
@@ -286,13 +189,13 @@ body{
   <!-- 2. EXTRA -->
   <div style="margin-bottom:6px"><span class="banderin">🔥 Ranking Extra</span></div>
   <div class="card">
-    <div class="card-sub" style="padding-left:0;margin-bottom:14px">Los 4 promotores que más galones de <strong>Extra</strong> vendan en septiembre ganan premio en efectivo según el lugar.</div>
+    <div class="card-sub">Los 4 promotores que más galones de <strong>Extra</strong> vendan en el mes.</div>
 
-    <div class="lugares">
-      <div class="lugar"><div class="num-circ oro">1</div><div class="cont"><div class="pos-lbl">1° Extra</div><input type="text" placeholder="Nombre"></div><div class="premio-box">$100.000</div></div>
-      <div class="lugar"><div class="num-circ">2</div><div class="cont"><div class="pos-lbl">2° Extra</div><input type="text" placeholder="Nombre"></div><div class="premio-box">$80.000</div></div>
-      <div class="lugar"><div class="num-circ">3</div><div class="cont"><div class="pos-lbl">3° Extra</div><input type="text" placeholder="Nombre"></div><div class="premio-box">$50.000</div></div>
-      <div class="lugar"><div class="num-circ">4</div><div class="cont"><div class="pos-lbl">4° Extra</div><input type="text" placeholder="Nombre"></div><div class="premio-box">$30.000</div></div>
+    <div class="lugares" id="lugares-extra">
+      <div class="lugar"><div class="num-circ oro">1</div><div class="cont"><div class="pos-lbl">1° Extra</div><input type="text" placeholder="Nombre" data-key="ext1"></div><div class="premio-box">$100.000</div></div>
+      <div class="lugar"><div class="num-circ">2</div><div class="cont"><div class="pos-lbl">2° Extra</div><input type="text" placeholder="Nombre" data-key="ext2"></div><div class="premio-box">$80.000</div></div>
+      <div class="lugar"><div class="num-circ">3</div><div class="cont"><div class="pos-lbl">3° Extra</div><input type="text" placeholder="Nombre" data-key="ext3"></div><div class="premio-box">$50.000</div></div>
+      <div class="lugar"><div class="num-circ">4</div><div class="cont"><div class="pos-lbl">4° Extra</div><input type="text" placeholder="Nombre" data-key="ext4"></div><div class="premio-box">$30.000</div></div>
     </div>
   </div>
 
@@ -305,73 +208,94 @@ body{
       <div class="meta-regla">Si se cumple → $100.000 c/u</div>
     </div>
 
-    <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:15px;margin-top:10px;margin-bottom:8px">🟢 Cada promotor del equipo GNV gana $100.000 si llegamos a la meta</div>
+    <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:14px;margin-top:10px;margin-bottom:8px">🟢 Cada promotor del equipo GNV gana $100.000 si llegamos a la meta</div>
 
     <div class="lugares">
-      <div class="lugar"><div class="num-circ oro">1</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre"></div><div class="premio-box">$100.000</div></div>
-      <div class="lugar"><div class="num-circ">2</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre"></div><div class="premio-box">$100.000</div></div>
-      <div class="lugar"><div class="num-circ">3</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre"></div><div class="premio-box">$100.000</div></div>
-      <div class="lugar"><div class="num-circ">4</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre"></div><div class="premio-box">$100.000</div></div>
-      <div class="lugar"><div class="num-circ">5</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre"></div><div class="premio-box">$100.000</div></div>
+      <div class="lugar"><div class="num-circ oro">1</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre" data-key="gnv1"></div><div class="premio-box">$100.000</div></div>
+      <div class="lugar"><div class="num-circ">2</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre" data-key="gnv2"></div><div class="premio-box">$100.000</div></div>
+      <div class="lugar"><div class="num-circ">3</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre" data-key="gnv3"></div><div class="premio-box">$100.000</div></div>
+      <div class="lugar"><div class="num-circ">4</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre" data-key="gnv4"></div><div class="premio-box">$100.000</div></div>
+      <div class="lugar"><div class="num-circ">5</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre" data-key="gnv5"></div><div class="premio-box">$100.000</div></div>
     </div>
-    <div class="nota"><strong>💡 Nota:</strong> Agregue o quite nombres según el equipo GNV real del mes.</div>
+    <div class="nota"><strong>💡 Nota:</strong> Los datos de GNV no vienen en este archivo de líquidos. Llene los nombres del equipo GNV a mano.</div>
   </div>
 
   <!-- 4. NPS -->
   <div style="margin-bottom:6px"><span class="banderin">⭐ Premios NPS</span></div>
   <div class="card">
-    <div class="card-sub" style="padding-left:0;margin-bottom:14px">Para los que más encuestas hagan — <strong>sin repetir</strong>.</div>
+    <div class="card-sub">Para los que más encuestas hagan — <strong>sin repetir</strong>.</div>
 
     <div class="lugares">
-      <div class="lugar">
-        <div class="num-circ oro">1</div>
-        <div class="cont"><div class="pos-lbl">1° NPS</div><input type="text" placeholder="Nombre"></div>
-        <div class="premio-box esp">🎬 2 boletas de cine con combo</div>
-      </div>
-      <div class="lugar">
-        <div class="num-circ">2</div>
-        <div class="cont"><div class="pos-lbl">2° NPS</div><input type="text" placeholder="Nombre"></div>
-        <div class="premio-box esp">🍔 Combo hamburguesa, papas y gaseosa</div>
-      </div>
-      <div class="lugar">
-        <div class="num-circ">3</div>
-        <div class="cont"><div class="pos-lbl">3° NPS</div><input type="text" placeholder="Nombre"></div>
-        <div class="premio-box esp">🍺 1 Six-pack cervecero</div>
-      </div>
-      <div class="lugar">
-        <div class="num-circ">4</div>
-        <div class="cont"><div class="pos-lbl">4° NPS</div><input type="text" placeholder="Nombre"></div>
-        <div class="premio-box">$20.000</div>
-      </div>
+      <div class="lugar"><div class="num-circ oro">1</div><div class="cont"><div class="pos-lbl">1° NPS</div><input type="text" placeholder="Nombre" data-key="nps1"></div><div class="premio-box esp">🎬 2 boletas de cine con combo</div></div>
+      <div class="lugar"><div class="num-circ">2</div><div class="cont"><div class="pos-lbl">2° NPS</div><input type="text" placeholder="Nombre" data-key="nps2"></div><div class="premio-box esp">🍔 Combo hamburguesa, papas y gaseosa</div></div>
+      <div class="lugar"><div class="num-circ">3</div><div class="cont"><div class="pos-lbl">3° NPS</div><input type="text" placeholder="Nombre" data-key="nps3"></div><div class="premio-box esp">🍺 1 Six-pack cervecero</div></div>
+      <div class="lugar"><div class="num-circ">4</div><div class="cont"><div class="pos-lbl">4° NPS</div><input type="text" placeholder="Nombre" data-key="nps4"></div><div class="premio-box">$20.000</div></div>
     </div>
   </div>
 
-  <!-- 5. BOLSILLO -->
+  <!-- 5. LUBRICANTES -->
+  <div style="margin-bottom:6px"><span class="banderin">🛢️ Lubricantes y Aditivos</span></div>
+  <div class="card">
+    <div class="card-sub">Meta global en ventas de Mobil + Simoniz. Por cada unidad registrada en POS Terpel <strong>después de las primeras 30</strong>, se pagan $1.000.</div>
+
+    <div class="meta-caja">
+      <div><div class="meta-num" style="font-size:36px"><input type="text" placeholder="18.000.000" data-key="lub_meta" style="width:180px;border:none;border-bottom:3px dashed var(--rojo);background:transparent;color:var(--rojo);font-family:'Bebas Neue',sans-serif;font-size:42px;padding:0 4px;outline:none"></div></div>
+      <div class="meta-lbl">META EN PESOS<br><span style="color:var(--rojo);font-weight:700">DEL MES</span></div>
+      <div class="meta-regla">Si se cumple → $1.000 por unidad extra</div>
+    </div>
+
+    <div class="lugares" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+      <div class="lugar" style="background:#fff">
+        <div class="num-circ oro">💰</div>
+        <div class="cont">
+          <div class="pos-lbl">Vendido este mes</div>
+          <input type="text" placeholder="Ej: 16.500.000" data-key="lub_vend">
+        </div>
+      </div>
+      <div class="lugar" style="background:#fff">
+        <div class="num-circ">📦</div>
+        <div class="cont">
+          <div class="pos-lbl">Unidades vendidas</div>
+          <input type="text" placeholder="Ej: 85" data-key="lub_uni">
+        </div>
+      </div>
+      <div class="lugar" style="background:#fff">
+        <div class="num-circ">🏆</div>
+        <div class="cont">
+          <div class="pos-lbl">Bono a repartir</div>
+          <input type="text" placeholder="Ej: $55.000" data-key="lub_bono">
+        </div>
+      </div>
+    </div>
+    <div class="nota"><strong>💡 Nota:</strong> Los datos de lubricantes no vienen en el archivo de ventas. Llene los montos a mano cuando tenga el reporte de POS Terpel.</div>
+  </div>
+
+  <!-- 6. BOLSILLO -->
   <div style="margin-bottom:6px"><span class="banderin">💛 Premio de mi bolsillo</span></div>
   <div class="card">
-    <div class="card-sub" style="padding-left:0;margin-bottom:14px">Reconocimiento especial que entrega la administración — por fuera del esquema oficial de Plan Ve.</div>
+    <div class="card-sub">Reconocimiento especial que entrega la administración — por fuera del esquema oficial.</div>
 
     <div class="lugares" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
       <div class="lugar" style="background:#fffbea;border:2px dashed var(--amarillo)">
         <div class="num-circ oro">⭐</div>
         <div class="cont">
-          <div class="pos-lbl">Motivo / reconocimiento</div>
-          <input type="text" placeholder="Ej: Mejor actitud, mejor compañero…">
-          <input type="text" placeholder="Nombre del promotor" style="margin-top:6px">
+          <div class="pos-lbl">Motivo</div>
+          <input type="text" placeholder="Ej: Mejor actitud…" data-key="bols1_mot">
+          <input type="text" placeholder="Nombre del promotor" data-key="bols1_nom" style="margin-top:6px">
         </div>
         <div class="premio-box esp" style="background:var(--amarillo);color:var(--display)">
-          <input type="text" placeholder="Premio" style="background:transparent;border:none;color:var(--display);font-weight:700;width:100px;text-align:center;font-family:inherit">
+          <input type="text" placeholder="Premio" data-key="bols1_pre" style="background:transparent;border:none;color:var(--display);font-weight:700;width:100px;text-align:center;font-family:inherit">
         </div>
       </div>
       <div class="lugar" style="background:#fffbea;border:2px dashed var(--amarillo)">
         <div class="num-circ oro">⭐</div>
         <div class="cont">
-          <div class="pos-lbl">Motivo / reconocimiento</div>
-          <input type="text" placeholder="Ej: Más puntual, más limpio…">
-          <input type="text" placeholder="Nombre del promotor" style="margin-top:6px">
+          <div class="pos-lbl">Motivo</div>
+          <input type="text" placeholder="Ej: Más puntual…" data-key="bols2_mot">
+          <input type="text" placeholder="Nombre del promotor" data-key="bols2_nom" style="margin-top:6px">
         </div>
         <div class="premio-box esp" style="background:var(--amarillo);color:var(--display)">
-          <input type="text" placeholder="Premio" style="background:transparent;border:none;color:var(--display);font-weight:700;width:100px;text-align:center;font-family:inherit">
+          <input type="text" placeholder="Premio" data-key="bols2_pre" style="background:transparent;border:none;color:var(--display);font-weight:700;width:100px;text-align:center;font-family:inherit">
         </div>
       </div>
     </div>
@@ -381,60 +305,274 @@ body{
   <div class="resumen">
     <h3>💰 Resumen de bonificaciones</h3>
     <div class="res-grid">
-      <div class="res-it"><div class="l">Top 5 Líquidos</div><div class="v">$1.000.000</div></div>
+      <div class="res-it"><div class="l">Top 5 Líquidos</div><div class="v" id="r-liq">$1.000.000</div></div>
       <div class="res-it"><div class="l">Ranking Extra</div><div class="v">$260.000</div></div>
       <div class="res-it"><div class="l">GNV (si se cumple meta)</div><div class="v">$500.000*</div></div>
       <div class="res-it"><div class="l">NPS 4° lugar</div><div class="v">$20.000</div></div>
-      <div class="res-it gr"><div class="l">TOTAL BONIFICACIONES EN EFECTIVO</div><div class="v">$1.780.000</div></div>
+      <div class="res-it gr"><div class="l">TOTAL BONIFICACIONES EN EFECTIVO</div><div class="v" id="r-total">$1.780.000</div></div>
     </div>
-    <div style="font-size:11px;color:#94a3b8;margin-top:12px">* GNV: $100.000 × 5 promotores estimados. Ajuste según el equipo real. No incluye premios NPS en especie ni "premio de mi bolsillo".</div>
+    <div style="font-size:11px;color:#94a3b8;margin-top:12px">* GNV: $100.000 × 5 promotores estimados. Ajuste según el equipo real. No incluye NPS en especie ni "premio de mi bolsillo".</div>
   </div>
 
-  <!-- BOTONES -->
   <div class="botones">
     <button class="btn" onclick="imprimir()">🖨️ Imprimir / Guardar PDF</button>
-    <button class="btn sec" onclick="limpiar()">🧹 Limpiar nombres</button>
+    <button class="btn sec" onclick="limpiar()">🧹 Limpiar todo</button>
   </div>
 
 </div>
 
 <script>
+const MESES_LARGO=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function nm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();}
+function fmt(n){return (+n||0).toLocaleString('es-CO')}
+function pn(v){
+  if(v===null||v===undefined||v==='')return 0;
+  if(typeof v==='number')return isNaN(v)?0:v;
+  if(v instanceof Date)return 0;
+  const s=String(v).trim().replace(/[$\s%]/g,'');
+  if(!s||s==='-')return 0;
+  if(s.includes('.')&&s.includes(',')){
+    const ld=s.lastIndexOf('.'),lc=s.lastIndexOf(',');
+    if(lc>ld)return parseFloat(s.replace(/\./g,'').replace(',','.'))||0;
+    return parseFloat(s.replace(/,/g,''))||0;
+  }
+  if(s.includes(',')&&!s.includes('.')){
+    const p=s.split(',');
+    if(p.length>1&&p[p.length-1].length===3)return parseFloat(s.replace(/,/g,''))||0;
+    return parseFloat(s.replace(',','.'))||0;
+  }
+  return parseFloat(s)||0;
+}
+
+const drop=document.getElementById('drop');
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag');}));
+drop.addEventListener('drop',e=>{if(e.dataTransfer.files&&e.dataTransfer.files[0])onFile(e.dataTransfer.files[0]);});
+
+async function onFile(f){
+  if(!f)return;
+  const info=document.getElementById('file-info');
+  info.innerHTML='<div class="file-ok"><span class="ic">⏳</span>Procesando '+f.name+'...</div>';
+  try{
+    const buf=await f.arrayBuffer();
+    const wb=XLSX.read(buf,{type:'array',cellDates:true});
+    const datos=procesar(wb);
+    if(!datos){info.innerHTML='<div class="err-msg">No pude leer los datos. Verifique que sea el archivo correcto de VENTAS Y FIDELIZADAS.</div>';return;}
+    info.innerHTML='<div class="file-ok"><span class="ic">✅</span><div style="flex:1"><div style="font-family:Fredoka,sans-serif;font-weight:700">'+f.name+'</div><div style="font-size:11px;color:#064e3b">Mes detectado: <strong>'+datos.mes+'</strong></div></div><button class="x" onclick="limpiarArchivo()">×</button></div>';
+    rellenar(datos);
+  }catch(e){
+    info.innerHTML='<div class="err-msg">Error leyendo el archivo: '+e.message+'</div>';
+  }
+}
+
+function limpiarArchivo(){
+  document.getElementById('fi').value='';
+  document.getElementById('file-info').innerHTML='';
+  document.getElementById('resumen-mes').classList.add('hidden');
+  document.getElementById('mes-label').textContent='';
+  // vaciar los inputs auto-llenados
+  ['liq1','liq2','liq3','liq4','liq5','ext1','ext2','ext3','ext4'].forEach(k=>{
+    const inp=document.querySelector('input[data-key="'+k+'"]');
+    if(inp){inp.value='';inp.closest('.lugar').classList.remove('auto','sin');inp.style.display='';
+      const info=inp.closest('.cont').querySelector('.auto-info');if(info)info.remove();}
+  });
+  document.getElementById('meta-estado').textContent='Top 5 + fideli > 85%';
+  document.getElementById('meta-estado').className='meta-regla';
+  guardar();
+}
+
+function procesar(wb){
+  // Encontrar pestañas de ventas y fidelizadas
+  let shVentas=null, shFid=null;
+  for(const sn of wb.SheetNames){
+    const ns=nm(sn);
+    if(ns.includes('fideliz')) shFid=wb.Sheets[sn];
+    else if(ns.includes('venta')) shVentas=wb.Sheets[sn];
+  }
+  if(!shVentas) shVentas=wb.Sheets[wb.SheetNames[0]];
+  if(!shFid && wb.SheetNames.length>1) shFid=wb.Sheets[wb.SheetNames[1]];
+
+  const result={promotores:{},mes:'?',totalGal:0,totalFid:0};
+
+  // VENTAS
+  const rowsV=XLSX.utils.sheet_to_json(shVentas,{raw:true,defval:'',header:1});
+  if(!rowsV.length)return null;
+  const headV=rowsV[0].map(c=>String(c||'').trim());
+  const hN=headV.map(nm);
+  const iProm=hN.findIndex(h=>h==='promotor');
+  const iCant=hN.findIndex(h=>h==='cantidad');
+  const iProd=hN.findIndex(h=>h==='producto');
+  const iFech=hN.findIndex(h=>h==='fecha'||h.includes('fecha'));
+  if(iProm<0||iCant<0)return null;
+
+  const conteoMes={};
+  for(let i=1;i<rowsV.length;i++){
+    const r=rowsV[i];if(!r)continue;
+    const p=String(r[iProm]||'').trim();
+    if(!p||p.length<2)continue;
+    const g=pn(r[iCant]);
+    if(!result.promotores[p])result.promotores[p]={nombre:p,galones:0,fideli:0,extra:0};
+    result.promotores[p].galones+=g;
+    result.totalGal+=g;
+    if(iProd>=0){
+      const prod=nm(r[iProd]);
+      if(prod.includes('extra')||prod.includes('premium')||prod.includes('super')){
+        result.promotores[p].extra+=g;
+      }
+    }
+    if(iFech>=0){
+      const v=r[iFech];let d=null;
+      if(v instanceof Date)d=v;
+      else{const s=String(v).trim();const m=s.match(/(\d{4})[\/\-](\d{1,2})/);if(m)d=new Date(+m[1],+m[2]-1,1);}
+      if(d&&!isNaN(d)){const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');conteoMes[k]=(conteoMes[k]||0)+1;}
+    }
+  }
+
+  // FIDELIZADAS
+  if(shFid){
+    const rowsF=XLSX.utils.sheet_to_json(shFid,{raw:true,defval:'',header:1});
+    if(rowsF.length){
+      const headF=rowsF[0].map(c=>String(c||'').trim());
+      const hNF=headF.map(nm);
+      const ipF=hNF.findIndex(h=>h==='promotor');
+      const icF=hNF.findIndex(h=>h==='cantidad');
+      if(ipF>=0&&icF>=0){
+        for(let i=1;i<rowsF.length;i++){
+          const r=rowsF[i];if(!r)continue;
+          const p=String(r[ipF]||'').trim();if(!p||p.length<2)continue;
+          const g=pn(r[icF]);
+          if(!result.promotores[p])result.promotores[p]={nombre:p,galones:0,fideli:0,extra:0};
+          result.promotores[p].fideli+=g;
+          result.totalFid+=g;
+        }
+      }
+    }
+  }
+
+  // % fideli por promotor
+  Object.values(result.promotores).forEach(p=>{
+    p.pctFideli = p.galones>0 ? (p.fideli/p.galones*100) : 0;
+  });
+  result.pctFideli = result.totalGal>0 ? (result.totalFid/result.totalGal*100) : 0;
+
+  // Mes
+  const topMes=Object.entries(conteoMes).sort((a,b)=>b[1]-a[1])[0];
+  if(topMes){const [y,m]=topMes[0].split('-');result.mes=MESES_LARGO[+m-1]+' '+y;}
+
+  return result;
+}
+
+function rellenar(d){
+  // Actualizar título con mes detectado
+  document.getElementById('mes-label').textContent=d.mes;
+
+  // Resumen del mes
+  const META_LIQ=355420;
+  const diffMeta=d.totalGal-META_LIQ;
+  const metaOk=d.totalGal>=META_LIQ;
+  const resEl=document.getElementById('resumen-mes');
+  resEl.classList.remove('hidden');
+  resEl.className='resumen-mes';
+  resEl.innerHTML=`
+    <div class="kpi"><div class="l">⛽ Galones vendidos</div><div class="v">${fmt(Math.round(d.totalGal))}</div></div>
+    <div class="kpi"><div class="l">🎯 Meta</div><div class="v">${fmt(META_LIQ)}</div></div>
+    <div class="kpi"><div class="l">${metaOk?'✅':'⚠️'} ${metaOk?'Superada':'Falta'}</div><div class="v" style="color:${metaOk?'#3AAA35':'#E6193A'}">${metaOk?'+':''}${fmt(Math.round(diffMeta))}</div></div>
+    <div class="kpi"><div class="l">🎯 Fidelización</div><div class="v">${d.pctFideli.toFixed(1)}%</div></div>
+    <div class="kpi"><div class="l">👥 Promotores</div><div class="v">${Object.keys(d.promotores).length}</div></div>
+  `;
+
+  // Actualizar banner meta
+  const me=document.getElementById('meta-estado');
+  if(metaOk){me.textContent='✓ Meta cumplida ('+fmt(Math.round(d.totalGal))+' gal)';me.className='meta-regla verde';}
+  else{me.textContent='✗ Faltaron '+fmt(Math.round(-diffMeta))+' gal';me.className='meta-regla rojo';}
+
+  // TOP 5 LÍQUIDOS: ordenar por galones, filtrar por fideli >= 85%
+  const porGal = Object.values(d.promotores).sort((a,b)=>b.galones-a.galones);
+  const top5 = porGal.slice(0,5);
+  top5.forEach((p,i)=>{
+    const k='liq'+(i+1);
+    const inp=document.querySelector('input[data-key="'+k+'"]');
+    if(!inp)return;
+    const lugar=inp.closest('.lugar');
+    const cont=inp.closest('.cont');
+    // Limpiar info previa
+    const prevInfo=cont.querySelector('.auto-info');if(prevInfo)prevInfo.remove();
+    inp.value=p.nombre;
+    const cumple=p.pctFideli>=85;
+    lugar.classList.remove('auto','sin');
+    lugar.classList.add(cumple?'auto':'sin');
+    // Agregar info debajo
+    const info=document.createElement('div');
+    info.className='auto-info detalle';
+    info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli <span class="${cumple?'ok':'fail'}">${p.pctFideli.toFixed(1)}%</span> ${cumple?'✓ GANA':'✗ NO LLEGÓ'}`;
+    cont.appendChild(info);
+    // Si no cumple, marcar premio tachado
+    const premio=lugar.querySelector('.premio-box');
+    if(!cumple){premio.classList.add('anulado');premio.title='No cumple 85% de fidelización';}
+    else{premio.classList.remove('anulado');premio.title='';}
+  });
+
+  // TOP 4 EXTRA
+  const porExtra = Object.values(d.promotores).filter(p=>p.extra>0).sort((a,b)=>b.extra-a.extra);
+  const top4ex = porExtra.slice(0,4);
+  top4ex.forEach((p,i)=>{
+    const k='ext'+(i+1);
+    const inp=document.querySelector('input[data-key="'+k+'"]');
+    if(!inp)return;
+    const lugar=inp.closest('.lugar');
+    const cont=inp.closest('.cont');
+    const prevInfo=cont.querySelector('.auto-info');if(prevInfo)prevInfo.remove();
+    inp.value=p.nombre;
+    lugar.classList.remove('sin');
+    lugar.classList.add('auto');
+    const info=document.createElement('div');
+    info.className='auto-info detalle';
+    info.innerHTML=`${fmt(Math.round(p.extra))} gal de Extra <span class="ok">✓</span>`;
+    cont.appendChild(info);
+  });
+
+  // Recalcular total líquidos considerando quién cumple
+  const ganLiq = top5.filter(p=>p.pctFideli>=85).length;
+  document.getElementById('r-liq').textContent = '$'+fmt(ganLiq*200000);
+  const totalGeneral = ganLiq*200000 + 260000 + 500000 + 20000;
+  document.getElementById('r-total').textContent = '$'+fmt(totalGeneral);
+
+  guardar();
+}
+
 function imprimir(){
-  // Pasar los values a atributos para que se vean al abrir en ventana nueva
   document.querySelectorAll('input').forEach(i=>{
-    if(i.value) i.setAttribute('value',i.value);
-    else i.setAttribute('value','');
+    if(i.value)i.setAttribute('value',i.value);else i.setAttribute('value','');
   });
   let html=document.documentElement.outerHTML;
   html=html.replace(/<div class="botones">[\s\S]*?<\/div>/,'');
-  html=html.replace(/<script>[\s\S]*?<\/script>/g,'');
+  html=html.replace(/<script[\s\S]*?<\/script>/g,'');
   const w=window.open('','_blank','width=1100,height=900');
-  if(!w){alert('Permita ventanas emergentes en Safari para imprimir.\n\nPreferencias → Sitios Web → Ventanas emergentes.');return;}
-  w.document.open();
-  w.document.write('<!DOCTYPE html>'+html);
-  w.document.close();
-  setTimeout(()=>{try{w.focus();w.print();}catch(e){alert('Presione Cmd+P en la nueva ventana.');}},800);
+  if(!w){alert('Permita ventanas emergentes en Safari para imprimir.');return;}
+  w.document.open();w.document.write('<!DOCTYPE html>'+html);w.document.close();
+  setTimeout(()=>{try{w.focus();w.print();}catch(e){alert('Presione Cmd+P');}},800);
 }
 function limpiar(){
-  if(!confirm('¿Borrar todos los nombres escritos?'))return;
+  if(!confirm('¿Borrar todo?'))return;
   document.querySelectorAll('input').forEach(i=>i.value='');
+  limpiarArchivo();
   guardar();
 }
 function mostrarGuardado(){
   let m=document.getElementById('save-msg');
-  if(!m){m=document.createElement('div');m.id='save-msg';m.className='save-ok';m.textContent='✓ Guardado en su navegador';document.body.appendChild(m);}
+  if(!m){m=document.createElement('div');m.id='save-msg';m.className='save-ok';m.textContent='✓ Guardado';document.body.appendChild(m);}
   m.style.opacity='1';clearTimeout(m._t);
-  m._t=setTimeout(()=>{m.style.opacity='0';},1400);
+  m._t=setTimeout(()=>{m.style.opacity='0';},1200);
 }
 function guardar(){
   const data={};
-  document.querySelectorAll('input').forEach((i,idx)=>data['i'+idx]=i.value);
-  try{localStorage.setItem('premios_sep_2026',JSON.stringify(data));mostrarGuardado();}catch(e){}
+  document.querySelectorAll('input[data-key]').forEach(i=>data[i.dataset.key]=i.value);
+  try{localStorage.setItem('premios_mes',JSON.stringify(data));mostrarGuardado();}catch(e){}
 }
 function cargar(){
   try{
-    const d=JSON.parse(localStorage.getItem('premios_sep_2026')||'{}');
-    document.querySelectorAll('input').forEach((i,idx)=>{if(d['i'+idx])i.value=d['i'+idx];});
+    const d=JSON.parse(localStorage.getItem('premios_mes')||'{}');
+    document.querySelectorAll('input[data-key]').forEach(i=>{if(d[i.dataset.key])i.value=d[i.dataset.key];});
   }catch(e){}
 }
 document.querySelectorAll('input').forEach(i=>i.addEventListener('input',guardar));
