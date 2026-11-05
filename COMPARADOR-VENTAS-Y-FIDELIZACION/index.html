@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Comparador EDS</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f1f5f9;color:#1e293b;font-family:system-ui,-apple-system,sans-serif;min-height:100vh;font-size:13px}
+.wrap{max-width:1180px;margin:0 auto;padding:18px}
+.hero{background:linear-gradient(135deg,#E8001C,#a30014);color:#fff;border-radius:14px;padding:22px 26px;margin-bottom:16px;box-shadow:0 4px 16px rgba(232,0,28,.2)}
+.hero h1{font-size:22px;font-weight:900;letter-spacing:-.3px;line-height:1.1}
+.hero .sub{font-size:12px;opacity:.9;margin-top:4px;letter-spacing:1px;font-weight:600}
+
+/* UPLOAD */
+.upload-card{background:#fff;border-radius:14px;padding:22px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.upload-card h2{font-size:15px;font-weight:800;margin-bottom:12px;color:#1e293b}
+.drop{border:2.5px dashed #cbd5e1;border-radius:12px;padding:30px 20px;text-align:center;cursor:pointer;transition:all .15s;background:#f8fafc}
+.drop:hover,.drop.drag{border-color:#E8001C;background:#fff5f6}
+.drop .icon{font-size:36px;margin-bottom:8px}
+.drop .t1{font-size:14px;font-weight:700;color:#1e293b;margin-bottom:4px}
+.drop .t2{font-size:11px;color:#64748b}
+.drop input{display:none}
+.btn-pick{background:#E8001C;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:10px;font-family:inherit}
+.btn-pick:hover{background:#a30014}
+
+/* FILE CHIPS */
+.files{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.file-chip{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:12px}
+.file-chip.ok{background:#dcfce7;border-color:#86efac}
+.file-chip.err{background:#fee2e2;border-color:#fca5a5}
+.file-chip .ico{font-size:20px}
+.file-chip .info{flex:1;min-width:0}
+.file-chip .name{font-weight:700;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-chip .meta{font-size:10px;color:#64748b;margin-top:2px}
+.file-chip .x{background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:2px 6px}
+.file-chip .x:hover{color:#E8001C}
+
+.actions{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+.btn{background:#E8001C;color:#fff;border:none;padding:12px 22px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn:disabled{background:#cbd5e1;cursor:not-allowed}
+.btn:not(:disabled):hover{background:#a30014}
+.btn.sec{background:#1e293b}
+.btn.sec:hover{background:#0f172a}
+
+/* DASHBOARD */
+.dash{display:none}
+.dash.on{display:block}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.05);border-left:4px solid #E8001C}
+.kpi.g{border-left-color:#10b981}.kpi.b{border-left-color:#3b82f6}.kpi.a{border-left-color:#f59e0b}
+.kpi .l{font-size:10px;color:#64748b;text-transform:uppercase;font-weight:700;letter-spacing:.5px;margin-bottom:4px}
+.kpi .v{font-size:22px;font-weight:900;color:#1e293b;line-height:1.1}
+.kpi .d{font-size:11px;margin-top:4px;font-weight:700}
+.kpi .d.up{color:#10b981}.kpi .d.down{color:#E8001C}.kpi .d.flat{color:#64748b}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.card h3{font-size:13px;font-weight:800;color:#1e293b;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card h3 .mes{background:#eff6ff;color:#1e40af;padding:2px 8px;border-radius:10px;font-size:10px;letter-spacing:.5px;margin-left:auto}
+.chart-wrap{position:relative;height:280px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;padding:7px 8px;background:#f8fafc;color:#64748b;font-size:10px;text-transform:uppercase;font-weight:700;letter-spacing:.3px;border-bottom:2px solid #e2e8f0;white-space:nowrap}
+th.n{text-align:right}
+td{padding:7px 8px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+td.pos{width:22px;text-align:center;color:#94a3b8;font-weight:800}
+td.pos.p1{color:#f59e0b}td.pos.p2{color:#64748b}td.pos.p3{color:#ea580c}
+tr.me td{background:#fffbeb}
+.trend{display:inline-block;padding:1px 6px;border-radius:5px;font-size:10px;font-weight:800}
+.trend.up{background:#dcfce7;color:#166534}
+.trend.down{background:#fee2e2;color:#991b1b}
+.trend.flat{background:#f1f5f9;color:#64748b}
+.trend.new{background:#dbeafe;color:#1e40af}
+.trend.out{background:#fef3c7;color:#92400e}
+.scroll{overflow:auto;max-height:420px}
+
+.bar{display:inline-block;height:14px;background:#3b82f6;border-radius:3px;vertical-align:middle;margin-right:5px;min-width:1px}
+.bar.g{background:#10b981}
+
+.fid-mark{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.fid-ok{background:#10b981}.fid-mid{background:#f59e0b}.fid-low{background:#E8001C}
+
+.months-chip{display:inline-flex;gap:8px;margin-top:4px}
+.chip{background:#1e293b;color:#fff;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700}
+
+.empty{text-align:center;padding:40px;color:#94a3b8}
+.err-msg{background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:8px;font-size:12px;margin-top:10px}
+
+/* Instrucciones */
+.hint{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:11px;color:#1e40af;margin-top:10px;line-height:1.5}
+.hint strong{color:#1e3a8a}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <h1>📊 Comparador de Ventas y Fidelización</h1>
+  <div class="sub">EDS TERPEL AV. BOYACÁ — Compara 2 meses automáticamente</div>
+</div>
+
+<div class="upload-card" id="upcard">
+  <h2>📁 Suba sus archivos (de 1 a 4)</h2>
+  <div class="drop" id="drop" onclick="document.getElementById('fi').click()">
+    <div class="icon">📄</div>
+    <div class="t1">Arrastre aquí sus archivos de Excel</div>
+    <div class="t2">o haga clic para seleccionarlos</div>
+    <button class="btn-pick" onclick="event.stopPropagation();document.getElementById('fi').click()">Seleccionar archivos</button>
+    <input type="file" id="fi" accept=".xlsx,.xls" multiple onchange="onFiles(event.target.files)">
+  </div>
+
+  <div class="hint">
+    <strong>Formatos aceptados:</strong> archivos con una pestaña de ventas y otra de fidelizadas (como su "VENTAS Y FIDELIZADAS MES.xlsx"), o pestañas separadas. El sistema detecta automáticamente cuál es cuál y a qué mes pertenece cada uno.
+  </div>
+
+  <div class="files" id="files"></div>
+  <div id="err-box"></div>
+
+  <div class="actions">
+    <button class="btn" id="btn-proc" disabled onclick="procesar()">Ver comparación →</button>
+    <button class="btn sec" id="btn-clear" onclick="limpiar()" style="display:none">🧹 Empezar de nuevo</button>
+  </div>
+</div>
+
+<div class="dash" id="dash"></div>
+
+</div>
+
+<script>
+let FILES = []; // {name, wb, sheets:[{name,rows,header,type,mes,yearMonth}], mesLabel}
+const charts = {};
+
+// ============ UTILIDADES ============
+function nm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();}
+function fmt(n,d=0){return (+n||0).toLocaleString('es-CO',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function pn(v){
+  if(v===null||v===undefined||v==='')return 0;
+  if(typeof v==='number')return isNaN(v)?0:v;
+  if(v instanceof Date)return 0;
+  const s=String(v).trim().replace(/[$\s%]/g,'');
+  if(!s||s==='-')return 0;
+  if(s.includes('.')&&s.includes(',')){
+    const ld=s.lastIndexOf('.'),lc=s.lastIndexOf(',');
+    if(lc>ld)return parseFloat(s.replace(/\./g,'').replace(',','.'))||0;
+    return parseFloat(s.replace(/,/g,''))||0;
+  }
+  if(s.includes(',')&&!s.includes('.')){
+    const p=s.split(',');
+    if(p.length>1&&p[p.length-1].length===3)return parseFloat(s.replace(/,/g,''))||0;
+    return parseFloat(s.replace(',','.'))||0;
+  }
+  return parseFloat(s)||0;
+}
+const MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MESES_LARGO=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+// ============ CARGA DE ARCHIVOS ============
+const drop=document.getElementById('drop');
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag');}));
+drop.addEventListener('drop',e=>{if(e.dataTransfer.files)onFiles(e.dataTransfer.files);});
+
+async function onFiles(list){
+  const err=document.getElementById('err-box');err.innerHTML='';
+  for(const f of list){
+    if(FILES.length>=4){err.innerHTML='<div class="err-msg">Máximo 4 archivos.</div>';break;}
+    if(FILES.some(x=>x.name===f.name)) continue;
+    try{
+      const buf=await f.arrayBuffer();
+      const wb=XLSX.read(buf,{type:'array',cellDates:true});
+      const sheets=wb.SheetNames.map(sn=>analizarPestana(wb.Sheets[sn],sn));
+      FILES.push({name:f.name,wb,sheets});
+    }catch(ex){
+      err.innerHTML+=`<div class="err-msg">Error leyendo ${f.name}: ${ex.message}</div>`;
+    }
+  }
+  render();
+}
+
+// Analiza una pestaña y devuelve su tipo (ventas/fidelizadas) + mes
+function analizarPestana(sheet,sheetName){
+  const rows=XLSX.utils.sheet_to_json(sheet,{raw:true,defval:'',header:1});
+  if(!rows.length)return{name:sheetName,rows:[],header:[],type:'vacia'};
+  // buscar header en primeras 5 filas (la fila con más strings reconocibles)
+  let headerIdx=0,bestScore=-1;
+  const keywords=['promotor','cantidad','estacion','estación','fecha','hora','producto','isla','surtidor','t venta','medio','consecutivo','tanque'];
+  for(let i=0;i<Math.min(6,rows.length);i++){
+    const r=rows[i];if(!r)continue;
+    let score=0;
+    r.forEach(c=>{const s=nm(c);if(keywords.some(k=>s===k||s.startsWith(k)))score++;});
+    if(score>bestScore){bestScore=score;headerIdx=i;}
+  }
+  const header=rows[headerIdx].map(c=>String(c||'').trim());
+  const body=rows.slice(headerIdx+1).filter(r=>r&&r.some(c=>c!==null&&c!==''));
+
+  // detectar tipo: FIDELIZADAS suele tener "T VENTA", VENTAS tiene "SURTIDOR"+"CONSECUTIVO"
+  const hNorm=header.map(nm);
+  let type='ventas';
+  if(hNorm.some(h=>h==='t venta'||h.includes('t venta'))) type='fidelizadas';
+  else if(nm(sheetName).includes('fideliz')) type='fidelizadas';
+  else if(hNorm.includes('consecutivo de factura')||hNorm.includes('surtidor')) type='ventas';
+
+  // detectar mes: mirar columna FECHA
+  const iFech=hNorm.findIndex(h=>h==='fecha'||h.includes('fecha'));
+  let mesLbl='?',yearMonth='?';
+  if(iFech>=0){
+    const conteo={};
+    for(const r of body){
+      const v=r[iFech];if(!v)continue;
+      let d=null;
+      if(v instanceof Date) d=v;
+      else{
+        const s=String(v).trim();
+        // yyyy/mm/dd o yyyy-mm-dd o dd/mm/yyyy
+        const m1=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+        const m2=s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if(m1) d=new Date(+m1[1],+m1[2]-1,+m1[3]);
+        else if(m2) d=new Date(+m2[3],+m2[2]-1,+m2[1]);
+      }
+      if(d&&!isNaN(d)){
+        const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        conteo[k]=(conteo[k]||0)+1;
+      }
+      if(Object.keys(conteo).length>5)break;
+    }
+    const top=Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0];
+    if(top){
+      yearMonth=top[0];
+      const [y,m]=top[0].split('-');
+      mesLbl=MESES_LARGO[+m-1]+' '+y;
+    }
+  }
+  // fallback: nombre de pestaña o archivo
+  if(mesLbl==='?'){
+    const sn=nm(sheetName);
+    for(let i=0;i<12;i++) if(sn.includes(nm(MESES_LARGO[i])))mesLbl=MESES_LARGO[i];
+  }
+
+  return{name:sheetName,rows:body,header,type,mesLabel:mesLbl,yearMonth};
+}
+
+function render(){
+  const fdiv=document.getElementById('files');
+  fdiv.innerHTML=FILES.map((f,i)=>{
+    const sn=f.sheets.map(s=>`<span class="chip" style="background:${s.type==='fidelizadas'?'#3b82f6':'#E8001C'};font-size:10px;padding:2px 8px">${s.type==='fidelizadas'?'🎯 Fidelizadas':'⛽ Ventas'} · ${s.mesLabel}</span>`).join(' ');
+    return`<div class="file-chip ok"><span class="ico">📄</span><div class="info"><div class="name">${f.name}</div><div class="meta">${f.sheets.length} pestaña(s) · ${sn}</div></div><button class="x" onclick="quitarFile(${i})">×</button></div>`;
+  }).join('');
+  document.getElementById('btn-proc').disabled = FILES.length===0;
+  document.getElementById('btn-clear').style.display = FILES.length?'inline-block':'none';
+}
+
+function quitarFile(i){FILES.splice(i,1);render();}
+function limpiar(){FILES=[];render();document.getElementById('dash').classList.remove('on');document.getElementById('fi').value='';}
+
+// ============ PROCESAMIENTO ============
+function procesar(){
+  // Agrupar pestañas por mes
+  const porMes={}; // yearMonth → {label, ventas:sheet, fidelizadas:sheet}
+  for(const f of FILES){
+    for(const s of f.sheets){
+      if(s.type==='vacia')continue;
+      const key=s.yearMonth||s.mesLabel||'desconocido';
+      porMes[key]=porMes[key]||{label:s.mesLabel,yearMonth:s.yearMonth};
+      porMes[key][s.type]=s;
+    }
+  }
+  const mesesOrd=Object.keys(porMes).sort();
+  if(!mesesOrd.length){
+    document.getElementById('err-box').innerHTML='<div class="err-msg">No pude detectar datos válidos en los archivos.</div>';
+    return;
+  }
+
+  // Calcular stats por mes
+  const stats={};
+  mesesOrd.forEach(k=>{stats[k]=calcularMes(porMes[k]);stats[k].label=porMes[k].label;});
+
+  dibujar(mesesOrd, stats);
+  document.getElementById('dash').classList.add('on');
+  document.getElementById('dash').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function calcularMes(mes){
+  const result={promotores:{},totGalones:0,totFideli:0,totTx:0,diasActivos:new Set(),mixProducto:{}};
+
+  // Ventas
+  if(mes.ventas){
+    const h=mes.ventas.header.map(nm);
+    const iProm=h.findIndex(x=>x==='promotor');
+    const iCant=h.findIndex(x=>x==='cantidad');
+    const iProd=h.findIndex(x=>x==='producto');
+    const iFech=h.findIndex(x=>x==='fecha'||x.includes('fecha'));
+    for(const r of mes.ventas.rows){
+      if(iProm<0||iCant<0)break;
+      const p=String(r[iProm]||'').trim();
+      if(!p||p.length<2)continue; // IGNORA filas sin promotor (son subtotales)
+      const g=pn(r[iCant]);
+      if(!result.promotores[p])result.promotores[p]={nombre:p,galones:0,fideli:0,tx:0,fTx:0};
+      result.promotores[p].galones+=g;
+      result.promotores[p].tx+=1;
+      result.totGalones+=g;
+      result.totTx+=1;
+      if(iProd>=0){
+        const prod=String(r[iProd]||'').toUpperCase();
+        let cat='Otro';
+        if(/EXTRA|PREMIUM|SUPER/.test(prod))cat='Extra';
+        else if(/BIO|DIESEL|ACPM/.test(prod))cat='Diesel';
+        else if(/CORRIENTE|REGULAR/.test(prod))cat='Corriente';
+        result.mixProducto[cat]=(result.mixProducto[cat]||0)+g;
+      }
+      if(iFech>=0){
+        const v=r[iFech];
+        if(v instanceof Date)result.diasActivos.add(v.toDateString());
+        else if(v)result.diasActivos.add(String(v).trim());
+      }
+    }
+  }
+  // Fidelizadas
+  if(mes.fidelizadas){
+    const h=mes.fidelizadas.header.map(nm);
+    const iProm=h.findIndex(x=>x==='promotor');
+    const iCant=h.findIndex(x=>x==='cantidad');
+    for(const r of mes.fidelizadas.rows){
+      if(iProm<0||iCant<0)break;
+      const p=String(r[iProm]||'').trim();
+      if(!p||p.length<2)continue;
+      const g=pn(r[iCant]);
+      if(!result.promotores[p])result.promotores[p]={nombre:p,galones:0,fideli:0,tx:0,fTx:0};
+      result.promotores[p].fideli+=g;
+      result.promotores[p].fTx+=1;
+      result.totFideli+=g;
+    }
+  }
+  // % de fidelización por promotor
+  Object.values(result.promotores).forEach(p=>{
+    p.pctFideli = p.galones>0 ? (p.fideli/p.galones*100) : 0;
+  });
+  result.pctFideli = result.totGalones>0 ? (result.totFideli/result.totGalones*100) : 0;
+  result.nPromotores = Object.keys(result.promotores).length;
+  return result;
+}
+
+// ============ RENDERIZADO DEL DASHBOARD ============
+function dibujar(meses, stats){
+  // Destruir charts previos
+  Object.values(charts).forEach(c=>c&&c.destroy&&c.destroy());
+
+  const esCompara = meses.length>=2;
+  const mA=meses[0], mB=meses[1];
+  const sA=stats[mA], sB=esCompara?stats[mB]:null;
+
+  // KPIs
+  function delta(v1,v2){
+    if(!v2||!v1)return{txt:'',cls:'flat'};
+    const d=((v1-v2)/v2)*100;
+    const sign=d>0?'▲':d<0?'▼':'=';
+    const cls=d>0?'up':d<0?'down':'flat';
+    return{txt:`${sign} ${Math.abs(d).toFixed(1)}% vs ${sB.label.split(' ')[0]}`,cls};
+  }
+
+  let html='';
+  // Encabezado con chips de meses
+  html+=`<div style="margin-bottom:14px">
+    <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;letter-spacing:1px">Meses analizados</div>
+    <div class="months-chip">${meses.map(m=>`<span class="chip">${stats[m].label}</span>`).join('')}</div>
+  </div>`;
+
+  // KPIs principales (mes más reciente)
+  const dG=esCompara?delta(sA.totGalones,sB.totGalones):{txt:'',cls:''};
+  const dF=esCompara?delta(sA.pctFideli,sB.pctFideli):{txt:'',cls:''};
+  const dT=esCompara?delta(sA.totTx,sB.totTx):{txt:'',cls:''};
+  html+=`<div class="kpi-grid">
+    <div class="kpi"><div class="l">⛽ Galones vendidos</div><div class="v">${fmt(sA.totGalones)}</div><div class="d ${dG.cls}">${dG.txt||'&nbsp;'}</div></div>
+    <div class="kpi b"><div class="l">🧾 Transacciones</div><div class="v">${fmt(sA.totTx)}</div><div class="d ${dT.cls}">${dT.txt||'&nbsp;'}</div></div>
+    <div class="kpi g"><div class="l">🎯 % Fidelización</div><div class="v">${sA.pctFideli.toFixed(1)}%</div><div class="d ${dF.cls}">${dF.txt||'&nbsp;'}</div></div>
+    <div class="kpi a"><div class="l">👥 Promotores</div><div class="v">${sA.nPromotores}</div><div class="d flat">${sA.label}</div></div>
+  </div>`;
+
+  // Gráfica comparativa de totales por mes
+  if(esCompara){
+    html+=`<div class="card"><h3>📊 Totales por mes</h3><div class="chart-wrap" style="height:220px"><canvas id="ch-totales"></canvas></div></div>`;
+  }
+
+  // Ranking por promotor con comparación
+  html+='<div class="grid2" style="margin-top:14px">';
+  html+=`<div class="card"><h3>🏆 Ranking de galones ${esCompara?'· comparado':''}<span class="mes">${sA.label}</span></h3>${tablaRanking(sA,sB,'galones')}</div>`;
+  html+=`<div class="card"><h3>🎯 Fidelización por promotor<span class="mes">${sA.label}</span></h3>${tablaFideli(sA)}</div>`;
+  html+='</div>';
+
+  // Mix de combustibles
+  if(Object.keys(sA.mixProducto).length){
+    html+=`<div class="grid2">
+      <div class="card"><h3>⛽ Mix de combustibles<span class="mes">${sA.label}</span></h3><div class="chart-wrap"><canvas id="ch-mix"></canvas></div></div>`;
+    if(esCompara){
+      html+=`<div class="card"><h3>📈 Quién subió / quién bajó<span class="mes">vs mes anterior</span></h3>${tablaSubeBajan(sA,sB)}</div>`;
+    } else {
+      html+=`<div class="card"><h3>📋 Resumen</h3><div style="padding:20px;text-align:center;color:#64748b">Suba un segundo archivo (mes diferente) para ver la comparación.</div></div>`;
+    }
+    html+='</div>';
+  }
+
+  document.getElementById('dash').innerHTML=html;
+
+  // Charts
+  if(esCompara) crearChartTotales(meses,stats);
+  if(Object.keys(sA.mixProducto).length) crearChartMix(sA.mixProducto);
+}
+
+function tablaRanking(sA,sB,campo){
+  const listA=Object.values(sA.promotores).sort((a,b)=>b[campo]-a[campo]);
+  const maxV=listA[0]?listA[0][campo]:1;
+  let html=`<div class="scroll"><table><thead><tr><th>#</th><th>Promotor</th><th class="n">${campo==='galones'?'Galones':'Fideli'}</th>${sB?'<th class="n">Antes</th><th>Δ</th>':''}</tr></thead><tbody>`;
+  listA.forEach((p,i)=>{
+    const pos=i+1;
+    const posCls=pos<=3?'p'+pos:'';
+    const bar=Math.round((p[campo]/maxV)*100);
+    let delta='';
+    if(sB){
+      const prev=sB.promotores[p.nombre];
+      if(!prev)delta='<span class="trend new">NUEVO</span>';
+      else{
+        const d=p[campo]-prev[campo];
+        const pct=prev[campo]>0?Math.abs(d/prev[campo]*100):0;
+        if(Math.abs(pct)<2)delta='<span class="trend flat">=</span>';
+        else if(d>0)delta=`<span class="trend up">▲ ${pct.toFixed(0)}%</span>`;
+        else delta=`<span class="trend down">▼ ${pct.toFixed(0)}%</span>`;
+      }
+    }
+    const nombreCorto = p.nombre.length>28 ? p.nombre.substring(0,26)+'…' : p.nombre;
+    html+=`<tr><td class="pos ${posCls}">${pos}</td><td title="${p.nombre}">${nombreCorto}</td>
+      <td class="n"><span class="bar" style="width:${bar}px"></span>${fmt(p[campo])}</td>
+      ${sB?`<td class="n" style="color:#64748b">${sB.promotores[p.nombre]?fmt(sB.promotores[p.nombre][campo]):'—'}</td><td>${delta}</td>`:''}
+    </tr>`;
+  });
+  // ausentes este mes
+  if(sB){
+    const ausentes=Object.values(sB.promotores).filter(p=>!sA.promotores[p.nombre]).sort((a,b)=>b[campo]-a[campo]);
+    ausentes.forEach(p=>{
+      const n = p.nombre.length>28 ? p.nombre.substring(0,26)+'…' : p.nombre;
+      html+=`<tr style="opacity:.55"><td class="pos">—</td><td title="${p.nombre}">${n}</td><td class="n">—</td><td class="n">${fmt(p[campo])}</td><td><span class="trend out">NO ESTÁ</span></td></tr>`;
+    });
+  }
+  html+='</tbody></table></div>';
+  return html;
+}
+
+function tablaFideli(s){
+  const lista=Object.values(s.promotores).filter(p=>p.galones>0).sort((a,b)=>b.pctFideli-a.pctFideli);
+  let html='<div class="scroll"><table><thead><tr><th>Promotor</th><th class="n">% Fideli</th><th class="n">Fidelizados</th></tr></thead><tbody>';
+  lista.forEach(p=>{
+    const pct=p.pctFideli;
+    const cls=pct>=85?'fid-ok':pct>=70?'fid-mid':'fid-low';
+    const n = p.nombre.length>28 ? p.nombre.substring(0,26)+'…' : p.nombre;
+    const bar=Math.round(pct/100*80);
+    html+=`<tr><td title="${p.nombre}"><span class="fid-mark ${cls}"></span>${n}</td>
+      <td class="n"><span class="bar g" style="width:${bar}px"></span>${pct.toFixed(1)}%</td>
+      <td class="n" style="color:#64748b">${fmt(p.fideli)}</td></tr>`;
+  });
+  html+='</tbody></table></div>';
+  return html;
+}
+
+function tablaSubeBajan(sA,sB){
+  const cambios=[];
+  Object.values(sA.promotores).forEach(p=>{
+    const prev=sB.promotores[p.nombre];
+    if(prev && prev.galones>0){
+      const d=p.galones-prev.galones;
+      const pct=(d/prev.galones)*100;
+      cambios.push({nombre:p.nombre,antes:prev.galones,ahora:p.galones,d,pct});
+    }
+  });
+  cambios.sort((a,b)=>b.pct-a.pct);
+  const subieron = cambios.slice(0,5);
+  const bajaron = cambios.slice(-5).reverse();
+  let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px">';
+  html+='<div><div style="font-weight:800;color:#10b981;margin-bottom:5px">▲ MÁS SUBIERON</div>';
+  subieron.forEach(c=>{
+    const n = c.nombre.length>18 ? c.nombre.substring(0,16)+'…' : c.nombre;
+    html+=`<div style="padding:5px 0;border-bottom:1px solid #f1f5f9">${n}<br><span style="color:#10b981;font-weight:800">+${c.pct.toFixed(0)}%</span> <span style="color:#64748b">(${fmt(c.d)} gal)</span></div>`;
+  });
+  html+='</div><div><div style="font-weight:800;color:#E8001C;margin-bottom:5px">▼ MÁS BAJARON</div>';
+  bajaron.forEach(c=>{
+    const n = c.nombre.length>18 ? c.nombre.substring(0,16)+'…' : c.nombre;
+    html+=`<div style="padding:5px 0;border-bottom:1px solid #f1f5f9">${n}<br><span style="color:#E8001C;font-weight:800">${c.pct.toFixed(0)}%</span> <span style="color:#64748b">(${fmt(c.d)} gal)</span></div>`;
+  });
+  html+='</div></div>';
+  return html;
+}
+
+function crearChartTotales(meses,stats){
+  const ctx=document.getElementById('ch-totales');
+  if(!ctx)return;
+  charts.totales=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:meses.map(m=>stats[m].label),
+      datasets:[
+        {label:'Galones vendidos',data:meses.map(m=>stats[m].totGalones),backgroundColor:'#E8001C',borderRadius:6,yAxisID:'y'},
+        {label:'Galones fidelizados',data:meses.map(m=>stats[m].totFideli),backgroundColor:'#10b981',borderRadius:6,yAxisID:'y'},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}},
+      scales:{y:{ticks:{callback:v=>fmt(v)+' gal'}}}
+    }
+  });
+}
+function crearChartMix(mix){
+  const ctx=document.getElementById('ch-mix');
+  if(!ctx)return;
+  const labels=Object.keys(mix),data=Object.values(mix);
+  const col={'Corriente':'#E8001C','Extra':'#f59e0b','Diesel':'#10b981','Otro':'#94a3b8'};
+  charts.mix=new Chart(ctx,{
+    type:'doughnut',
+    data:{labels,datasets:[{data,backgroundColor:labels.map(l=>col[l]||'#64748b'),borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.parsed)+' gal'}}}}
+  });
+}
+</script>
+</body>
+</html>
