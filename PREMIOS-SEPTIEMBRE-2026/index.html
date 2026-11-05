@@ -55,7 +55,34 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
 .meta-caja .meta-regla.verde{background:var(--verde);color:var(--blanco)}
 .meta-caja .meta-regla.rojo{background:var(--rojo-neg);color:var(--blanco)}
 
-.lugares{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+.lugares{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-top:14px}
+.lugar .cont input{text-overflow:unset}
+
+/* Caja de "Se cumplió" — indicador visual grande */
+.cumplio-caja{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+.cumplio-caja .campo{flex:1;min-width:200px;background:#fff;border-radius:14px;padding:12px 16px;border:2px solid var(--aqua)}
+.cumplio-caja .campo .l{font-family:'Fredoka',sans-serif;font-size:11px;color:var(--texto);text-transform:uppercase;font-weight:600;letter-spacing:.5px;margin-bottom:3px}
+.cumplio-caja .campo input{width:100%;border:none;border-bottom:2px dashed var(--rojo);padding:3px 2px;font-family:inherit;font-size:16px;font-weight:700;color:var(--display);background:transparent;outline:none}
+.cumplio-caja .estado-btn{display:flex;gap:6px}
+.cumplio-caja .btn-cumple{padding:10px 20px;border-radius:12px;border:2px solid transparent;cursor:pointer;font-family:'Fredoka',sans-serif;font-weight:700;font-size:13px;background:#fff;color:var(--texto);transition:all .15s}
+.cumplio-caja .btn-cumple:hover{background:#f1f5f9}
+.cumplio-caja .btn-cumple.si.on{background:var(--verde);color:#fff;border-color:var(--verde);box-shadow:0 2px 8px rgba(58,170,53,.3)}
+.cumplio-caja .btn-cumple.no.on{background:var(--rojo-neg);color:#fff;border-color:var(--rojo-neg);box-shadow:0 2px 8px rgba(230,25,58,.3)}
+.estado-grande{text-align:center;padding:14px;border-radius:14px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:17px;margin-top:10px}
+.estado-grande.ok{background:var(--verde);color:#fff}
+.estado-grande.no{background:var(--rojo-neg);color:#fff}
+.estado-grande.pend{background:#fef3c7;color:#92400e}
+
+/* Upload imagen ranking */
+.img-up{border:2px dashed var(--rojo);border-radius:14px;padding:16px;text-align:center;background:#fff5f5;cursor:pointer;margin-top:12px}
+.img-up:hover{background:#ffeaea}
+.img-up input[type=file]{display:none}
+.img-up .ico{font-size:32px;margin-bottom:6px}
+.img-up .t{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:14px}
+.img-up .d{font-size:11px;color:var(--texto);margin-top:3px}
+.img-preview{margin-top:12px;background:#fff;border-radius:14px;padding:10px;border:2px solid var(--amarillo)}
+.img-preview img{max-width:100%;border-radius:10px;display:block;margin:0 auto}
+.img-preview .quitar{display:block;margin:8px auto 0;background:var(--rojo-neg);color:#fff;border:none;padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Fredoka',sans-serif}
 .lugar{background:var(--blanco);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;border:2px solid var(--aqua)}
 .lugar.auto{border-color:var(--verde);background:#f0fff0}
 .lugar.sin{border-color:#fde68a;background:#fffbea;opacity:.75}
@@ -222,14 +249,30 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
 
     <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:14px;margin-top:10px;margin-bottom:8px">🟢 Cada promotor del equipo GNV gana $100.000 si llegamos a la meta</div>
 
-    <div class="lugares">
+    <div class="cumplio-caja">
+      <div class="campo">
+        <div class="l">M³ vendidos este mes</div>
+        <input type="text" placeholder="Ej: 104.478" data-key="gnv_vend" oninput="chkCumple('gnv',130000)">
+      </div>
+      <div class="campo">
+        <div class="l">Meta</div>
+        <input type="text" value="130.000 m³" readonly style="color:var(--rojo);font-weight:700">
+      </div>
+      <div class="estado-btn">
+        <button class="btn-cumple si" data-g="gnv" data-v="si" onclick="setCumple('gnv','si')">✓ Cumplida</button>
+        <button class="btn-cumple no" data-g="gnv" data-v="no" onclick="setCumple('gnv','no')">✗ No cumplida</button>
+      </div>
+    </div>
+    <div class="estado-grande pend" id="est-gnv">Pendiente — ingrese los m³ vendidos o marque Sí/No</div>
+
+    <div class="lugares" style="margin-top:14px">
       <div class="lugar"><div class="num-circ oro">1</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre" data-key="gnv1"></div><div class="premio-box">$100.000</div></div>
       <div class="lugar"><div class="num-circ">2</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre" data-key="gnv2"></div><div class="premio-box">$100.000</div></div>
       <div class="lugar"><div class="num-circ">3</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre" data-key="gnv3"></div><div class="premio-box">$100.000</div></div>
       <div class="lugar"><div class="num-circ">4</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre" data-key="gnv4"></div><div class="premio-box">$100.000</div></div>
       <div class="lugar"><div class="num-circ">5</div><div class="cont"><div class="pos-lbl">Promotor GNV</div><input type="text" placeholder="Nombre" data-key="gnv5"></div><div class="premio-box">$100.000</div></div>
     </div>
-    <div class="nota"><strong>💡 Nota:</strong> Los datos de GNV no vienen en este archivo de líquidos. Llene los nombres del equipo GNV a mano.</div>
+    <div class="nota"><strong>💡 Nota:</strong> Los datos de GNV no vienen en este archivo. Llene los m³ y los nombres a mano.</div>
   </div>
 
   <!-- 4. NPS -->
@@ -248,24 +291,27 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
   <!-- 5. LUBRICANTES -->
   <div style="margin-bottom:6px"><span class="banderin">🛢️ Lubricantes y Aditivos</span></div>
   <div class="card">
-    <div class="card-sub">Meta global en ventas de Mobil + Simoniz. Por cada unidad registrada en POS Terpel <strong>después de las primeras 30</strong>, se pagan $1.000.</div>
+    <div class="card-sub">Meta global de <strong>$20.000.000</strong> en ventas de Mobil + Simoniz. Por cada unidad registrada en POS Terpel <strong>después de las primeras 30</strong>, se pagan $1.000.</div>
 
-    <div class="meta-caja">
-      <div><div class="meta-num" style="font-size:36px"><input type="text" placeholder="18.000.000" data-key="lub_meta" style="width:180px;border:none;border-bottom:3px dashed var(--rojo);background:transparent;color:var(--rojo);font-family:'Bebas Neue',sans-serif;font-size:42px;padding:0 4px;outline:none"></div></div>
-      <div class="meta-lbl">META EN PESOS<br><span style="color:var(--rojo);font-weight:700">DEL MES</span></div>
-      <div class="meta-regla">Si se cumple → $1.000 por unidad extra</div>
-    </div>
-
-    <div class="lugares" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
-      <div class="lugar" style="background:#fff">
-        <div class="num-circ oro">💰</div>
-        <div class="cont">
-          <div class="pos-lbl">Vendido este mes</div>
-          <input type="text" placeholder="Ej: 16.500.000" data-key="lub_vend">
-        </div>
+    <div class="cumplio-caja">
+      <div class="campo">
+        <div class="l">Vendido este mes</div>
+        <input type="text" placeholder="Ej: $16.500.000" data-key="lub_vend" oninput="chkCumple('lub',20000000)">
       </div>
+      <div class="campo">
+        <div class="l">Meta</div>
+        <input type="text" value="$20.000.000" readonly style="color:var(--rojo);font-weight:700">
+      </div>
+      <div class="estado-btn">
+        <button class="btn-cumple si" data-g="lub" data-v="si" onclick="setCumple('lub','si')">✓ Cumplida</button>
+        <button class="btn-cumple no" data-g="lub" data-v="no" onclick="setCumple('lub','no')">✗ No cumplida</button>
+      </div>
+    </div>
+    <div class="estado-grande pend" id="est-lub">Pendiente — ingrese lo vendido o marque Sí/No</div>
+
+    <div class="lugares" style="margin-top:14px">
       <div class="lugar" style="background:#fff">
-        <div class="num-circ">📦</div>
+        <div class="num-circ oro">📦</div>
         <div class="cont">
           <div class="pos-lbl">Unidades vendidas</div>
           <input type="text" placeholder="Ej: 85" data-key="lub_uni">
@@ -274,12 +320,12 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
       <div class="lugar" style="background:#fff">
         <div class="num-circ">🏆</div>
         <div class="cont">
-          <div class="pos-lbl">Bono a repartir</div>
+          <div class="pos-lbl">Bono a repartir (unidades - 30) × $1.000</div>
           <input type="text" placeholder="Ej: $55.000" data-key="lub_bono">
         </div>
       </div>
     </div>
-    <div class="nota"><strong>💡 Nota:</strong> Los datos de lubricantes no vienen en el archivo de ventas. Llene los montos a mano cuando tenga el reporte de POS Terpel.</div>
+    <div class="nota"><strong>💡 Nota:</strong> Los datos de lubricantes no vienen en el archivo de ventas. Llene a mano con el reporte de POS Terpel.</div>
   </div>
 
   <!-- 6. BOLSILLO -->
@@ -287,7 +333,17 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
   <div class="card">
     <div class="card-sub">Reconocimiento especial que entrega la administración — por fuera del esquema oficial.</div>
 
-    <div class="lugares" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+    <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:14px;margin:12px 0 6px">📸 Suba la imagen del Ranking Terpel del mes:</div>
+    <div class="img-up" onclick="document.getElementById('rk-file').click()">
+      <div class="ico">🖼️</div>
+      <div class="t">Haga clic o arrastre aquí la imagen del ranking</div>
+      <div class="d">PNG, JPG o captura de pantalla</div>
+      <input type="file" id="rk-file" accept="image/*" onchange="subirRanking(event)">
+    </div>
+    <div id="rk-preview"></div>
+
+    <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:14px;margin:18px 0 6px">🎁 Reconocimientos especiales:</div>
+    <div class="lugares" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
       <div class="lugar" style="background:#fffbea;border:2px dashed var(--amarillo)">
         <div class="num-circ oro">⭐</div>
         <div class="cont">
@@ -572,6 +628,65 @@ function rellenar(d){
   guardar();
 }
 
+// Estado de "Cumplida / No cumplida" para GNV y Lubricantes
+const estadoMeta={};
+function setCumple(grupo,valor){
+  estadoMeta[grupo]=valor;
+  // activar/desactivar botones
+  document.querySelectorAll('.btn-cumple[data-g="'+grupo+'"]').forEach(b=>{
+    b.classList.toggle('on', b.dataset.v===valor);
+  });
+  // actualizar la caja grande
+  const el=document.getElementById('est-'+grupo);
+  if(el){
+    el.classList.remove('ok','no','pend');
+    if(valor==='si'){el.classList.add('ok');el.textContent='✓ ¡META CUMPLIDA!';}
+    else if(valor==='no'){el.classList.add('no');el.textContent='✗ META NO CUMPLIDA';}
+    else{el.classList.add('pend');el.textContent='Pendiente';}
+  }
+  guardar();
+}
+// Auto-detectar cumplimiento desde el input numérico
+function chkCumple(grupo,meta){
+  const inp=document.querySelector('input[data-key="'+grupo+'_vend"]');
+  if(!inp)return;
+  const v=parseFloat(String(inp.value).replace(/[^0-9.-]/g,'').replace(/\./g,'').replace(/,/g,'.'));
+  if(!isNaN(v)&&v>0){
+    setCumple(grupo, v>=meta?'si':'no');
+  }
+}
+function cargarCumple(){
+  ['gnv','lub'].forEach(g=>{
+    const v=estadoMeta[g];
+    if(v){setCumple(g,v);}
+  });
+}
+
+// Subir imagen del ranking Terpel
+function subirRanking(e){
+  const f=e.target.files&&e.target.files[0];
+  if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const dataUrl=ev.target.result;
+    document.getElementById('rk-preview').innerHTML=`<div class="img-preview"><img src="${dataUrl}"><button class="quitar" onclick="quitarRanking()">Quitar imagen</button></div>`;
+    try{localStorage.setItem('ranking_img',dataUrl);}catch(e){alert('Imagen muy grande para guardar en el navegador. Igual se verá en esta sesión.');}
+    mostrarGuardado();
+  };
+  reader.readAsDataURL(f);
+}
+function quitarRanking(){
+  document.getElementById('rk-preview').innerHTML='';
+  document.getElementById('rk-file').value='';
+  try{localStorage.removeItem('ranking_img');}catch(e){}
+}
+function cargarRanking(){
+  try{
+    const img=localStorage.getItem('ranking_img');
+    if(img){document.getElementById('rk-preview').innerHTML=`<div class="img-preview"><img src="${img}"><button class="quitar" onclick="quitarRanking()">Quitar imagen</button></div>`;}
+  }catch(e){}
+}
+
 function imprimir(){
   document.querySelectorAll('input').forEach(i=>{
     if(i.value)i.setAttribute('value',i.value);else i.setAttribute('value','');
@@ -597,7 +712,7 @@ function mostrarGuardado(){
   m._t=setTimeout(()=>{m.style.opacity='0';},1200);
 }
 function guardar(){
-  const data={};
+  const data={cumple:estadoMeta};
   document.querySelectorAll('input[data-key]').forEach(i=>data[i.dataset.key]=i.value);
   try{localStorage.setItem('premios_mes',JSON.stringify(data));mostrarGuardado();}catch(e){}
 }
@@ -605,10 +720,12 @@ function cargar(){
   try{
     const d=JSON.parse(localStorage.getItem('premios_mes')||'{}');
     document.querySelectorAll('input[data-key]').forEach(i=>{if(d[i.dataset.key])i.value=d[i.dataset.key];});
+    if(d.cumple){Object.assign(estadoMeta,d.cumple);['gnv','lub'].forEach(g=>{if(estadoMeta[g])setCumple(g,estadoMeta[g]);});}
   }catch(e){}
 }
 document.querySelectorAll('input').forEach(i=>i.addEventListener('input',guardar));
 cargar();
+cargarRanking();
 </script>
 </body>
 </html>
