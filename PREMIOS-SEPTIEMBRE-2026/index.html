@@ -486,31 +486,76 @@ function rellenar(d){
   if(metaOk){me.textContent='✓ Meta cumplida ('+fmt(Math.round(d.totalGal))+' gal)';me.className='meta-regla verde';}
   else{me.textContent='✗ Faltaron '+fmt(Math.round(-diffMeta))+' gal';me.className='meta-regla rojo';}
 
-  // TOP 5 LÍQUIDOS: ordenar por galones, filtrar por fideli >= 85%
-  const porGal = Object.values(d.promotores).sort((a,b)=>b.galones-a.galones);
-  const top5 = porGal.slice(0,5);
-  top5.forEach((p,i)=>{
+  // TOP 5 LÍQUIDOS — DOS CONDICIONES:
+  // 1) Meta GLOBAL 355.420 debe cumplirse (sí o sí). Si no → nadie gana.
+  // 2) Entre los que cumplen fideli >= 85%, los 5 que más vendan.
+  const todosPorGal = Object.values(d.promotores).sort((a,b)=>b.galones-a.galones);
+  const elegibles = todosPorGal.filter(p => p.pctFideli >= 85);
+  const top5Elegibles = elegibles.slice(0,5);
+
+  for(let i=0; i<5; i++){
     const k='liq'+(i+1);
     const inp=document.querySelector('input[data-key="'+k+'"]');
-    if(!inp)return;
+    if(!inp)continue;
     const lugar=inp.closest('.lugar');
     const cont=inp.closest('.cont');
-    // Limpiar info previa
-    const prevInfo=cont.querySelector('.auto-info');if(prevInfo)prevInfo.remove();
-    inp.value=p.nombre;
-    const cumple=p.pctFideli>=85;
-    lugar.classList.remove('auto','sin');
-    lugar.classList.add(cumple?'auto':'sin');
-    // Agregar info debajo
-    const info=document.createElement('div');
-    info.className='auto-info detalle';
-    info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli <span class="${cumple?'ok':'fail'}">${p.pctFideli.toFixed(1)}%</span> ${cumple?'✓ GANA':'✗ NO LLEGÓ'}`;
-    cont.appendChild(info);
-    // Si no cumple, marcar premio tachado
     const premio=lugar.querySelector('.premio-box');
-    if(!cumple){premio.classList.add('anulado');premio.title='No cumple 85% de fidelización';}
-    else{premio.classList.remove('anulado');premio.title='';}
-  });
+    const prevInfo=cont.querySelector('.auto-info');if(prevInfo)prevInfo.remove();
+    lugar.classList.remove('auto','sin');
+    premio.classList.remove('anulado');
+
+    if(!metaOk){
+      // Meta global no cumplida → nadie gana, mostramos top 5 brutos como referencia
+      const p = todosPorGal[i];
+      if(p){
+        inp.value = p.nombre;
+        lugar.classList.add('sin');
+        premio.classList.add('anulado');
+        const info=document.createElement('div');info.className='auto-info detalle';
+        info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli ${p.pctFideli.toFixed(1)}% · <span class="fail">✗ META GLOBAL NO CUMPLIDA</span>`;
+        cont.appendChild(info);
+      }else{inp.value='';}
+    } else {
+      // Meta sí cumplida → tomar del subconjunto con fideli >= 85
+      const p = top5Elegibles[i];
+      if(p){
+        inp.value = p.nombre;
+        lugar.classList.add('auto');
+        const info=document.createElement('div');info.className='auto-info detalle';
+        info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli <span class="ok">${p.pctFideli.toFixed(1)}%</span> ✓ GANA $200.000`;
+        cont.appendChild(info);
+      } else {
+        // No hay suficientes elegibles para llenar el puesto
+        inp.value='';
+        lugar.classList.add('sin');
+        premio.classList.add('anulado');
+        const info=document.createElement('div');info.className='auto-info detalle';
+        info.innerHTML=`<span class="fail">Puesto vacío — no hay más promotores con fideli ≥85%</span>`;
+        cont.appendChild(info);
+      }
+    }
+  }
+
+  // Mostrar aparte el top 5 bruto por galones y top 5 por fideli para transparencia
+  let refBlock = document.getElementById('liq-ref');
+  if(!refBlock){
+    refBlock = document.createElement('div');
+    refBlock.id = 'liq-ref';
+    refBlock.style.cssText = 'margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px';
+    document.getElementById('lugares-liquidos').after(refBlock);
+  }
+  const esMovil = window.matchMedia('(max-width:640px)').matches;
+  if(esMovil) refBlock.style.gridTemplateColumns = '1fr';
+  refBlock.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:12px 14px;border:1px solid #e2e8f0">
+      <div style="font-family:Fredoka,sans-serif;font-weight:700;color:#052D37;font-size:12px;margin-bottom:8px">📊 Top 5 por galones (sin filtro)</div>
+      ${todosPorGal.slice(0,5).map((p,i)=>`<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #f1f5f9"><strong>${i+1}.</strong> ${p.nombre.length>22?p.nombre.substring(0,20)+'…':p.nombre} <span style="color:#64748b">— ${fmt(Math.round(p.galones))} gal · fid ${p.pctFideli.toFixed(0)}%</span></div>`).join('')}
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:12px 14px;border:1px solid #e2e8f0">
+      <div style="font-family:Fredoka,sans-serif;font-weight:700;color:#052D37;font-size:12px;margin-bottom:8px">🎯 Top 5 elegibles (fideli ≥85%)</div>
+      ${top5Elegibles.length ? top5Elegibles.map((p,i)=>`<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #f1f5f9"><strong>${i+1}.</strong> ${p.nombre.length>22?p.nombre.substring(0,20)+'…':p.nombre} <span style="color:#3AAA35">— ${fmt(Math.round(p.galones))} gal · fid ${p.pctFideli.toFixed(0)}% ✓</span></div>`).join('') : '<div style="color:#E6193A;font-size:12px;padding:6px 0">Ningún promotor llegó al 85% de fidelización este mes.</div>'}
+    </div>
+  `;
 
   // TOP 4 EXTRA
   const porExtra = Object.values(d.promotores).filter(p=>p.extra>0).sort((a,b)=>b.extra-a.extra);
@@ -531,8 +576,8 @@ function rellenar(d){
     cont.appendChild(info);
   });
 
-  // Recalcular total líquidos considerando quién cumple
-  const ganLiq = top5.filter(p=>p.pctFideli>=85).length;
+  // Recalcular total líquidos: solo si meta global cumplida, y solo los elegibles (máx 5)
+  const ganLiq = metaOk ? Math.min(5, top5Elegibles.length) : 0;
   document.getElementById('r-liq').textContent = '$'+fmt(ganLiq*200000);
   const totalGeneral = ganLiq*200000 + 260000 + 500000 + 20000;
   document.getElementById('r-total').textContent = '$'+fmt(totalGeneral);
