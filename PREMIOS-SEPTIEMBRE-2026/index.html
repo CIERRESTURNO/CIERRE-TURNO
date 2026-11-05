@@ -83,6 +83,24 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
 .img-preview{margin-top:12px;background:#fff;border-radius:14px;padding:10px;border:2px solid var(--amarillo)}
 .img-preview img{max-width:100%;border-radius:10px;display:block;margin:0 auto}
 .img-preview .quitar{display:block;margin:8px auto 0;background:var(--rojo-neg);color:#fff;border:none;padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Fredoka',sans-serif}
+
+/* Ranking completo */
+.rk-fila{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #f1f5f9}
+.rk-fila .pos{color:#94a3b8;font-weight:800;font-size:11px;text-align:center}
+.rk-fila .pos.p1{color:#f59e0b}
+.rk-fila .nombre{font-size:11px;font-weight:600;color:var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-fila .val{font-size:11px;font-weight:700;color:var(--display);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rk-bar{display:inline-block;height:12px;background:#3b82f6;border-radius:3px;vertical-align:middle;margin-right:5px;min-width:1px}
+.rk-bar.oro{background:var(--rojo)}
+.rk-bar.g{background:var(--verde)}
+.rk-mark{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.rk-mark.ok{background:var(--verde)}
+.rk-mark.mid{background:var(--amarillo)}
+.rk-mark.low{background:var(--rojo-neg)}
+
+@media (max-width:800px){
+  #rankings-box{grid-template-columns:1fr !important}
+}
 .lugar{background:var(--blanco);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;border:2px solid var(--aqua)}
 .lugar.auto{border-color:var(--verde);background:#f0fff0}
 .lugar.sin{border-color:#fde68a;background:#fffbea;opacity:.75}
@@ -296,7 +314,7 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
     <div class="cumplio-caja">
       <div class="campo">
         <div class="l">Vendido este mes</div>
-        <input type="text" placeholder="Ej: $16.500.000" data-key="lub_vend" oninput="chkCumple('lub',20000000)">
+        <input type="text" placeholder="Ej: $16.500.000" data-key="lub_vend" value="$18.781.800" oninput="chkCumple('lub',20000000)">
       </div>
       <div class="campo">
         <div class="l">Meta</div>
@@ -328,7 +346,37 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
     <div class="nota"><strong>💡 Nota:</strong> Los datos de lubricantes no vienen en el archivo de ventas. Llene a mano con el reporte de POS Terpel.</div>
   </div>
 
-  <!-- 6. BOLSILLO -->
+  <!-- 6. UREA Y EXTINTORES (informativo) -->
+  <div style="margin-bottom:6px"><span class="banderin" style="background:var(--petroleo)">📋 Urea y Extintores</span></div>
+  <div class="card">
+    <div class="card-sub">Datos <strong>informativos</strong> del mes — no generan premio directo, pero sirven para la reunión.</div>
+
+    <div class="lugares" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+      <div class="lugar" style="background:#fff">
+        <div class="num-circ" style="background:#e0f2fe;color:#0369a1">💧</div>
+        <div class="cont">
+          <div class="pos-lbl">Urea — vendido este mes</div>
+          <input type="text" data-key="urea_vend" value="$10.106.500">
+        </div>
+      </div>
+      <div class="lugar" style="background:#fff">
+        <div class="num-circ" style="background:#fee2e2;color:#991b1b">🧯</div>
+        <div class="cont">
+          <div class="pos-lbl">Extintores — vendido</div>
+          <input type="text" data-key="ext_vend" value="$594.500">
+        </div>
+      </div>
+      <div class="lugar" style="background:#fff">
+        <div class="num-circ" style="background:#fed7aa;color:#9a3412">📦</div>
+        <div class="cont">
+          <div class="pos-lbl">Extintores — unidades</div>
+          <input type="text" data-key="ext_uni" value="29 unidades">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. BOLSILLO -->
   <div style="margin-bottom:6px"><span class="banderin">💛 Premio de mi bolsillo</span></div>
   <div class="card">
     <div class="card-sub">Reconocimiento especial que entrega la administración — por fuera del esquema oficial.</div>
@@ -369,6 +417,23 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
     </div>
   </div>
 
+  <!-- RANKINGS COMPLETOS DEL EQUIPO -->
+  <div style="margin-bottom:6px"><span class="banderin">📊 Ranking Completo del Equipo</span></div>
+  <div class="card">
+    <div class="card-sub">Para que se vea todo el equipo — se llena automáticamente cuando sube el Excel del mes.</div>
+
+    <div id="rankings-box" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px">
+      <div style="background:#fff;border-radius:16px;padding:16px">
+        <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:15px;margin-bottom:10px">⛽ Galones vendidos por promotor</div>
+        <div id="rk-galones" style="font-size:12px"><div style="color:#94a3b8;padding:20px;text-align:center">Suba el Excel del mes para ver este ranking</div></div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:16px">
+        <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:15px;margin-bottom:10px">🎯 Fidelización por promotor</div>
+        <div id="rk-fideli" style="font-size:12px"><div style="color:#94a3b8;padding:20px;text-align:center">Suba el Excel del mes para ver este ranking</div></div>
+      </div>
+    </div>
+  </div>
+
   <!-- RESUMEN -->
   <div class="resumen">
     <h3>💰 Resumen de bonificaciones</h3>
@@ -376,10 +441,12 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
       <div class="res-it"><div class="l">Top 5 Líquidos ($100k c/u)</div><div class="v" id="r-liq">$500.000</div></div>
       <div class="res-it"><div class="l">Premio Fidelización (Luis Velez)</div><div class="v" id="r-fid">$200.000</div></div>
       <div class="res-it"><div class="l">Ranking Extra</div><div class="v">$260.000</div></div>
-      <div class="res-it"><div class="l">GNV (si se cumple meta)</div><div class="v">$500.000*</div></div>
+      <div class="res-it"><div class="l">GNV (si cumple meta — no cumplió)</div><div class="v" style="color:#E6193A">$0</div></div>
       <div class="res-it"><div class="l">NPS 4° lugar</div><div class="v">$20.000</div></div>
-      <div class="res-it gr"><div class="l">TOTAL BONIFICACIONES EN EFECTIVO</div><div class="v" id="r-total">$1.480.000</div></div>
+      <div class="res-it"><div class="l">Lubricantes ($18.781.800 / $20M)</div><div class="v" style="color:#E6193A">No llegó</div></div>
+      <div class="res-it gr"><div class="l">TOTAL BONIFICACIONES EN EFECTIVO</div><div class="v" id="r-total">$980.000</div></div>
     </div>
+    <div style="font-size:11px;color:#94a3b8;margin-top:12px">Datos informativos no incluidos en bonificaciones: Urea $10.106.500 · Extintores $594.500 (29 unidades)</div>
     <div style="font-size:11px;color:#94a3b8;margin-top:12px">* GNV: $100.000 × 5 promotores estimados. Ajuste según el equipo real. No incluye NPS en especie ni "premio de mi bolsillo".</div>
   </div>
 
@@ -624,6 +691,31 @@ function rellenar(d){
   document.getElementById('r-fid').textContent = '$'+fmt(ganFid);
   const totalGeneral = ganLiq + ganFid + 260000 + 500000 + 20000;
   document.getElementById('r-total').textContent = '$'+fmt(totalGeneral);
+
+  // ===== RANKINGS COMPLETOS DEL EQUIPO =====
+  const maxGal = todosPorGal[0] ? todosPorGal[0].galones : 1;
+  document.getElementById('rk-galones').innerHTML = todosPorGal.map((p,i)=>{
+    const barW = Math.round((p.galones/maxGal)*100);
+    const cls = i===0?'oro':'';
+    return `<div class="rk-fila">
+      <div class="pos ${i<3?'p1':''}">${i+1}</div>
+      <div class="nombre" title="${p.nombre}">${p.nombre}</div>
+      <div class="val"><span class="rk-bar ${cls}" style="width:${barW}px;max-width:100px"></span>${fmt(Math.round(p.galones))}</div>
+    </div>`;
+  }).join('');
+
+  const porFideli = Object.values(d.promotores).filter(p=>p.galones>0).sort((a,b)=>b.pctFideli-a.pctFideli);
+  document.getElementById('rk-fideli').innerHTML = porFideli.map(p=>{
+    const pct=p.pctFideli;
+    const semCls = pct>=85?'ok':pct>=70?'mid':'low';
+    const estadoTxt = pct>=85?'<span style="color:var(--verde);font-weight:700">Cumple</span>':'<span style="color:var(--amarillo);font-weight:700">Cerca</span>';
+    const barW = Math.round(pct*0.8);
+    return `<div class="rk-fila">
+      <div class="pos"><span class="rk-mark ${semCls}"></span></div>
+      <div class="nombre" title="${p.nombre}">${p.nombre}</div>
+      <div class="val"><span class="rk-bar g" style="width:${barW}px;max-width:100px"></span>${pct.toFixed(1)}% ${estadoTxt}</div>
+    </div>`;
+  }).join('');
 
   guardar();
 }
