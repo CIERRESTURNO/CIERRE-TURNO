@@ -276,9 +276,9 @@ body.presenting .slide-title-bar{display:block}
   <div style="margin-bottom:6px"><span class="banderin">⛽ Meta Líquidos</span></div>
   <div class="card">
     <div class="meta-caja">
-      <div><div class="meta-num">355.420</div></div>
+      <div><div class="meta-num"><input type="text" data-key="meta_liq" value="355.420" placeholder="355.420" style="width:200px;border:none;border-bottom:3px dashed var(--rojo);background:transparent;color:var(--rojo);font-family:'Bebas Neue',sans-serif;font-size:48px;padding:0 4px;outline:none;line-height:1"></div></div>
       <div class="meta-lbl">GALONES DE META<br><span style="color:var(--rojo);font-weight:700">SÍ O SÍ</span></div>
-      <div class="meta-regla" id="meta-estado">Top 5 + fideli &gt; 85%</div>
+      <div class="meta-regla" id="meta-estado">Top 5 ranking</div>
     </div>
 
     <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:14px;margin-top:10px;margin-bottom:8px">🏆 Los 5 que más galones vendieron ganan $100.000 cada uno</div>
@@ -323,11 +323,11 @@ body.presenting .slide-title-bar{display:block}
     <div class="cumplio-caja">
       <div class="campo">
         <div class="l">M³ vendidos este mes</div>
-        <input type="text" placeholder="Ej: 104.478" data-key="gnv_vend" oninput="chkCumple('gnv',130000)">
+        <input type="text" placeholder="Ej: 104.478" data-key="gnv_vend" oninput="chkCumpleAuto('gnv')">
       </div>
       <div class="campo">
-        <div class="l">Meta</div>
-        <input type="text" value="130.000 m³" readonly style="color:var(--rojo);font-weight:700">
+        <div class="l">Meta (m³)</div>
+        <input type="text" value="130.000" data-key="meta_gnv" placeholder="130.000" style="color:var(--rojo);font-weight:700" oninput="chkCumpleAuto('gnv')">
       </div>
       <div class="estado-btn">
         <button class="btn-cumple si" data-g="gnv" data-v="si" onclick="setCumple('gnv','si')">✓ Cumplida</button>
@@ -380,11 +380,11 @@ body.presenting .slide-title-bar{display:block}
     <div class="cumplio-caja">
       <div class="campo">
         <div class="l">Vendido este mes</div>
-        <input type="text" placeholder="Ej: $16.500.000" data-key="lub_vend" value="$18.781.800" oninput="chkCumple('lub',20000000)">
+        <input type="text" placeholder="Ej: $16.500.000" data-key="lub_vend" value="$18.781.800" oninput="chkCumpleAuto('lub')">
       </div>
       <div class="campo">
-        <div class="l">Meta</div>
-        <input type="text" value="$20.000.000" readonly style="color:var(--rojo);font-weight:700">
+        <div class="l">Meta ($)</div>
+        <input type="text" value="$20.000.000" data-key="meta_lub" placeholder="$20.000.000" style="color:var(--rojo);font-weight:700" oninput="chkCumpleAuto('lub')">
       </div>
       <div class="estado-btn">
         <button class="btn-cumple si" data-g="lub" data-v="si" onclick="setCumple('lub','si')">✓ Cumplida</button>
@@ -698,8 +698,9 @@ function rellenar(d){
   // Actualizar título con mes detectado
   document.getElementById('mes-label').textContent=d.mes;
 
-  // Resumen del mes
-  const META_LIQ=355420;
+  // Resumen del mes — leer meta de líquidos del input (editable por mes)
+  const metaLiqInp=document.querySelector('input[data-key="meta_liq"]');
+  const META_LIQ = metaLiqInp ? (parseFloat(String(metaLiqInp.value).replace(/[^0-9.-]/g,'').replace(/\./g,'').replace(/,/g,'.'))||355420) : 355420;
   const diffMeta=d.totalGal-META_LIQ;
   const metaOk=d.totalGal>=META_LIQ;
   const resEl=document.getElementById('resumen-mes');
@@ -836,7 +837,7 @@ function setCumple(grupo,valor){
   }
   guardar();
 }
-// Auto-detectar cumplimiento desde el input numérico
+// Auto-detectar cumplimiento desde el input numérico (meta leída del input de meta)
 function chkCumple(grupo,meta){
   const inp=document.querySelector('input[data-key="'+grupo+'_vend"]');
   if(!inp)return;
@@ -844,6 +845,12 @@ function chkCumple(grupo,meta){
   if(!isNaN(v)&&v>0){
     setCumple(grupo, v>=meta?'si':'no');
   }
+}
+function chkCumpleAuto(grupo){
+  // Lee tanto el vendido como la meta del propio mes
+  const metaInp=document.querySelector('input[data-key="meta_'+grupo+'"]');
+  const meta=metaInp ? parseFloat(String(metaInp.value).replace(/[^0-9.-]/g,'').replace(/\./g,'').replace(/,/g,'.')) : 0;
+  if(!isNaN(meta)&&meta>0) chkCumple(grupo, meta);
 }
 function cargarCumple(){
   ['gnv','lub'].forEach(g=>{
@@ -1206,9 +1213,13 @@ function cargarMes(mesId){
   const m = MESES[mesId];
   if(!m) return;
   MES_ACTUAL = mesId;
-  // Vaciar inputs
+  // Vaciar TODOS los inputs editables (incluyendo metas y lubricantes pre-cargados)
   document.querySelectorAll('input[data-key]').forEach(i=>i.value='');
-  // Cargar campos
+  // Vaciar también las "auto-info" que agrega el procesamiento del Excel (quedan colgando de meses anteriores)
+  document.querySelectorAll('.auto-info').forEach(e=>e.remove());
+  document.querySelectorAll('.lugar').forEach(l=>{l.classList.remove('auto','sin');});
+  document.querySelectorAll('.premio-box.anulado').forEach(p=>p.classList.remove('anulado'));
+  // Cargar campos del mes
   Object.entries(m.campos||{}).forEach(([k,v])=>{
     const inp = document.querySelector('input[data-key="'+k+'"]');
     if(inp) inp.value = v;
@@ -1259,33 +1270,31 @@ function cambiarMes(mesId){
 }
 
 function nuevoMes(){
-  const nombre = prompt('¿Cómo se llama el nuevo mes? (ej: "Octubre 2026")');
+  const nombre = prompt('¿Cómo se llama el nuevo mes?\n\n(ej: "Octubre 2026")');
   if(!nombre || !nombre.trim()) return;
   let id = nombre.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
   if(MESES[id]){ alert('Ya existe un mes con ese nombre.'); return; }
+  // Preguntar las metas del nuevo mes (puede dejarlas en blanco y las edita luego)
+  const metaLiq = prompt(`¿Cuál es la meta de GALONES líquidos para ${nombre.trim()}?\n\n(Ej: 360.000 — puede dejarlo en blanco y editar después)`, '');
+  const metaGnv = prompt(`¿Cuál es la meta de M³ de GNV para ${nombre.trim()}?\n\n(Ej: 130.000 — puede dejarlo en blanco)`, '');
+  const metaLub = prompt(`¿Cuál es la meta de LUBRICANTES para ${nombre.trim()}?\n\n(Ej: $20.000.000 — puede dejarlo en blanco)`, '');
+  // Guardar el mes actual antes de cambiar
   guardarMesActual();
-  MESES[id] = {nombre:nombre.trim(), campos:{}, bolsillos:[], cumple:{}, nps:null, secciones:seccionesDefault(), rankingImg:null};
+  // Crear el nuevo mes vacío con las metas puestas
+  MESES[id] = {
+    nombre:nombre.trim(),
+    campos:{
+      meta_liq: (metaLiq||'').trim(),
+      meta_gnv: (metaGnv||'').trim(),
+      meta_lub: (metaLub||'').trim()
+    },
+    bolsillos:[], cumple:{}, nps:null,
+    secciones:seccionesDefault(), rankingImg:null
+  };
   MES_ACTUAL = id;
-  // Vaciar el estado actual (empezar en limpio)
-  document.querySelectorAll('input[data-key]').forEach(i=>i.value='');
-  bolsillos=[]; renderBolsillos();
-  estadoMeta={};
-  document.querySelectorAll('.btn-cumple').forEach(b=>b.classList.remove('on'));
-  ['gnv','lub'].forEach(g=>{const el=document.getElementById('est-'+g);if(el){el.className='estado-grande pend';el.textContent='Pendiente';}});
-  NPS_DATA=null; NPS_MES_ACTUAL=null;
-  const nsel=document.getElementById('nps-selector');if(nsel)nsel.innerHTML='';
-  const nrk=document.getElementById('nps-ranking-box');if(nrk)nrk.innerHTML='';
-  try{ localStorage.removeItem('ranking_img'); }catch(e){}
-  cargarRanking();
-  // Re-llenar valores por defecto importantes
-  const lubVend = document.querySelector('input[data-key="lub_vend"]');
-  if(lubVend) lubVend.value = '';
-  SECCIONES_ACTIVAS = seccionesDefault();
-  aplicarToggles();
-  const mesLbl = document.getElementById('mes-label');
-  if(mesLbl) mesLbl.textContent = nombre.trim();
-  renderTabs();
-  guardarMesActual();
+  try{ localStorage.setItem('premios_meses', JSON.stringify({meses:MESES, actual:MES_ACTUAL})); }catch(e){}
+  // Cargar el nuevo mes (vaciará todo y pondrá las metas)
+  cargarMes(id);
 }
 
 function borrarMes(mesId){
