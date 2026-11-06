@@ -652,9 +652,10 @@ function rellenar(d){
   if(metaOk){me.textContent='✓ Meta cumplida ('+fmt(Math.round(d.totalGal))+' gal)';me.className='meta-regla verde';}
   else{me.textContent='✗ Faltaron '+fmt(Math.round(-diffMeta))+' gal';me.className='meta-regla rojo';}
 
-  // TOP 5 LÍQUIDOS: los 5 que más galones vendieron → $100.000 c/u (sin filtro de fideli)
+  // TOP 5 LÍQUIDOS: los 5 que más galones vendieron → $100.000 c/u
+  // EXCLUYE a Luis Velez porque ya gana aparte los $200.000 de fidelización
   const todosPorGal = Object.values(d.promotores).sort((a,b)=>b.galones-a.galones);
-  const top5 = todosPorGal.slice(0,5);
+  const top5 = todosPorGal.filter(p => !nm(p.nombre).includes('velez')).slice(0,5);
 
   for(let i=0; i<5; i++){
     const k='liq'+(i+1);
