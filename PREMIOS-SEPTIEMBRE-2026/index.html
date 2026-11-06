@@ -614,12 +614,17 @@ function limpiarArchivo(){
 }
 
 function procesar(wb){
-  // Encontrar pestañas de ventas y fidelizadas — detección tolerante
+  // Encontrar pestañas de ventas y fidelizadas — detección muy tolerante
   let shVentas=null, shFid=null, nombreVentas='', nombreFid='';
+  // Primera pasada: buscar por nombre
   for(const sn of wb.SheetNames){
     const ns=nm(sn);
-    if(ns.includes('fideliz')||ns.includes('fidel')||ns==='hoja2'){ shFid=wb.Sheets[sn]; nombreFid=sn; }
-    else if(ns.includes('venta')){ shVentas=wb.Sheets[sn]; nombreVentas=sn; }
+    if(!shFid && (ns.includes('fideliz')||ns.includes('fidel')||ns.includes('fidelizada')||ns.includes('fidelizadas'))){
+      shFid=wb.Sheets[sn]; nombreFid=sn;
+    }
+    else if(!shVentas && (ns.includes('venta')||ns.includes('ventas'))){
+      shVentas=wb.Sheets[sn]; nombreVentas=sn;
+    }
   }
   if(!shVentas){ shVentas=wb.Sheets[wb.SheetNames[0]]; nombreVentas=wb.SheetNames[0]; }
   if(!shFid && wb.SheetNames.length>1){
@@ -628,6 +633,14 @@ function procesar(wb){
     if(otraSn){ shFid=wb.Sheets[otraSn]; nombreFid=otraSn; }
   }
   console.log('Pestañas detectadas → Ventas:',nombreVentas,'· Fidelizadas:',nombreFid);
+  // Mostrar al usuario qué detectó
+  const infoBox=document.getElementById('file-info');
+  if(infoBox){
+    infoBox.insertAdjacentHTML('beforeend',
+      `<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 12px;font-size:11px;color:#1e40af;margin-top:6px">
+      📋 Pestañas detectadas: <strong>Ventas</strong> = "${nombreVentas||'ninguna'}" · <strong>Fidelizadas</strong> = "${nombreFid||'ninguna'}"
+      </div>`);
+  }
 
   const result={promotores:{},mes:'?',totalGal:0,totalFid:0};
 
@@ -724,11 +737,13 @@ function rellenar(d){
   if(metaOk){me.textContent='✓ Meta cumplida ('+fmt(Math.round(d.totalGal))+' gal)';me.className='meta-regla verde';}
   else{me.textContent='✗ Faltaron '+fmt(Math.round(-diffMeta))+' gal';me.className='meta-regla rojo';}
 
-  // TOP 5 LÍQUIDOS: los 5 que más galones vendieron (INCLUYE a Luis Velez)
-  // Luis Velez gana $200.000 por fidelización (reemplaza los $100k del Top 5)
-  // Los otros 4 ganan $100.000
+  // TOP 5 LÍQUIDOS: los 5 que más galones vendieron CON FIDELIZACIÓN >= 80%
+  // Si alguno tiene fideli >= 85% → gana $200.000 (premio fidelización)
+  // Los demás del Top 5 ganan $100.000
   const todosPorGal = Object.values(d.promotores).sort((a,b)=>b.galones-a.galones);
-  const top5 = todosPorGal.slice(0,5);
+  // Filtrar: solo elegibles con fideli >= 80%
+  const elegibles = todosPorGal.filter(p => p.pctFideli >= 80);
+  const top5 = elegibles.slice(0,5);
 
   for(let i=0; i<5; i++){
     const k='liq'+(i+1);
@@ -745,9 +760,9 @@ function rellenar(d){
     if(p){
       inp.value = p.nombre;
       lugar.classList.add('auto');
-      const esVelez = nm(p.nombre).includes('velez');
-      // Premio: si es Luis Velez, $200.000 (fidelización); los demás $100.000
-      if(esVelez){
+      // Si fideli >= 85% → $200.000 (premio fidelización); si no, $100.000
+      const premioFideli = p.pctFideli >= 85;
+      if(premioFideli){
         premio.textContent = '$200.000';
         premio.style.background = 'var(--amarillo)';
         premio.style.color = 'var(--display)';
@@ -759,9 +774,17 @@ function rellenar(d){
         premio.style.background = '';
         premio.style.color = '';
         const info=document.createElement('div');info.className='auto-info detalle';
-        info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli ${p.pctFideli.toFixed(1)}%`;
+        info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli <span class="ok">${p.pctFideli.toFixed(1)}%</span> ✓ Entre 80-85%`;
         cont.appendChild(info);
       }
+    } else {
+      // No hay más elegibles para este puesto
+      inp.value='';
+      lugar.classList.add('sin');
+      premio.classList.add('anulado');
+      const info=document.createElement('div');info.className='auto-info detalle';
+      info.innerHTML=`<span class="fail">Puesto vacío — no hay más promotores con fideli ≥80%</span>`;
+      cont.appendChild(info);
     }
   }
 
@@ -875,23 +898,36 @@ let NPS_MES_ACTUAL = null;
 
 async function onNPSFile(f){
   if(!f)return;
+  const errBox = document.getElementById('nps-selector');
+  if(errBox) errBox.innerHTML = '<div style="padding:8px 12px;background:#fef3c7;border-radius:8px;font-size:12px;color:#92400e">⏳ Procesando '+f.name+'...</div>';
   try{
     const buf=await f.arrayBuffer();
     const wb=XLSX.read(buf,{type:'array',cellDates:true});
     const sh=wb.Sheets[wb.SheetNames[0]];
     const rows=XLSX.utils.sheet_to_json(sh,{raw:true,defval:'',header:1});
-    if(!rows.length){alert('El archivo NPS está vacío.');return;}
+    if(!rows.length){
+      if(errBox) errBox.innerHTML='<div style="padding:8px 12px;background:#fee2e2;border-radius:8px;color:#991b1b;font-size:12px">⚠️ El archivo NPS está vacío.</div>';
+      return;
+    }
     const header=rows[0].map(c=>String(c||'').trim());
     const hN=header.map(nm);
-    const iProm=hN.findIndex(h=>h==='promotor');
-    if(iProm<0){alert('No encontré la columna PROMOTOR en el archivo NPS.');return;}
+    // Buscar columna PROMOTOR (tolerante)
+    let iProm=hN.findIndex(h=>h==='promotor');
+    if(iProm<0) iProm=hN.findIndex(h=>h.includes('promotor')||h.includes('nombre'));
+    if(iProm<0){
+      if(errBox) errBox.innerHTML='<div style="padding:8px 12px;background:#fee2e2;border-radius:8px;color:#991b1b;font-size:12px">⚠️ No encontré columna PROMOTOR. Columnas detectadas: '+header.join(' · ')+'</div>';
+      return;
+    }
     // columnas de meses: todas las demás que tengan datos numéricos
     const mesCols=[];
     for(let i=0;i<header.length;i++){
       if(i===iProm)continue;
       if(header[i])mesCols.push({idx:i,nombre:header[i].trim()});
     }
-    if(!mesCols.length){alert('No encontré columnas de meses en el archivo NPS.');return;}
+    if(!mesCols.length){
+      if(errBox) errBox.innerHTML='<div style="padding:8px 12px;background:#fee2e2;border-radius:8px;color:#991b1b;font-size:12px">⚠️ No encontré columnas de meses. Solo encontré: '+header.join(' · ')+'</div>';
+      return;
+    }
     const registros=[];
     for(let i=1;i<rows.length;i++){
       const r=rows[i];if(!r)continue;
