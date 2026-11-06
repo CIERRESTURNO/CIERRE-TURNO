@@ -520,7 +520,7 @@ body.presenting .slide-title-bar{display:block}
       <div class="res-it" style="display:none"><div class="l">Premio Fidelización</div><div class="v" id="r-fid">$0</div></div>
       <div class="res-it"><div class="l">Ranking Extra</div><div class="v">$260.000</div></div>
       <div class="res-it"><div class="l">GNV (si cumple meta — no cumplió)</div><div class="v" style="color:#E6193A">$0</div></div>
-      <div class="res-it"><div class="l">Premios NPS (3 en especie + efectivo)</div><div class="v">$250.000</div></div>
+      <div class="res-it" id="res-nps"><div class="l" id="res-nps-lbl">Premios NPS (3 en especie + efectivo)</div><div class="v" id="res-nps-val">$250.000</div></div>
       <div class="res-it"><div class="l">Lubricantes ($18.781.800 / $20M)</div><div class="v" style="color:#E6193A">No llegó</div></div>
       <div class="res-it"><div class="l">Premio de mi bolsillo</div><div class="v" id="r-bols">$0</div></div>
       <div class="res-it gr"><div class="l">TOTAL BONIFICACIONES</div><div class="v" id="r-total">$1.610.000</div></div>
@@ -1024,28 +1024,70 @@ function renderNPSRanking(){
   const ordenado = [...NPS_DATA.registros]
     .filter(r => (r[mes]||0) > 0)
     .sort((a,b)=>(b[mes]||0)-(a[mes]||0));
-  // Auto-rellenar Top 4
+
+  // Regla NPS según el mes (basado en el nombre del mes NPS activo)
+  // SEPTIEMBRE: premios en especie fijos + $20.000 al 4°
+  // OCTUBRE:    $50.000 a cada uno de los 4 PRIMEROS, pero SOLO si el equipo total hizo ≥1.600 encuestas
+  const esOctubre = mes.toLowerCase().includes('octubre') || mes.toLowerCase().includes('oct');
+  const META_OCTUBRE = 1600;
+  const totalEncuestasMes = ordenado.reduce((s,r)=>s+r[mes],0);
+  const metaCumplida = totalEncuestasMes >= META_OCTUBRE;
+
+  // Auto-rellenar Top 4 + ajustar premios según regla
   const top4=ordenado.slice(0,4);
+  const PREMIOS_SEP = [
+    '🎬 2 boletas de cine con combo',
+    '🍔 Combo hamburguesa, papas y gaseosa',
+    '🍺 1 Six-pack cervecero',
+    '$20.000'
+  ];
   for(let i=0;i<4;i++){
     const inp=document.querySelector('input[data-key="nps'+(i+1)+'"]');
     if(!inp)continue;
+    const lugar=inp.closest('.lugar');
+    const cont=inp.closest('.cont');
+    const premio=lugar.querySelector('.premio-box');
+    const prev=cont.querySelector('.auto-info');if(prev)prev.remove();
+    premio.classList.remove('anulado');
+
     if(top4[i]){
       inp.value = top4[i].nombre;
-      const lugar=inp.closest('.lugar');
       lugar.classList.remove('sin');
       lugar.classList.add('auto');
-      const cont=inp.closest('.cont');
-      const prev=cont.querySelector('.auto-info');if(prev)prev.remove();
+      // Ajustar premio según la regla
+      if(esOctubre){
+        premio.textContent = '$50.000';
+        premio.classList.remove('esp');
+        if(!metaCumplida) premio.classList.add('anulado');
+      } else {
+        premio.textContent = PREMIOS_SEP[i];
+        if(i<3) premio.classList.add('esp');
+      }
       const info=document.createElement('div');info.className='auto-info detalle';
-      info.innerHTML=`<span class="ok">${top4[i][mes]} encuestas ✓</span>`;
+      if(esOctubre && !metaCumplida){
+        info.innerHTML=`<span class="fail">${top4[i][mes]} encuestas · ✗ meta equipo NO cumplida</span>`;
+      } else {
+        info.innerHTML=`<span class="ok">${top4[i][mes]} encuestas ✓</span>`;
+      }
       cont.appendChild(info);
+    } else {
+      inp.value='';
+      lugar.classList.remove('auto');
     }
   }
+
+  // Banner de meta de octubre
+  const metaBanner = esOctubre ? `
+    <div style="margin-top:14px;padding:14px 18px;border-radius:14px;background:${metaCumplida?'var(--verde)':'var(--rojo-neg)'};color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;text-align:center;font-size:15px">
+      ${metaCumplida?'✓ META EQUIPO CUMPLIDA':'✗ META EQUIPO NO CUMPLIDA'} — ${fmt(totalEncuestasMes)} / 1.600 encuestas
+      ${metaCumplida?' · Top 4 gana $50.000 cada uno':' · Nadie gana (meta equipo no alcanzada)'}
+    </div>` : '';
+
   // Tabla completa
   const total=ordenado.reduce((s,r)=>s+r[mes],0);
   const max=ordenado[0]?ordenado[0][mes]:1;
   const box=document.getElementById('nps-ranking-box');
-  box.innerHTML = `
+  box.innerHTML = metaBanner + `
     <div style="margin-top:18px;background:#fff;border-radius:16px;padding:16px;border:2px solid var(--amarillo)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
         <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:15px">📋 Ranking completo NPS — ${mes.trim()}</div>
@@ -1074,6 +1116,27 @@ function renderNPSRanking(){
       </table>
     </div>
   `;
+  // Actualizar la línea de NPS en el Resumen de Bonificaciones
+  const resLbl = document.getElementById('res-nps-lbl');
+  const resVal = document.getElementById('res-nps-val');
+  if(resLbl && resVal){
+    if(esOctubre){
+      if(metaCumplida){
+        resLbl.textContent = 'NPS Octubre (4 × $50.000)';
+        resVal.textContent = '$200.000';
+        resVal.style.color = '';
+      } else {
+        resLbl.textContent = `NPS Octubre — meta no cumplida (${fmt(totalEncuestasMes)}/1.600)`;
+        resVal.textContent = '$0';
+        resVal.style.color = '#E6193A';
+      }
+    } else {
+      resLbl.textContent = 'Premios NPS (3 en especie + $20k al 4°)';
+      resVal.textContent = '$250.000';
+      resVal.style.color = '';
+    }
+  }
+
   // Guardar
   try{localStorage.setItem('nps_data',JSON.stringify({NPS_DATA,NPS_MES_ACTUAL}));}catch(e){}
   guardar();
