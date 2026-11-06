@@ -296,14 +296,27 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
   <!-- 4. NPS -->
   <div style="margin-bottom:6px"><span class="banderin">⭐ Premios NPS</span></div>
   <div class="card">
-    <div class="card-sub">Para los que más encuestas hagan — <strong>sin repetir</strong>.</div>
+    <div class="card-sub">Para los que más encuestas hagan — <strong>sin repetir</strong>. Suba el archivo Excel de NPS y se llenan solos el Top 4 y la tabla completa.</div>
 
+    <!-- Upload NPS -->
+    <div class="drop" id="drop-nps" onclick="document.getElementById('fi-nps').click()" style="margin-bottom:14px;padding:18px">
+      <div class="ico" style="font-size:28px">📄</div>
+      <div class="t1" style="font-size:14px">Suba aquí el Excel de NPS</div>
+      <div class="t2">Columnas: PROMOTOR + mes(es)</div>
+      <button class="btn-pick" style="margin-top:8px;padding:8px 18px;font-size:12px" onclick="event.stopPropagation();document.getElementById('fi-nps').click()">Seleccionar archivo</button>
+      <input type="file" id="fi-nps" accept=".xlsx,.xls" onchange="onNPSFile(event.target.files[0])">
+    </div>
+    <div id="nps-selector"></div>
+
+    <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:14px;margin:12px 0 6px">🏆 Top 4 ganadores NPS</div>
     <div class="lugares">
       <div class="lugar"><div class="num-circ oro">1</div><div class="cont"><div class="pos-lbl">1° NPS</div><input type="text" placeholder="Nombre" data-key="nps1"></div><div class="premio-box esp">🎬 2 boletas de cine con combo</div></div>
       <div class="lugar"><div class="num-circ">2</div><div class="cont"><div class="pos-lbl">2° NPS</div><input type="text" placeholder="Nombre" data-key="nps2"></div><div class="premio-box esp">🍔 Combo hamburguesa, papas y gaseosa</div></div>
       <div class="lugar"><div class="num-circ">3</div><div class="cont"><div class="pos-lbl">3° NPS</div><input type="text" placeholder="Nombre" data-key="nps3"></div><div class="premio-box esp">🍺 1 Six-pack cervecero</div></div>
       <div class="lugar"><div class="num-circ">4</div><div class="cont"><div class="pos-lbl">4° NPS</div><input type="text" placeholder="Nombre" data-key="nps4"></div><div class="premio-box">$20.000</div></div>
     </div>
+
+    <div id="nps-ranking-box"></div>
   </div>
 
   <!-- 5. LUBRICANTES -->
@@ -494,6 +507,13 @@ function pn(v){
   ['dragleave','drop'].forEach(ev=>el.addEventListener(ev,e=>{e.preventDefault();el.classList.remove('drag');}));
   el.addEventListener('drop',e=>{if(e.dataTransfer.files&&e.dataTransfer.files[0])onFile(e.dataTransfer.files[0]);});
 });
+// Drag-drop para NPS
+const dropNps=document.getElementById('drop-nps');
+if(dropNps){
+  ['dragenter','dragover'].forEach(ev=>dropNps.addEventListener(ev,e=>{e.preventDefault();dropNps.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>dropNps.addEventListener(ev,e=>{e.preventDefault();dropNps.classList.remove('drag');}));
+  dropNps.addEventListener('drop',e=>{if(e.dataTransfer.files&&e.dataTransfer.files[0])onNPSFile(e.dataTransfer.files[0]);});
+}
 
 async function onFile(f){
   if(!f)return;
@@ -764,6 +784,135 @@ function cargarCumple(){
   });
 }
 
+// ========== NPS ==========
+let NPS_DATA = null; // {meses:['SEPTIEMBRE','OCTUBRE'], registros:[{nombre, 'SEPTIEMBRE':132, 'OCTUBRE':42}]}
+let NPS_MES_ACTUAL = null;
+
+async function onNPSFile(f){
+  if(!f)return;
+  try{
+    const buf=await f.arrayBuffer();
+    const wb=XLSX.read(buf,{type:'array',cellDates:true});
+    const sh=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(sh,{raw:true,defval:'',header:1});
+    if(!rows.length){alert('El archivo NPS está vacío.');return;}
+    const header=rows[0].map(c=>String(c||'').trim());
+    const hN=header.map(nm);
+    const iProm=hN.findIndex(h=>h==='promotor');
+    if(iProm<0){alert('No encontré la columna PROMOTOR en el archivo NPS.');return;}
+    // columnas de meses: todas las demás que tengan datos numéricos
+    const mesCols=[];
+    for(let i=0;i<header.length;i++){
+      if(i===iProm)continue;
+      if(header[i])mesCols.push({idx:i,nombre:header[i].trim()});
+    }
+    if(!mesCols.length){alert('No encontré columnas de meses en el archivo NPS.');return;}
+    const registros=[];
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i];if(!r)continue;
+      const nombre=String(r[iProm]||'').trim();
+      if(!nombre)continue;
+      const reg={nombre};
+      mesCols.forEach(mc=>{reg[mc.nombre]=parseInt(r[mc.idx])||0;});
+      registros.push(reg);
+    }
+    NPS_DATA = {meses:mesCols.map(m=>m.nombre), registros};
+    NPS_MES_ACTUAL = mesCols[0].nombre; // por defecto el primer mes
+    renderNPSSelector();
+    renderNPSRanking();
+    mostrarGuardado();
+  }catch(ex){alert('Error leyendo el archivo NPS: '+ex.message);}
+}
+
+function renderNPSSelector(){
+  if(!NPS_DATA)return;
+  const box=document.getElementById('nps-selector');
+  if(NPS_DATA.meses.length<=1){box.innerHTML='';return;}
+  box.innerHTML = `<div style="background:#eff6ff;border-radius:10px;padding:10px 14px;font-size:12px;color:#1e40af;margin-bottom:8px">
+    <strong>Mes a mostrar:</strong>
+    ${NPS_DATA.meses.map(m=>`<button onclick="cambiarMesNPS('${m}')" style="margin-left:8px;padding:5px 14px;border-radius:6px;border:2px solid ${NPS_MES_ACTUAL===m?'var(--rojo)':'transparent'};background:${NPS_MES_ACTUAL===m?'var(--rojo)':'#fff'};color:${NPS_MES_ACTUAL===m?'#fff':'var(--display)'};font-family:Fredoka,sans-serif;font-weight:700;font-size:12px;cursor:pointer">${m.trim()}</button>`).join('')}
+  </div>`;
+}
+
+function cambiarMesNPS(mes){
+  NPS_MES_ACTUAL = mes;
+  renderNPSSelector();
+  renderNPSRanking();
+}
+
+function renderNPSRanking(){
+  if(!NPS_DATA || !NPS_MES_ACTUAL)return;
+  const mes = NPS_MES_ACTUAL;
+  const ordenado = [...NPS_DATA.registros]
+    .filter(r => (r[mes]||0) > 0)
+    .sort((a,b)=>(b[mes]||0)-(a[mes]||0));
+  // Auto-rellenar Top 4
+  const top4=ordenado.slice(0,4);
+  for(let i=0;i<4;i++){
+    const inp=document.querySelector('input[data-key="nps'+(i+1)+'"]');
+    if(!inp)continue;
+    if(top4[i]){
+      inp.value = top4[i].nombre;
+      const lugar=inp.closest('.lugar');
+      lugar.classList.remove('sin');
+      lugar.classList.add('auto');
+      const cont=inp.closest('.cont');
+      const prev=cont.querySelector('.auto-info');if(prev)prev.remove();
+      const info=document.createElement('div');info.className='auto-info detalle';
+      info.innerHTML=`<span class="ok">${top4[i][mes]} encuestas ✓</span>`;
+      cont.appendChild(info);
+    }
+  }
+  // Tabla completa
+  const total=ordenado.reduce((s,r)=>s+r[mes],0);
+  const max=ordenado[0]?ordenado[0][mes]:1;
+  const box=document.getElementById('nps-ranking-box');
+  box.innerHTML = `
+    <div style="margin-top:18px;background:#fff;border-radius:16px;padding:16px;border:2px solid var(--amarillo)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:15px">📋 Ranking completo NPS — ${mes.trim()}</div>
+        <div style="font-size:12px;color:var(--texto)"><strong>${total}</strong> encuestas totales · <strong>${ordenado.length}</strong> promotores</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:#fffbea;border-bottom:2px solid var(--amarillo)">
+            <th style="text-align:center;padding:6px 8px;color:var(--display);font-family:'Fredoka',sans-serif;font-size:11px;width:30px">#</th>
+            <th style="text-align:left;padding:6px 8px;color:var(--display);font-family:'Fredoka',sans-serif;font-size:11px">PROMOTOR</th>
+            <th style="text-align:right;padding:6px 8px;color:var(--display);font-family:'Fredoka',sans-serif;font-size:11px">ENCUESTAS</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${ordenado.map((r,i)=>{
+            const barW=Math.round((r[mes]/max)*120);
+            const posCls=i===0?'p1':'';
+            const topClass=i<4?'style="background:#dcfce7;font-weight:800"':'';
+            return `<tr ${topClass} style="border-bottom:1px solid #f1f5f9">
+              <td style="text-align:center;padding:6px 8px;font-weight:800;color:${i===0?'var(--rojo)':i<4?'var(--verde)':'#94a3b8'};font-size:12px">${i+1}${i<4?' 🏆':''}</td>
+              <td style="padding:6px 8px;color:var(--display);font-weight:${i<4?'700':'600'}">${r.nombre}</td>
+              <td style="text-align:right;padding:6px 8px;font-variant-numeric:tabular-nums;color:var(--display);font-weight:700"><span style="display:inline-block;height:10px;background:${i===0?'var(--rojo)':i<4?'var(--verde)':'#3b82f6'};border-radius:2px;vertical-align:middle;margin-right:6px;width:${barW}px"></span>${r[mes]}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  // Guardar
+  try{localStorage.setItem('nps_data',JSON.stringify({NPS_DATA,NPS_MES_ACTUAL}));}catch(e){}
+  guardar();
+}
+
+function cargarNPS(){
+  try{
+    const d=JSON.parse(localStorage.getItem('nps_data')||'null');
+    if(d && d.NPS_DATA){
+      NPS_DATA = d.NPS_DATA;
+      NPS_MES_ACTUAL = d.NPS_MES_ACTUAL;
+      renderNPSSelector();
+      renderNPSRanking();
+    }
+  }catch(e){}
+}
+
 // ========== TABLA DE BOLSILLOS ==========
 let bolsillos = []; // [{nombre, cantidad}]
 const PRECIO_BOLSILLO = 10000;
@@ -913,6 +1062,7 @@ document.querySelectorAll('input').forEach(i=>i.addEventListener('input',guardar
 cargar();
 cargarRanking();
 cargarBolsillos();
+cargarNPS();
 </script>
 </body>
 </html>
