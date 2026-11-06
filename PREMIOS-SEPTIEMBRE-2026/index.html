@@ -1252,16 +1252,16 @@ document.addEventListener('keydown', e => {
 });
 
 function imprimir(){
+  // Fijar valores de inputs como atributos para que se vean al imprimir
   document.querySelectorAll('input').forEach(i=>{
-    if(i.value)i.setAttribute('value',i.value);else i.setAttribute('value','');
+    if(i.type==='text'||i.type==='number'){
+      if(i.value) i.setAttribute('value',i.value);
+    }
   });
-  let html=document.documentElement.outerHTML;
-  html=html.replace(/<div class="botones">[\s\S]*?<\/div>/,'');
-  html=html.replace(/<script[\s\S]*?<\/script>/g,'');
-  const w=window.open('','_blank','width=1100,height=900');
-  if(!w){alert('Permita ventanas emergentes en Safari para imprimir.');return;}
-  w.document.open();w.document.write('<!DOCTYPE html>'+html);w.document.close();
-  setTimeout(()=>{try{w.focus();w.print();}catch(e){alert('Presione Cmd+P');}},800);
+  // Salir de modo presentación si está activo
+  if(document.body.classList.contains('presenting')) salirPresentacion();
+  // Imprimir directo en esta ventana (el CSS @media print oculta lo que no va)
+  window.print();
 }
 function limpiar(){
   if(!confirm('¿Borrar todo?'))return;
