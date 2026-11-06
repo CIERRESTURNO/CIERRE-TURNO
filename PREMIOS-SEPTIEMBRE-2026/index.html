@@ -510,7 +510,7 @@ body.presenting .slide-title-bar{display:block}
   <div class="resumen">
     <h3>💰 Resumen de bonificaciones</h3>
     <div class="res-grid">
-      <div class="res-it"><div class="l">Top 5 Líquidos (4×$100k + Velez $200k)</div><div class="v" id="r-liq">$600.000</div></div>
+      <div class="res-it"><div class="l">Top 5 Líquidos (5×$100k · fideli ≥80%)</div><div class="v" id="r-liq">$500.000</div></div>
       <div class="res-it" style="display:none"><div class="l">Premio Fidelización</div><div class="v" id="r-fid">$0</div></div>
       <div class="res-it"><div class="l">Ranking Extra</div><div class="v">$260.000</div></div>
       <div class="res-it"><div class="l">GNV (si cumple meta — no cumplió)</div><div class="v" style="color:#E6193A">$0</div></div>
@@ -760,23 +760,13 @@ function rellenar(d){
     if(p){
       inp.value = p.nombre;
       lugar.classList.add('auto');
-      // Si fideli >= 85% → $200.000 (premio fidelización); si no, $100.000
-      const premioFideli = p.pctFideli >= 85;
-      if(premioFideli){
-        premio.textContent = '$200.000';
-        premio.style.background = 'var(--amarillo)';
-        premio.style.color = 'var(--display)';
-        const info=document.createElement('div');info.className='auto-info detalle';
-        info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli <span class="ok">${p.pctFideli.toFixed(1)}%</span> ⭐ PREMIO FIDELIZACIÓN`;
-        cont.appendChild(info);
-      } else {
-        premio.textContent = '$100.000';
-        premio.style.background = '';
-        premio.style.color = '';
-        const info=document.createElement('div');info.className='auto-info detalle';
-        info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli <span class="ok">${p.pctFideli.toFixed(1)}%</span> ✓ Entre 80-85%`;
-        cont.appendChild(info);
-      }
+      // Todos ganan $100.000 (sin premio especial)
+      premio.textContent = '$100.000';
+      premio.style.background = '';
+      premio.style.color = '';
+      const info=document.createElement('div');info.className='auto-info detalle';
+      info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli <span class="ok">${p.pctFideli.toFixed(1)}%</span> ✓ GANA`;
+      cont.appendChild(info);
     } else {
       // No hay más elegibles para este puesto
       inp.value='';
@@ -807,11 +797,8 @@ function rellenar(d){
     cont.appendChild(info);
   });
 
-  // Recalcular totales: Top 5 (Luis Velez $200k, demás $100k)
-  let ganLiq = 0;
-  top5.forEach(p => {
-    ganLiq += nm(p.nombre).includes('velez') ? 200000 : 100000;
-  });
+  // Recalcular totales: Top 5 a $100k c/u
+  const ganLiq = top5.length * 100000;
   document.getElementById('r-liq').textContent = '$'+fmt(ganLiq);
   const rfid=document.getElementById('r-fid');
   if(rfid) rfid.closest('.res-it').style.display='none'; // ocultar linea separada
