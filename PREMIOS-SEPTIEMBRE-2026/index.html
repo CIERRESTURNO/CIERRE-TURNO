@@ -273,7 +273,13 @@ body.presenting .slide-title-bar{display:block}
   </div>
 
   <!-- 1. META LÍQUIDOS -->
-  <div style="margin-bottom:6px"><span class="banderin">⛽ Meta Líquidos</span></div>
+  <div style="margin-bottom:6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <span class="banderin">⛽ Meta Líquidos</span>
+    <select id="selRegla" onchange="cambiarRegla(this.value)" style="padding:6px 12px;border-radius:10px;border:2px solid var(--rojo);background:#fff5f5;color:var(--display);font-family:'Fredoka',sans-serif;font-weight:700;font-size:12px;cursor:pointer">
+      <option value="septiembre">📅 Regla Septiembre (Top 5 + bonus $100k si fideli ≥85%)</option>
+      <option value="octubre">📅 Regla Octubre (Top 5 con fideli ≥80%, todos $100k)</option>
+    </select>
+  </div>
   <div class="card">
     <div class="meta-caja">
       <div><div class="meta-num"><input type="text" data-key="meta_liq" value="355.420" placeholder="355.420" style="width:200px;border:none;border-bottom:3px dashed var(--rojo);background:transparent;color:var(--rojo);font-family:'Bebas Neue',sans-serif;font-size:48px;padding:0 4px;outline:none;line-height:1"></div></div>
@@ -633,14 +639,8 @@ function procesar(wb){
     if(otraSn){ shFid=wb.Sheets[otraSn]; nombreFid=otraSn; }
   }
   console.log('Pestañas detectadas → Ventas:',nombreVentas,'· Fidelizadas:',nombreFid);
-  // Mostrar al usuario qué detectó
-  const infoBox=document.getElementById('file-info');
-  if(infoBox){
-    infoBox.insertAdjacentHTML('beforeend',
-      `<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 12px;font-size:11px;color:#1e40af;margin-top:6px">
-      📋 Pestañas detectadas: <strong>Ventas</strong> = "${nombreVentas||'ninguna'}" · <strong>Fidelizadas</strong> = "${nombreFid||'ninguna'}"
-      </div>`);
-  }
+  // El diagnóstico detallado se muestra al final del procesamiento (ver rellenar)
+  window.__procNombres = {ventas:nombreVentas, fid:nombreFid};
 
   const result={promotores:{},mes:'?',totalGal:0,totalFid:0};
 
@@ -678,26 +678,54 @@ function procesar(wb){
     }
   }
 
-  // FIDELIZADAS
+  // FIDELIZADAS (detección robusta de header)
+  let fidInfo = {headerIdx:-1, headers:[], iProm:-1, iCant:-1, filasProcesadas:0, filasTotal:0};
   if(shFid){
     const rowsF=XLSX.utils.sheet_to_json(shFid,{raw:true,defval:'',header:1});
+    fidInfo.filasTotal = rowsF.length;
     if(rowsF.length){
-      const headF=rowsF[0].map(c=>String(c||'').trim());
+      // Buscar la fila con mejor header (en las primeras 5)
+      let bestIdx = 0, bestScore = -1;
+      for(let i=0; i<Math.min(5, rowsF.length); i++){
+        const row = rowsF[i]; if(!row) continue;
+        let score = 0;
+        row.forEach(c => {
+          const s = nm(c);
+          if(s==='promotor'||s.includes('promotor')) score += 3;
+          if(s==='cantidad'||s.includes('cantidad')||s==='galones'||s==='gal'||s.includes('galon')) score += 3;
+          if(s.includes('nombre')) score += 2;
+          if(s.includes('fecha')||s.includes('producto')||s.includes('tanque')||s.includes('estacion')) score += 1;
+        });
+        if(score > bestScore){ bestScore = score; bestIdx = i; }
+      }
+      const headF=rowsF[bestIdx].map(c=>String(c||'').trim());
       const hNF=headF.map(nm);
-      const ipF=hNF.findIndex(h=>h==='promotor');
-      const icF=hNF.findIndex(h=>h==='cantidad');
-      if(ipF>=0&&icF>=0){
-        for(let i=1;i<rowsF.length;i++){
+      fidInfo.headerIdx = bestIdx;
+      fidInfo.headers = headF;
+      // Buscar columna PROMOTOR (tolerante)
+      let ipF = hNF.findIndex(h=>h==='promotor');
+      if(ipF<0) ipF = hNF.findIndex(h=>h.includes('promotor'));
+      if(ipF<0) ipF = hNF.findIndex(h=>h.includes('nombre'));
+      // Buscar columna CANTIDAD (tolerante)
+      let icF = hNF.findIndex(h=>h==='cantidad');
+      if(icF<0) icF = hNF.findIndex(h=>h.includes('cantidad'));
+      if(icF<0) icF = hNF.findIndex(h=>h==='galones'||h==='gal'||h.includes('galon'));
+      fidInfo.iProm = ipF;
+      fidInfo.iCant = icF;
+      if(ipF>=0 && icF>=0){
+        for(let i=bestIdx+1; i<rowsF.length; i++){
           const r=rowsF[i];if(!r)continue;
           const p=String(r[ipF]||'').trim();if(!p||p.length<2)continue;
           const g=pn(r[icF]);
           if(!result.promotores[p])result.promotores[p]={nombre:p,galones:0,fideli:0,extra:0};
           result.promotores[p].fideli+=g;
           result.totalFid+=g;
+          fidInfo.filasProcesadas++;
         }
       }
     }
   }
+  result.fidInfo = fidInfo;
 
   // % fideli por promotor
   Object.values(result.promotores).forEach(p=>{
@@ -715,6 +743,22 @@ function procesar(wb){
 function rellenar(d){
   // Actualizar título con mes detectado
   document.getElementById('mes-label').textContent=d.mes;
+
+  // DIAGNÓSTICO visible: qué pestañas detectó + columnas + filas
+  const infoBox = document.getElementById('file-info');
+  if(infoBox){
+    const prev = infoBox.querySelector('.proc-diag'); if(prev) prev.remove();
+    const nms = window.__procNombres || {};
+    const fi = d.fidInfo || {};
+    const headersStr = (fi.headers||[]).slice(0,10).join(' · ');
+    const colOk = fi.iProm>=0 && fi.iCant>=0;
+    infoBox.insertAdjacentHTML('beforeend',
+      `<div class="proc-diag" style="background:${colOk?'#dcfce7':'#fee2e2'};border:1px solid ${colOk?'#86efac':'#fca5a5'};border-radius:8px;padding:10px 12px;font-size:11px;margin-top:6px;color:#1e293b">
+      📋 <strong>Diagnóstico:</strong><br>
+      Pestaña Ventas: "${nms.ventas||'ninguna'}" → ${fmt(d.totalGal)} galones en ${Object.keys(d.promotores).length} promotores<br>
+      Pestaña Fidelizadas: "${nms.fid||'ninguna'}" → ${colOk?`<span style="color:#166534">✓ ${fmt(fi.filasProcesadas)} filas procesadas, total ${fmt(d.totalFid)} gal fidelizados (${d.pctFideli.toFixed(1)}% fidelización global)</span>`:`<span style="color:#991b1b">✗ no pude leer columnas. Headers encontrados: ${headersStr||'ninguno'}</span>`}
+      </div>`);
+  }
 
   // Resumen del mes — leer meta de líquidos del input (editable por mes)
   const metaLiqInp=document.querySelector('input[data-key="meta_liq"]');
@@ -737,13 +781,23 @@ function rellenar(d){
   if(metaOk){me.textContent='✓ Meta cumplida ('+fmt(Math.round(d.totalGal))+' gal)';me.className='meta-regla verde';}
   else{me.textContent='✗ Faltaron '+fmt(Math.round(-diffMeta))+' gal';me.className='meta-regla rojo';}
 
-  // TOP 5 LÍQUIDOS: los 5 que más galones vendieron CON FIDELIZACIÓN >= 80%
-  // Si alguno tiene fideli >= 85% → gana $200.000 (premio fidelización)
-  // Los demás del Top 5 ganan $100.000
+  // REGLA DE PREMIO según el mes activo
+  // SEPTIEMBRE: Top 5 sin filtro, $100k c/u; si alguno tiene fideli ≥85% gana $200k
+  // OCTUBRE:    Top 5 filtrado por fideli ≥80%, todos ganan $100k
+  // Se puede cambiar desde el selector del mes activo (ver más abajo)
+  const mesIdActual = (typeof MES_ACTUAL!=='undefined') ? MES_ACTUAL : '';
+  const mesObj = (typeof MESES!=='undefined' && MESES[mesIdActual]) ? MESES[mesIdActual] : {};
+  const reglaPremio = mesObj.reglaPremio || (mesIdActual.includes('septiembre') ? 'septiembre' : (mesIdActual.includes('octubre') ? 'octubre' : 'septiembre'));
+
   const todosPorGal = Object.values(d.promotores).sort((a,b)=>b.galones-a.galones);
-  // Filtrar: solo elegibles con fideli >= 80%
-  const elegibles = todosPorGal.filter(p => p.pctFideli >= 80);
-  const top5 = elegibles.slice(0,5);
+  let top5;
+  if(reglaPremio === 'octubre'){
+    // Filtrar por fideli >= 80%
+    top5 = todosPorGal.filter(p => p.pctFideli >= 80).slice(0,5);
+  } else {
+    // Septiembre: sin filtro
+    top5 = todosPorGal.slice(0,5);
+  }
 
   for(let i=0; i<5; i++){
     const k='liq'+(i+1);
@@ -760,20 +814,33 @@ function rellenar(d){
     if(p){
       inp.value = p.nombre;
       lugar.classList.add('auto');
-      // Todos ganan $100.000 (sin premio especial)
-      premio.textContent = '$100.000';
-      premio.style.background = '';
-      premio.style.color = '';
-      const info=document.createElement('div');info.className='auto-info detalle';
-      info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli <span class="ok">${p.pctFideli.toFixed(1)}%</span> ✓ GANA`;
-      cont.appendChild(info);
+      // SEPTIEMBRE: si fideli >= 85% → $200k, si no → $100k
+      // OCTUBRE: todos $100k (ya están filtrados por fideli >= 80%)
+      const premioFideli = (reglaPremio === 'septiembre') && p.pctFideli >= 85;
+      if(premioFideli){
+        premio.textContent = '$200.000';
+        premio.style.background = 'var(--amarillo)';
+        premio.style.color = 'var(--display)';
+        const info=document.createElement('div');info.className='auto-info detalle';
+        info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli <span class="ok">${p.pctFideli.toFixed(1)}%</span> ⭐ +$100k BONUS FIDELIZACIÓN`;
+        cont.appendChild(info);
+      } else {
+        premio.textContent = '$100.000';
+        premio.style.background = '';
+        premio.style.color = '';
+        const info=document.createElement('div');info.className='auto-info detalle';
+        const okTxt = reglaPremio === 'octubre' ? ' (en rango 80-85%+)' : '';
+        info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli <span class="ok">${p.pctFideli.toFixed(1)}%</span>${okTxt}`;
+        cont.appendChild(info);
+      }
     } else {
       // No hay más elegibles para este puesto
       inp.value='';
       lugar.classList.add('sin');
       premio.classList.add('anulado');
       const info=document.createElement('div');info.className='auto-info detalle';
-      info.innerHTML=`<span class="fail">Puesto vacío — no hay más promotores con fideli ≥80%</span>`;
+      const motivo = reglaPremio === 'octubre' ? 'no hay más con fideli ≥80%' : 'no hay más promotores en el ranking';
+      info.innerHTML=`<span class="fail">Puesto vacío — ${motivo}</span>`;
       cont.appendChild(info);
     }
   }
@@ -797,8 +864,11 @@ function rellenar(d){
     cont.appendChild(info);
   });
 
-  // Recalcular totales: Top 5 a $100k c/u
-  const ganLiq = top5.length * 100000;
+  // Recalcular totales: Top 5 a $100k c/u + bonus $100k para los que tengan fideli≥85% en septiembre
+  let ganLiq = top5.length * 100000;
+  if(reglaPremio === 'septiembre'){
+    ganLiq += top5.filter(p => p.pctFideli >= 85).length * 100000; // bonus fidelización
+  }
   document.getElementById('r-liq').textContent = '$'+fmt(ganLiq);
   const rfid=document.getElementById('r-fid');
   if(rfid) rfid.closest('.res-it').style.display='none'; // ocultar linea separada
@@ -1135,6 +1205,17 @@ function cargarRanking(){
   }catch(e){}
 }
 
+// ================= REGLA DE PREMIO POR MES =================
+function cambiarRegla(valor){
+  if(typeof MES_ACTUAL==='undefined' || !MES_ACTUAL || !MESES[MES_ACTUAL]) return;
+  MESES[MES_ACTUAL].reglaPremio = valor;
+  guardarMesActual();
+  // Re-procesar si hay excelData
+  if(MESES[MES_ACTUAL].excelData){
+    try{ rellenar(MESES[MES_ACTUAL].excelData); }catch(e){console.warn(e);}
+  }
+}
+
 // ================= SISTEMA MULTI-MES =================
 const SECCIONES_DEF = [
   {id:'liq',    label:'⛽ Líquidos',       match:'Meta Líquidos'},
@@ -1311,6 +1392,13 @@ function cargarMes(mesId){
   // Actualizar título del hero con el mes
   const mesLbl = document.getElementById('mes-label');
   if(mesLbl) mesLbl.textContent = m.nombre;
+  // Sincronizar el selector de regla con la regla guardada del mes
+  const selReg = document.getElementById('selRegla');
+  if(selReg){
+    const reglaDef = m.reglaPremio || (mesId.includes('octubre')?'octubre':'septiembre');
+    selReg.value = reglaDef;
+    if(!m.reglaPremio){ m.reglaPremio = reglaDef; }
+  }
   renderTabs();
 }
 
