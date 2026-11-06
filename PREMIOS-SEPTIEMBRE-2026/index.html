@@ -146,6 +146,25 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
 .save-ok{position:fixed;bottom:22px;right:22px;background:var(--verde);color:#fff;padding:10px 18px;border-radius:12px;font-weight:700;font-size:13px;opacity:0;transition:opacity .25s;z-index:999;box-shadow:0 4px 14px rgba(58,170,53,.4);pointer-events:none;font-family:'Fredoka',sans-serif}
 .err-msg{background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:8px;font-size:12px;margin-top:10px}
 
+/* ================ PESTAÑAS DE MESES ================ */
+.meses-bar{background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.meses-tabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.mes-tab{background:#f1f5f9;color:var(--display);border:2px solid transparent;padding:8px 16px;border-radius:12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .12s}
+.mes-tab:hover{background:#e2e8f0}
+.mes-tab.active{background:var(--rojo);color:#fff;border-color:var(--rojo);box-shadow:0 3px 10px rgba(241,28,12,.3)}
+.mes-tab .x{background:rgba(255,255,255,.3);border:none;color:inherit;width:18px;height:18px;border-radius:50%;cursor:pointer;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.mes-tab:not(.active) .x{background:rgba(0,0,0,.08)}
+.mes-tab .x:hover{background:rgba(255,255,255,.5)}
+.btn-nuevo-mes{background:var(--verde);color:#fff;border:none;padding:8px 16px;border-radius:12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px}
+.btn-nuevo-mes:hover{background:#166534}
+.secciones-label{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-top:6px;margin-bottom:4px}
+.toggles-row{display:flex;flex-wrap:wrap;gap:6px}
+.tog-chip{background:#f1f5f9;padding:6px 12px;border-radius:14px;font-size:11px;font-weight:700;color:var(--texto);cursor:pointer;border:2px solid transparent;font-family:'Fredoka',sans-serif;user-select:none;display:inline-flex;align-items:center;gap:5px;transition:all .12s}
+.tog-chip.on{background:#dcfce7;color:#166534;border-color:var(--verde)}
+.tog-chip.off{background:#fee2e2;color:#991b1b}
+.tog-chip:hover{transform:scale(1.03)}
+.secc-oculta{display:none !important}
+
 /* ======================= MODO PRESENTACIÓN ======================= */
 .pres-controls{position:fixed;bottom:20px;right:20px;display:none;gap:10px;z-index:9999;align-items:center}
 body.presenting{overflow:hidden;background:linear-gradient(180deg,#41AED7 0%,#8FD6EF 55%,#ECF9FA 100%);min-height:100vh;height:100vh}
@@ -214,6 +233,14 @@ body.presenting .slide-title-bar{display:block}
     <div class="hero-sub">Premios y Reconocimientos · <span id="mes-label">Septiembre 2026</span></div>
     <div class="acento"></div>
     <div class="hero-eds">EDS TERPEL AV. BOYACÁ</div>
+  </div>
+
+  <!-- BARRA DE MESES Y SECCIONES -->
+  <div class="meses-bar">
+    <div class="secciones-label">📅 Meses guardados</div>
+    <div class="meses-tabs" id="meses-tabs"></div>
+    <div class="secciones-label">⚙️ Secciones activas en este mes (clic para encender/apagar)</div>
+    <div class="toggles-row" id="toggles-row"></div>
   </div>
 
   <!-- UPLOAD -->
@@ -1063,6 +1090,248 @@ function cargarRanking(){
   }catch(e){}
 }
 
+// ================= SISTEMA MULTI-MES =================
+const SECCIONES_DEF = [
+  {id:'liq',    label:'⛽ Líquidos',       match:'Meta Líquidos'},
+  {id:'extra',  label:'🔥 Extra',          match:'Ranking Extra'},
+  {id:'gnv',    label:'🟢 GNV',           match:'Meta GNV'},
+  {id:'nps',    label:'⭐ NPS',           match:'Premios NPS'},
+  {id:'lub',    label:'🛢️ Lubricantes',   match:'Lubricantes y Aditivos'},
+  {id:'urea',   label:'📋 Urea/Extintores',match:'Urea y Extintores'},
+  {id:'ranks',  label:'📊 Rankings',       match:'Ranking Completo'},
+  {id:'bols',   label:'💛 Bolsillo',       match:'Premio de mi bolsillo'},
+];
+let MESES = {}; // {mesId: {nombre, campos, bolsillos, cumple, nps, secciones, rankingImg}}
+let MES_ACTUAL = null;
+let SECCIONES_ACTIVAS = {};
+
+function seccionesDefault(){
+  const o={}; SECCIONES_DEF.forEach(s=>o[s.id]=true); return o;
+}
+
+function encontrarWrappers(){
+  // Para cada sección, buscar el banderín correspondiente y el card siguiente
+  const r={};
+  SECCIONES_DEF.forEach(s=>{
+    const b = Array.from(document.querySelectorAll('.banderin')).find(x => x.textContent.trim().includes(s.match));
+    if(!b) return;
+    const header = b.closest('div'); // wrapper del banderín (div style="margin-bottom:6px")
+    if(!header) return;
+    // La siguiente .card o .resumen
+    let next = header.nextElementSibling;
+    while(next && !(next.classList.contains('card')||next.classList.contains('resumen'))){
+      next = next.nextElementSibling;
+    }
+    if(!next) return;
+    r[s.id] = {header, card: next};
+  });
+  return r;
+}
+
+function aplicarToggles(){
+  const w = encontrarWrappers();
+  Object.entries(w).forEach(([id, {header, card}])=>{
+    const activa = SECCIONES_ACTIVAS[id] !== false;
+    header.classList.toggle('secc-oculta', !activa);
+    card.classList.toggle('secc-oculta', !activa);
+  });
+  renderToggles();
+}
+
+function renderToggles(){
+  const row = document.getElementById('toggles-row');
+  if(!row) return;
+  row.innerHTML = SECCIONES_DEF.map(s=>{
+    const activa = SECCIONES_ACTIVAS[s.id] !== false;
+    return `<span class="tog-chip ${activa?'on':'off'}" onclick="toggleSeccion('${s.id}')">${activa?'✓':'✗'} ${s.label}</span>`;
+  }).join('');
+}
+
+function toggleSeccion(id){
+  SECCIONES_ACTIVAS[id] = !(SECCIONES_ACTIVAS[id] !== false);
+  aplicarToggles();
+  guardarMesActual();
+  // recalcular totales si existen
+  actualizarResumenConToggles();
+}
+
+function actualizarResumenConToggles(){
+  // Ajustar valores del resumen según secciones activas
+  const items = document.querySelectorAll('.resumen .res-it');
+  items.forEach(it=>{
+    const txt = it.textContent.toLowerCase();
+    if(txt.includes('líquidos')) it.style.opacity = SECCIONES_ACTIVAS.liq===false?'0.3':'1';
+    if(txt.includes('extra')) it.style.opacity = SECCIONES_ACTIVAS.extra===false?'0.3':'1';
+    if(txt.includes('gnv')) it.style.opacity = SECCIONES_ACTIVAS.gnv===false?'0.3':'1';
+    if(txt.includes('nps')) it.style.opacity = SECCIONES_ACTIVAS.nps===false?'0.3':'1';
+    if(txt.includes('lubricantes')) it.style.opacity = SECCIONES_ACTIVAS.lub===false?'0.3':'1';
+    if(txt.includes('bolsillo')) it.style.opacity = SECCIONES_ACTIVAS.bols===false?'0.3':'1';
+  });
+}
+
+function renderTabs(){
+  const tabs = document.getElementById('meses-tabs');
+  if(!tabs) return;
+  const ids = Object.keys(MESES);
+  tabs.innerHTML = ids.map(id=>{
+    const m = MESES[id];
+    const act = id===MES_ACTUAL?'active':'';
+    return `<button class="mes-tab ${act}" onclick="cambiarMes('${id}')">${m.nombre} <button class="x" onclick="event.stopPropagation();borrarMes('${id}')" title="Eliminar mes">×</button></button>`;
+  }).join('') + `<button class="btn-nuevo-mes" onclick="nuevoMes()">+ Nuevo mes</button>`;
+}
+
+function guardarMesActual(){
+  if(!MES_ACTUAL) return;
+  const m = MESES[MES_ACTUAL] = MESES[MES_ACTUAL] || {nombre:MES_ACTUAL, secciones:seccionesDefault()};
+  // campos
+  m.campos = {};
+  document.querySelectorAll('input[data-key]').forEach(i=>{
+    m.campos[i.dataset.key] = i.value;
+  });
+  // bolsillos
+  m.bolsillos = [...bolsillos];
+  // estado meta
+  m.cumple = {...estadoMeta};
+  // NPS
+  m.nps = { NPS_DATA, NPS_MES_ACTUAL };
+  // secciones
+  m.secciones = {...SECCIONES_ACTIVAS};
+  // ranking img (ya está en localStorage)
+  try{ m.rankingImg = localStorage.getItem('ranking_img'); }catch(e){}
+  // persistir
+  try{ localStorage.setItem('premios_meses', JSON.stringify({meses:MESES, actual:MES_ACTUAL})); }catch(e){}
+}
+
+function cargarMes(mesId){
+  const m = MESES[mesId];
+  if(!m) return;
+  MES_ACTUAL = mesId;
+  // Vaciar inputs
+  document.querySelectorAll('input[data-key]').forEach(i=>i.value='');
+  // Cargar campos
+  Object.entries(m.campos||{}).forEach(([k,v])=>{
+    const inp = document.querySelector('input[data-key="'+k+'"]');
+    if(inp) inp.value = v;
+  });
+  // Bolsillos
+  bolsillos = Array.isArray(m.bolsillos) ? [...m.bolsillos] : [];
+  renderBolsillos();
+  // Estados cumplida
+  estadoMeta = {...(m.cumple||{})};
+  // Resetear visual de botones cumplida
+  document.querySelectorAll('.btn-cumple').forEach(b=>b.classList.remove('on'));
+  ['gnv','lub'].forEach(g=>{
+    const el=document.getElementById('est-'+g);
+    if(el){el.className='estado-grande pend';el.textContent='Pendiente';}
+    if(estadoMeta[g]) setCumple(g, estadoMeta[g]);
+  });
+  // NPS
+  if(m.nps && m.nps.NPS_DATA){
+    NPS_DATA = m.nps.NPS_DATA;
+    NPS_MES_ACTUAL = m.nps.NPS_MES_ACTUAL;
+    renderNPSSelector();
+    renderNPSRanking();
+  } else {
+    NPS_DATA = null; NPS_MES_ACTUAL = null;
+    document.getElementById('nps-selector').innerHTML='';
+    document.getElementById('nps-ranking-box').innerHTML='';
+  }
+  // Ranking img
+  if(m.rankingImg){
+    try{ localStorage.setItem('ranking_img', m.rankingImg); }catch(e){}
+  } else {
+    try{ localStorage.removeItem('ranking_img'); }catch(e){}
+  }
+  cargarRanking();
+  // Secciones activas
+  SECCIONES_ACTIVAS = {...(m.secciones||seccionesDefault())};
+  aplicarToggles();
+  // Actualizar título del hero con el mes
+  const mesLbl = document.getElementById('mes-label');
+  if(mesLbl) mesLbl.textContent = m.nombre;
+  renderTabs();
+}
+
+function cambiarMes(mesId){
+  if(MES_ACTUAL===mesId) return;
+  guardarMesActual();
+  cargarMes(mesId);
+}
+
+function nuevoMes(){
+  const nombre = prompt('¿Cómo se llama el nuevo mes? (ej: "Octubre 2026")');
+  if(!nombre || !nombre.trim()) return;
+  let id = nombre.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  if(MESES[id]){ alert('Ya existe un mes con ese nombre.'); return; }
+  guardarMesActual();
+  MESES[id] = {nombre:nombre.trim(), campos:{}, bolsillos:[], cumple:{}, nps:null, secciones:seccionesDefault(), rankingImg:null};
+  MES_ACTUAL = id;
+  // Vaciar el estado actual (empezar en limpio)
+  document.querySelectorAll('input[data-key]').forEach(i=>i.value='');
+  bolsillos=[]; renderBolsillos();
+  estadoMeta={};
+  document.querySelectorAll('.btn-cumple').forEach(b=>b.classList.remove('on'));
+  ['gnv','lub'].forEach(g=>{const el=document.getElementById('est-'+g);if(el){el.className='estado-grande pend';el.textContent='Pendiente';}});
+  NPS_DATA=null; NPS_MES_ACTUAL=null;
+  const nsel=document.getElementById('nps-selector');if(nsel)nsel.innerHTML='';
+  const nrk=document.getElementById('nps-ranking-box');if(nrk)nrk.innerHTML='';
+  try{ localStorage.removeItem('ranking_img'); }catch(e){}
+  cargarRanking();
+  // Re-llenar valores por defecto importantes
+  const lubVend = document.querySelector('input[data-key="lub_vend"]');
+  if(lubVend) lubVend.value = '';
+  SECCIONES_ACTIVAS = seccionesDefault();
+  aplicarToggles();
+  const mesLbl = document.getElementById('mes-label');
+  if(mesLbl) mesLbl.textContent = nombre.trim();
+  renderTabs();
+  guardarMesActual();
+}
+
+function borrarMes(mesId){
+  if(Object.keys(MESES).length<=1){ alert('No puede quedarse sin ningún mes. Cree uno nuevo primero.'); return; }
+  if(!confirm(`¿Eliminar el mes "${MESES[mesId].nombre}"? Esta acción no se puede deshacer.`)) return;
+  delete MESES[mesId];
+  if(MES_ACTUAL===mesId){
+    MES_ACTUAL = Object.keys(MESES)[0];
+    cargarMes(MES_ACTUAL);
+  }
+  try{ localStorage.setItem('premios_meses', JSON.stringify({meses:MESES, actual:MES_ACTUAL})); }catch(e){}
+  renderTabs();
+}
+
+function cargarMesesAlInicio(){
+  try{
+    const d = JSON.parse(localStorage.getItem('premios_meses')||'null');
+    if(d && d.meses && Object.keys(d.meses).length){
+      MESES = d.meses;
+      MES_ACTUAL = d.actual && MESES[d.actual] ? d.actual : Object.keys(MESES)[0];
+      renderTabs();
+      cargarMes(MES_ACTUAL);
+      return;
+    }
+  }catch(e){}
+  // Primera vez: crear el mes default "Septiembre 2026" con los datos actuales
+  MESES['septiembre-2026'] = {nombre:'Septiembre 2026', campos:{}, bolsillos:[...bolsillos], cumple:{...estadoMeta}, nps:(NPS_DATA?{NPS_DATA,NPS_MES_ACTUAL}:null), secciones:seccionesDefault(), rankingImg:null};
+  // Leer campos actuales
+  document.querySelectorAll('input[data-key]').forEach(i=>{
+    MESES['septiembre-2026'].campos[i.dataset.key] = i.value;
+  });
+  try{ MESES['septiembre-2026'].rankingImg = localStorage.getItem('ranking_img'); }catch(e){}
+  MES_ACTUAL = 'septiembre-2026';
+  SECCIONES_ACTIVAS = seccionesDefault();
+  renderTabs();
+  aplicarToggles();
+  try{ localStorage.setItem('premios_meses', JSON.stringify({meses:MESES, actual:MES_ACTUAL})); }catch(e){}
+}
+
+// Autoguardar cuando cambian inputs
+let AUTOSAVE_TIMER = null;
+function autoGuardarMes(){
+  if(AUTOSAVE_TIMER) clearTimeout(AUTOSAVE_TIMER);
+  AUTOSAVE_TIMER = setTimeout(guardarMesActual, 400);
+}
+
 // ========== EXPORTAR / IMPORTAR DATOS ==========
 function exportarDatos(){
   const datos = {
@@ -1279,6 +1548,8 @@ function guardar(){
   const data={cumple:estadoMeta};
   document.querySelectorAll('input[data-key]').forEach(i=>data[i.dataset.key]=i.value);
   try{localStorage.setItem('premios_mes',JSON.stringify(data));mostrarGuardado();}catch(e){}
+  // También guardar en el mes actual
+  if(typeof autoGuardarMes==='function') autoGuardarMes();
 }
 function cargar(){
   try{
@@ -1287,11 +1558,16 @@ function cargar(){
     if(d.cumple){Object.assign(estadoMeta,d.cumple);['gnv','lub'].forEach(g=>{if(estadoMeta[g])setCumple(g,estadoMeta[g]);});}
   }catch(e){}
 }
-document.querySelectorAll('input').forEach(i=>i.addEventListener('input',guardar));
+document.querySelectorAll('input').forEach(i=>{
+  i.addEventListener('input',guardar);
+  i.addEventListener('input',autoGuardarMes);
+});
 cargar();
 cargarRanking();
 cargarBolsillos();
 cargarNPS();
+// Arranque multi-mes (debe ser el último)
+cargarMesesAlInicio();
 </script>
 </body>
 </html>
