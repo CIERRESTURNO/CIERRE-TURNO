@@ -146,6 +146,31 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
 .save-ok{position:fixed;bottom:22px;right:22px;background:var(--verde);color:#fff;padding:10px 18px;border-radius:12px;font-weight:700;font-size:13px;opacity:0;transition:opacity .25s;z-index:999;box-shadow:0 4px 14px rgba(58,170,53,.4);pointer-events:none;font-family:'Fredoka',sans-serif}
 .err-msg{background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:8px;font-size:12px;margin-top:10px}
 
+/* ======================= MODO PRESENTACIÓN ======================= */
+.pres-controls{position:fixed;bottom:20px;right:20px;display:none;gap:10px;z-index:9999;align-items:center}
+body.presenting{overflow:hidden;background:linear-gradient(180deg,#41AED7 0%,#8FD6EF 55%,#ECF9FA 100%);min-height:100vh;height:100vh}
+body.presenting .pagina{padding:0;max-width:100%;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+body.presenting .upload-section,
+body.presenting .botones,
+body.presenting .save-ok,
+body.presenting .logo-eq{display:none !important}
+body.presenting .slide{display:none !important}
+body.presenting .slide.slide-active{display:block !important;width:100%;max-width:1200px;max-height:92vh;overflow-y:auto;padding:30px 40px;animation:slideIn .35s ease}
+body.presenting .pres-controls{display:flex}
+body.presenting .hero{margin:0}
+body.presenting .card{margin:0}
+body.presenting .dash-ref{margin:0}
+body.presenting .resumen{margin:0}
+body.presenting .banderin{margin-bottom:14px}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+.pres-btn{background:var(--rojo);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25);font-family:inherit;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pres-btn:hover{background:#c91408;transform:scale(1.05)}
+.pres-btn.cerrar{background:var(--display)}
+.pres-btn.cerrar:hover{background:#021c22}
+#slide-indicator{background:rgba(5,45,55,.85);color:#fff;padding:10px 18px;border-radius:24px;font-weight:700;font-family:'Fredoka',sans-serif;font-size:14px;letter-spacing:.5px}
+.slide-title-bar{display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);background:rgba(5,45,55,.85);color:#fff;padding:8px 20px;border-radius:20px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:13px;z-index:999;letter-spacing:.5px}
+body.presenting .slide-title-bar{display:block}
+
 .hidden{display:none}
 
 @media print{
@@ -461,10 +486,20 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
   </div>
 
   <div class="botones">
+    <button class="btn" onclick="activarPresentacion()">🎬 Modo Presentación</button>
     <button class="btn" onclick="imprimir()">🖨️ Imprimir / Guardar PDF</button>
     <button class="btn sec" onclick="limpiar()">🧹 Limpiar todo</button>
   </div>
 
+</div>
+
+<!-- Controles de presentación -->
+<div class="slide-title-bar" id="slide-title">EDS Terpel Av. Boyacá — Premios del Mes</div>
+<div class="pres-controls">
+  <button class="pres-btn" onclick="anteriorSlide()" title="Anterior (←)">◄</button>
+  <span id="slide-indicator">1 / 1</span>
+  <button class="pres-btn" onclick="siguienteSlide()" title="Siguiente (→)">►</button>
+  <button class="pres-btn cerrar" onclick="salirPresentacion()" title="Salir (Esc)">✕</button>
 </div>
 
 <script>
@@ -1012,6 +1047,126 @@ function cargarRanking(){
     if(img){document.getElementById('rk-preview').innerHTML=`<div class="img-preview"><img src="${img}"><button class="quitar" onclick="quitarRanking()">Quitar imagen</button></div>`;}
   }catch(e){}
 }
+
+// ========== MODO PRESENTACIÓN ==========
+let PRES_IDX = 0;
+let PRES_INICIADO = false;
+
+function prepararSlides(){
+  if(PRES_INICIADO) return;
+  PRES_INICIADO = true;
+  const pagina = document.querySelector('.pagina');
+  if(!pagina) return;
+
+  // Recorrer hijos y agrupar por slides
+  const hijos = Array.from(pagina.children);
+  const grupos = []; // array de arrays de elementos
+  let grupoActual = null;
+
+  hijos.forEach(el => {
+    // Elementos que NO van en la presentación (se ocultan)
+    if(el.classList.contains('upload-section') || el.classList.contains('botones')) return;
+
+    // Hero, dash-ref, resumen → cada uno es su propia slide
+    if(el.classList.contains('hero') || el.classList.contains('dash-ref') || el.classList.contains('resumen')){
+      if(grupoActual) grupos.push(grupoActual);
+      grupos.push([el]);
+      grupoActual = null;
+      return;
+    }
+
+    // Un banderín (wrapper) inicia una slide nueva
+    const tieneBanderin = el.querySelector && el.querySelector('.banderin') && !el.classList.contains('card');
+    if(tieneBanderin){
+      if(grupoActual) grupos.push(grupoActual);
+      grupoActual = [el];
+      return;
+    }
+
+    // Una card continúa la slide actual
+    if(el.classList.contains('card')){
+      if(grupoActual) grupoActual.push(el);
+      else grupos.push([el]);
+      return;
+    }
+  });
+  if(grupoActual) grupos.push(grupoActual);
+
+  // Envolver cada grupo en un div.slide
+  grupos.forEach((els, i) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'slide';
+    wrapper.dataset.slide = i;
+    els[0].parentNode.insertBefore(wrapper, els[0]);
+    els.forEach(el => wrapper.appendChild(el));
+  });
+}
+
+const TITULOS_SLIDE = [
+  'Portada',
+  'Dashboard de Promotores',
+  'Meta Líquidos — Top 5',
+  'Ranking Extra',
+  'Meta GNV',
+  'Premios NPS',
+  'Lubricantes y Aditivos',
+  'Urea y Extintores',
+  'Premio de mi bolsillo',
+  'Ranking Completo del Equipo',
+  'Resumen de Bonificaciones'
+];
+
+function activarPresentacion(){
+  prepararSlides();
+  document.body.classList.add('presenting');
+  PRES_IDX = 0;
+  mostrarSlide(0);
+  // Intentar fullscreen
+  try{
+    const el = document.documentElement;
+    if(el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+    else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  }catch(e){}
+}
+
+function salirPresentacion(){
+  document.body.classList.remove('presenting');
+  try{
+    if(document.fullscreenElement) document.exitFullscreen();
+    else if(document.webkitFullscreenElement) document.webkitExitFullscreen();
+  }catch(e){}
+}
+
+function mostrarSlide(idx){
+  const slides = document.querySelectorAll('.slide');
+  if(!slides.length) return;
+  PRES_IDX = Math.max(0, Math.min(idx, slides.length-1));
+  slides.forEach((s,i) => s.classList.toggle('slide-active', i === PRES_IDX));
+  // Indicador
+  const ind = document.getElementById('slide-indicator');
+  if(ind) ind.textContent = `${PRES_IDX+1} / ${slides.length}`;
+  // Título superior
+  const tit = document.getElementById('slide-title');
+  if(tit){
+    const titulo = TITULOS_SLIDE[PRES_IDX] || `Diapositiva ${PRES_IDX+1}`;
+    tit.textContent = `${titulo} · EDS Terpel Av. Boyacá`;
+  }
+  // Scroll al tope del slide
+  const activo = slides[PRES_IDX];
+  if(activo) activo.scrollTop = 0;
+}
+
+function siguienteSlide(){ mostrarSlide(PRES_IDX+1); }
+function anteriorSlide(){ mostrarSlide(PRES_IDX-1); }
+
+document.addEventListener('keydown', e => {
+  if(!document.body.classList.contains('presenting')) return;
+  if(e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown'){ e.preventDefault(); siguienteSlide(); }
+  else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); anteriorSlide(); }
+  else if(e.key === 'Escape'){ salirPresentacion(); }
+  else if(e.key === 'Home'){ mostrarSlide(0); }
+  else if(e.key === 'End'){ mostrarSlide(999); }
+});
 
 function imprimir(){
   document.querySelectorAll('input').forEach(i=>{
