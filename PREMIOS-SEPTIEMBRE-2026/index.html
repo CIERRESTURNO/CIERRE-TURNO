@@ -174,13 +174,24 @@ body.presenting .slide-title-bar{display:block}
 .hidden{display:none}
 
 @media print{
-  body{background:white}
-  .hero{background:linear-gradient(180deg,var(--cielo-top),var(--cielo-horiz));-webkit-print-color-adjust:exact;print-color-adjust:exact;border-radius:16px;margin-bottom:20px}
-  .card,.resumen,.dash-ref,.upload-section{box-shadow:none;break-inside:avoid;page-break-inside:avoid}
-  .upload-section{display:none}
-  .banderin,.lugar .num-circ,.lugar .premio-box,.cond-roja,.resumen,.meta-caja .meta-num,.hero-tit,.resumen-mes{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .botones{display:none}
-  .save-ok{display:none}
+  /* FORZAR COLOR EN TODO AL IMPRIMIR */
+  *,*::before,*::after{
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+    color-adjust:exact !important;
+  }
+  html,body{background:linear-gradient(180deg,#41AED7 0%,#8FD6EF 55%,#ECF9FA 100%) !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+  .pagina{padding:10px 20px 30px}
+  .hero{background:transparent !important;border-radius:16px}
+  .card,.resumen,.dash-ref{box-shadow:none !important;break-inside:avoid;page-break-inside:avoid}
+  .upload-section,.botones,.save-ok,.slide-title-bar,.pres-controls,.drop,.img-up{display:none !important}
+  .banderin,.lugar .num-circ,.lugar .premio-box,.cond-roja,.resumen,.meta-caja .meta-num,.hero-tit,.resumen-mes,.cumplio-caja .campo,.estado-grande,.ganadores,.res-it,.gan-item .pos,.prize-card,.img-preview,.lugar,.lugar .num-circ.oro,.rk-bar,.rk-mark,.btn-cumple{
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+    color-adjust:exact !important;
+  }
+  /* Asegurar que el cielo detrás de todo se imprima */
+  body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(180deg,#41AED7 0%,#8FD6EF 55%,#ECF9FA 100%);z-index:-1;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
 }
 @media (max-width:640px){
   .hero-tit{font-size:44px}
@@ -476,10 +487,10 @@ body.presenting .slide-title-bar{display:block}
       <div class="res-it" style="display:none"><div class="l">Premio Fidelización</div><div class="v" id="r-fid">$0</div></div>
       <div class="res-it"><div class="l">Ranking Extra</div><div class="v">$260.000</div></div>
       <div class="res-it"><div class="l">GNV (si cumple meta — no cumplió)</div><div class="v" style="color:#E6193A">$0</div></div>
-      <div class="res-it"><div class="l">NPS 4° lugar</div><div class="v">$20.000</div></div>
+      <div class="res-it"><div class="l">Premios NPS (3 en especie + efectivo)</div><div class="v">$250.000</div></div>
       <div class="res-it"><div class="l">Lubricantes ($18.781.800 / $20M)</div><div class="v" style="color:#E6193A">No llegó</div></div>
       <div class="res-it"><div class="l">Premio de mi bolsillo</div><div class="v" id="r-bols">$0</div></div>
-      <div class="res-it gr"><div class="l">TOTAL BONIFICACIONES EN EFECTIVO</div><div class="v" id="r-total">$1.380.000</div></div>
+      <div class="res-it gr"><div class="l">TOTAL BONIFICACIONES</div><div class="v" id="r-total">$1.610.000</div></div>
     </div>
     <div style="font-size:11px;color:#94a3b8;margin-top:12px">Datos informativos no incluidos en bonificaciones: Urea $10.106.500 · Extintores $594.500 (29 unidades)</div>
     <div style="font-size:11px;color:#94a3b8;margin-top:12px">* GNV: $100.000 × 5 promotores estimados. Ajuste según el equipo real. No incluye NPS en especie ni "premio de mi bolsillo".</div>
@@ -488,6 +499,9 @@ body.presenting .slide-title-bar{display:block}
   <div class="botones">
     <button class="btn" onclick="activarPresentacion()">🎬 Modo Presentación</button>
     <button class="btn" onclick="imprimir()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="btn sec" onclick="exportarDatos()">💾 Guardar en archivo</button>
+    <button class="btn sec" onclick="document.getElementById('imp-file').click()">📂 Cargar archivo guardado</button>
+    <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importarDatos(event)">
     <button class="btn sec" onclick="limpiar()">🧹 Limpiar todo</button>
   </div>
 
@@ -745,7 +759,8 @@ function rellenar(d){
   document.getElementById('r-liq').textContent = '$'+fmt(ganLiq);
   const rfid=document.getElementById('r-fid');
   if(rfid) rfid.closest('.res-it').style.display='none'; // ocultar linea separada
-  const totalGeneral = ganLiq + 260000 + 500000 + 20000;
+  // Total: Liquidos + Extra 260k + GNV 500k (potencial) + NPS 250k
+  const totalGeneral = ganLiq + 260000 + 500000 + 250000;
   document.getElementById('r-total').textContent = '$'+fmt(totalGeneral);
 
   // ===== RANKINGS COMPLETOS DEL EQUIPO =====
@@ -1046,6 +1061,74 @@ function cargarRanking(){
     const img=localStorage.getItem('ranking_img');
     if(img){document.getElementById('rk-preview').innerHTML=`<div class="img-preview"><img src="${img}"><button class="quitar" onclick="quitarRanking()">Quitar imagen</button></div>`;}
   }catch(e){}
+}
+
+// ========== EXPORTAR / IMPORTAR DATOS ==========
+function exportarDatos(){
+  const datos = {
+    campos:{},
+    bolsillos:bolsillos,
+    cumple:estadoMeta,
+    nps:{NPS_DATA,NPS_MES_ACTUAL},
+    rankingImg:null,
+    fecha:new Date().toISOString()
+  };
+  document.querySelectorAll('input[data-key]').forEach(i=>{
+    datos.campos[i.dataset.key]=i.value;
+  });
+  try{datos.rankingImg=localStorage.getItem('ranking_img');}catch(e){}
+  const blob=new Blob([JSON.stringify(datos,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const fecha=new Date().toISOString().split('T')[0];
+  a.href=url;
+  a.download=`Premios_EDS_${fecha}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},100);
+  mostrarGuardado();
+}
+
+async function importarDatos(e){
+  const f=e.target.files&&e.target.files[0];
+  if(!f)return;
+  try{
+    const txt=await f.text();
+    const d=JSON.parse(txt);
+    // Restaurar campos
+    if(d.campos){
+      Object.entries(d.campos).forEach(([k,v])=>{
+        const inp=document.querySelector('input[data-key="'+k+'"]');
+        if(inp){inp.value=v;inp.dispatchEvent(new Event('input'));}
+      });
+    }
+    // Restaurar bolsillos
+    if(Array.isArray(d.bolsillos)){
+      bolsillos=d.bolsillos;
+      renderBolsillos();
+      guardarBolsillos();
+    }
+    // Restaurar estados cumple/no cumple
+    if(d.cumple){
+      Object.entries(d.cumple).forEach(([g,v])=>setCumple(g,v));
+    }
+    // Restaurar NPS
+    if(d.nps&&d.nps.NPS_DATA){
+      NPS_DATA=d.nps.NPS_DATA;
+      NPS_MES_ACTUAL=d.nps.NPS_MES_ACTUAL;
+      try{localStorage.setItem('nps_data',JSON.stringify({NPS_DATA,NPS_MES_ACTUAL}));}catch(e){}
+      renderNPSSelector();
+      renderNPSRanking();
+    }
+    // Restaurar imagen ranking
+    if(d.rankingImg){
+      try{localStorage.setItem('ranking_img',d.rankingImg);}catch(e){}
+      cargarRanking();
+    }
+    alert('✅ Datos cargados correctamente ('+Object.keys(d.campos||{}).length+' campos, '+(d.bolsillos||[]).length+' bolsillos).');
+  }catch(ex){
+    alert('❌ No pude leer ese archivo: '+ex.message);
+  }
 }
 
 // ========== MODO PRESENTACIÓN ==========
