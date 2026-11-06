@@ -614,15 +614,20 @@ function limpiarArchivo(){
 }
 
 function procesar(wb){
-  // Encontrar pestañas de ventas y fidelizadas
-  let shVentas=null, shFid=null;
+  // Encontrar pestañas de ventas y fidelizadas — detección tolerante
+  let shVentas=null, shFid=null, nombreVentas='', nombreFid='';
   for(const sn of wb.SheetNames){
     const ns=nm(sn);
-    if(ns.includes('fideliz')) shFid=wb.Sheets[sn];
-    else if(ns.includes('venta')) shVentas=wb.Sheets[sn];
+    if(ns.includes('fideliz')||ns.includes('fidel')||ns==='hoja2'){ shFid=wb.Sheets[sn]; nombreFid=sn; }
+    else if(ns.includes('venta')){ shVentas=wb.Sheets[sn]; nombreVentas=sn; }
   }
-  if(!shVentas) shVentas=wb.Sheets[wb.SheetNames[0]];
-  if(!shFid && wb.SheetNames.length>1) shFid=wb.Sheets[wb.SheetNames[1]];
+  if(!shVentas){ shVentas=wb.Sheets[wb.SheetNames[0]]; nombreVentas=wb.SheetNames[0]; }
+  if(!shFid && wb.SheetNames.length>1){
+    // tomar la segunda pestaña si no se detectó por nombre
+    const otraSn=wb.SheetNames.find(x=>x!==nombreVentas);
+    if(otraSn){ shFid=wb.Sheets[otraSn]; nombreFid=otraSn; }
+  }
+  console.log('Pestañas detectadas → Ventas:',nombreVentas,'· Fidelizadas:',nombreFid);
 
   const result={promotores:{},mes:'?',totalGal:0,totalFid:0};
 
@@ -816,6 +821,11 @@ function rellenar(d){
     </div>`;
   }).join('');
 
+  // Guardar los datos procesados en el mes actual para re-rellenar al volver
+  if(typeof MES_ACTUAL!=='undefined' && MES_ACTUAL && MESES[MES_ACTUAL]){
+    MESES[MES_ACTUAL].excelData = d;
+    guardarMesActual();
+  }
   guardar();
 }
 
@@ -974,6 +984,11 @@ function renderNPSRanking(){
   // Guardar
   try{localStorage.setItem('nps_data',JSON.stringify({NPS_DATA,NPS_MES_ACTUAL}));}catch(e){}
   guardar();
+  // Guardar también en el mes actual
+  if(typeof MES_ACTUAL!=='undefined' && MES_ACTUAL && MESES[MES_ACTUAL]){
+    MESES[MES_ACTUAL].nps = {NPS_DATA, NPS_MES_ACTUAL};
+    guardarMesActual();
+  }
 }
 
 function cargarNPS(){
@@ -1238,6 +1253,17 @@ function cargarMes(mesId){
     if(el){el.className='estado-grande pend';el.textContent='Pendiente';}
     if(estadoMeta[g]) setCumple(g, estadoMeta[g]);
   });
+  // Re-procesar datos del Excel guardado (restaura Top 5, fidelización, rankings)
+  // Primero limpiar el resumen del mes anterior
+  const resEl=document.getElementById('resumen-mes');
+  if(resEl){resEl.classList.add('hidden');resEl.innerHTML='';}
+  // Limpiar rankings
+  const rkg=document.getElementById('rk-galones'); if(rkg) rkg.innerHTML='<div style="color:#94a3b8;padding:20px;text-align:center">Suba el Excel del mes para ver este ranking</div>';
+  const rkf=document.getElementById('rk-fideli'); if(rkf) rkf.innerHTML='<div style="color:#94a3b8;padding:20px;text-align:center">Suba el Excel del mes para ver este ranking</div>';
+  // Si hay datos de excel guardados, re-rellenar
+  if(m.excelData){
+    try{ rellenar(m.excelData); }catch(e){console.warn('No pude re-rellenar:',e);}
+  }
   // NPS
   if(m.nps && m.nps.NPS_DATA){
     NPS_DATA = m.nps.NPS_DATA;
@@ -1246,8 +1272,8 @@ function cargarMes(mesId){
     renderNPSRanking();
   } else {
     NPS_DATA = null; NPS_MES_ACTUAL = null;
-    document.getElementById('nps-selector').innerHTML='';
-    document.getElementById('nps-ranking-box').innerHTML='';
+    const nsel=document.getElementById('nps-selector');if(nsel)nsel.innerHTML='';
+    const nrk=document.getElementById('nps-ranking-box');if(nrk)nrk.innerHTML='';
   }
   // Ranking img
   if(m.rankingImg){
