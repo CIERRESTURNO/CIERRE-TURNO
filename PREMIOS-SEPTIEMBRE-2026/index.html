@@ -228,18 +228,8 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
       <div class="lugar"><div class="num-circ">5</div><div class="cont"><div class="pos-lbl">Quinto lugar</div><input type="text" placeholder="Nombre del promotor" data-key="liq5"></div><div class="premio-box">$100.000</div></div>
     </div>
 
-    <!-- Premio especial de fidelización -->
-    <div style="margin-top:18px;background:linear-gradient(135deg,#FFCC00,#FFE066);border-radius:18px;padding:18px 22px;border:3px solid var(--rojo)">
-      <div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--display);font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:10px">🎯 Premio especial de Fidelización — $200.000</div>
-      <div style="font-size:13px;color:var(--display);margin-bottom:10px">Para quien cumpla con el 85% de fidelización individual.</div>
-      <div class="lugar" style="background:#fff;border:none">
-        <div class="num-circ oro">⭐</div>
-        <div class="cont">
-          <div class="pos-lbl">Promotor que cumple fidelización</div>
-          <input type="text" placeholder="Nombre" data-key="liq_fid" value="Luis Velez">
-        </div>
-        <div class="premio-box">$200.000</div>
-      </div>
+    <div class="nota" style="margin-top:14px;background:#fffbea;border:1px solid var(--amarillo)">
+      <strong>⭐ Premio especial de fidelización:</strong> Dentro del Top 5, el promotor que cumpla el 85% de fidelización gana <strong>$200.000</strong> en vez de los $100.000 (el sistema lo marca solo cuando sube el Excel).
     </div>
   </div>
 
@@ -457,14 +447,14 @@ body{font-family:'Barlow Semi Condensed','Calibri',sans-serif;color:var(--texto)
   <div class="resumen">
     <h3>💰 Resumen de bonificaciones</h3>
     <div class="res-grid">
-      <div class="res-it"><div class="l">Top 5 Líquidos ($100k c/u)</div><div class="v" id="r-liq">$500.000</div></div>
-      <div class="res-it"><div class="l">Premio Fidelización (Luis Velez)</div><div class="v" id="r-fid">$200.000</div></div>
+      <div class="res-it"><div class="l">Top 5 Líquidos (4×$100k + Velez $200k)</div><div class="v" id="r-liq">$600.000</div></div>
+      <div class="res-it" style="display:none"><div class="l">Premio Fidelización</div><div class="v" id="r-fid">$0</div></div>
       <div class="res-it"><div class="l">Ranking Extra</div><div class="v">$260.000</div></div>
       <div class="res-it"><div class="l">GNV (si cumple meta — no cumplió)</div><div class="v" style="color:#E6193A">$0</div></div>
       <div class="res-it"><div class="l">NPS 4° lugar</div><div class="v">$20.000</div></div>
       <div class="res-it"><div class="l">Lubricantes ($18.781.800 / $20M)</div><div class="v" style="color:#E6193A">No llegó</div></div>
       <div class="res-it"><div class="l">Premio de mi bolsillo</div><div class="v" id="r-bols">$0</div></div>
-      <div class="res-it gr"><div class="l">TOTAL BONIFICACIONES EN EFECTIVO</div><div class="v" id="r-total">$980.000</div></div>
+      <div class="res-it gr"><div class="l">TOTAL BONIFICACIONES EN EFECTIVO</div><div class="v" id="r-total">$1.380.000</div></div>
     </div>
     <div style="font-size:11px;color:#94a3b8;margin-top:12px">Datos informativos no incluidos en bonificaciones: Urea $10.106.500 · Extintores $594.500 (29 unidades)</div>
     <div style="font-size:11px;color:#94a3b8;margin-top:12px">* GNV: $100.000 × 5 promotores estimados. Ajuste según el equipo real. No incluye NPS en especie ni "premio de mi bolsillo".</div>
@@ -652,10 +642,11 @@ function rellenar(d){
   if(metaOk){me.textContent='✓ Meta cumplida ('+fmt(Math.round(d.totalGal))+' gal)';me.className='meta-regla verde';}
   else{me.textContent='✗ Faltaron '+fmt(Math.round(-diffMeta))+' gal';me.className='meta-regla rojo';}
 
-  // TOP 5 LÍQUIDOS: los 5 que más galones vendieron → $100.000 c/u
-  // EXCLUYE a Luis Velez porque ya gana aparte los $200.000 de fidelización
+  // TOP 5 LÍQUIDOS: los 5 que más galones vendieron (INCLUYE a Luis Velez)
+  // Luis Velez gana $200.000 por fidelización (reemplaza los $100k del Top 5)
+  // Los otros 4 ganan $100.000
   const todosPorGal = Object.values(d.promotores).sort((a,b)=>b.galones-a.galones);
-  const top5 = todosPorGal.filter(p => !nm(p.nombre).includes('velez')).slice(0,5);
+  const top5 = todosPorGal.slice(0,5);
 
   for(let i=0; i<5; i++){
     const k='liq'+(i+1);
@@ -672,26 +663,23 @@ function rellenar(d){
     if(p){
       inp.value = p.nombre;
       lugar.classList.add('auto');
-      const info=document.createElement('div');info.className='auto-info detalle';
-      info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli ${p.pctFideli.toFixed(1)}%`;
-      cont.appendChild(info);
-    }
-  }
-
-  // PREMIO ESPECIAL DE FIDELIZACIÓN: buscar a Luis Velez automáticamente
-  const inpFid = document.querySelector('input[data-key="liq_fid"]');
-  if(inpFid){
-    const lugarFid = inpFid.closest('.lugar');
-    const contFid = inpFid.closest('.cont');
-    const prevInfoF = contFid.querySelector('.auto-info');if(prevInfoF)prevInfoF.remove();
-    // Buscar promotor cuyo nombre contenga "VELEZ"
-    const luis = Object.values(d.promotores).find(p => nm(p.nombre).includes('velez'));
-    if(luis){
-      inpFid.value = luis.nombre;
-      const cumple = luis.pctFideli >= 85;
-      const info = document.createElement('div');info.className='auto-info detalle';
-      info.innerHTML = `${fmt(Math.round(luis.galones))} gal · Fideli <span class="${cumple?'ok':'fail'}">${luis.pctFideli.toFixed(1)}%</span> ${cumple?'✓ CUMPLE 85%':'✗ NO LLEGÓ AL 85%'}`;
-      contFid.appendChild(info);
+      const esVelez = nm(p.nombre).includes('velez');
+      // Premio: si es Luis Velez, $200.000 (fidelización); los demás $100.000
+      if(esVelez){
+        premio.textContent = '$200.000';
+        premio.style.background = 'var(--amarillo)';
+        premio.style.color = 'var(--display)';
+        const info=document.createElement('div');info.className='auto-info detalle';
+        info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli <span class="ok">${p.pctFideli.toFixed(1)}%</span> ⭐ PREMIO FIDELIZACIÓN`;
+        cont.appendChild(info);
+      } else {
+        premio.textContent = '$100.000';
+        premio.style.background = '';
+        premio.style.color = '';
+        const info=document.createElement('div');info.className='auto-info detalle';
+        info.innerHTML=`${fmt(Math.round(p.galones))} gal · Fideli ${p.pctFideli.toFixed(1)}%`;
+        cont.appendChild(info);
+      }
     }
   }
 
@@ -714,13 +702,15 @@ function rellenar(d){
     cont.appendChild(info);
   });
 
-  // Recalcular totales: Top 5 por galones a $100k c/u + Luis Velez $200k si cumple fideli
-  const ganLiq = top5.length * 100000;
-  const luisV = Object.values(d.promotores).find(p => nm(p.nombre).includes('velez'));
-  const ganFid = (luisV && luisV.pctFideli >= 85) ? 200000 : 0;
+  // Recalcular totales: Top 5 (Luis Velez $200k, demás $100k)
+  let ganLiq = 0;
+  top5.forEach(p => {
+    ganLiq += nm(p.nombre).includes('velez') ? 200000 : 100000;
+  });
   document.getElementById('r-liq').textContent = '$'+fmt(ganLiq);
-  document.getElementById('r-fid').textContent = '$'+fmt(ganFid);
-  const totalGeneral = ganLiq + ganFid + 260000 + 500000 + 20000;
+  const rfid=document.getElementById('r-fid');
+  if(rfid) rfid.closest('.res-it').style.display='none'; // ocultar linea separada
+  const totalGeneral = ganLiq + 260000 + 500000 + 20000;
   document.getElementById('r-total').textContent = '$'+fmt(totalGeneral);
 
   // ===== RANKINGS COMPLETOS DEL EQUIPO =====
