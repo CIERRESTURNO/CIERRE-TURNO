@@ -48,7 +48,7 @@ En la app, pestaña **Configuración → Usuarios**, o directamente en la pesta�
 Puedes cambiar los nombres por los nombres reales de las personas: así el informe dice exactamente quién reportó.
 
 ### 6. Ajustar la estación (pestaña Configuración, solo admin)
-- Surtidores: **6** · Caras por surtidor: **3** (18 caras) · Mangueras por cara: **2** (36 mangueras). Cámbialo si tu distribución es otra.
+- La distribución de surtidores viene tomada del reporte de venta detallada del Terpel POS: 3 islas, 6 surtidores, 18 caras (S1, S3 y S5 con 2 caras; S2, S4 y S6 con 4) y 36 mangueras con su producto (Corriente, Extra, Diésel B10). Se ve en Configuración y solo se edita en "Avanzado" si cambia la estación.
 - **Galones por hora por posición** y **m³ por hora por posición**: con esto la app estima la venta perdida (posiciones × horas × rendimiento). Calíbralo con el promedio real de Sicom; el valor estimado siempre se puede corregir a mano con el dato real.
 - Nombres de surtidores (opcional): `S1=Isla 1 Norte, S2=Isla 1 Sur…`
 

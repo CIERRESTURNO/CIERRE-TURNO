@@ -253,7 +253,15 @@ const MOTIVOS_MT = ['Desgaste normal','Daño por vehículo / cliente','Fuga','Pr
 const AREAS = ['Baños','Jardines','Sifones / desagües','Llaves / grifería','Techo / cubierta','Iluminación','Pintura / fachada','Pisos / andenes','Puertas / chapas','Eléctrico','Otro'];
 const PRIORIDADES = ['Baja','Media','Alta'];
 const ESTADOS_DN = ['Reportado','En reparación','Reparado'];
-const CFG_DEF = { surtidores: 6, carasPorSurtidor: 3, manguerasPorCara: 2, galHoraPos: 20, m3HoraPos: 15, productos: ['Corriente','Extra','Diésel','GNV'], nombresSurtidores: {} };
+const LAYOUT_DEF = [
+  { id: 'S1', isla: 1, caras: [{ n: 1, mangueras: [{ n: 1, p: 'Corriente' }, { n: 2, p: 'Extra' }] }, { n: 2, mangueras: [{ n: 3, p: 'Corriente' }, { n: 4, p: 'Extra' }] }] },
+  { id: 'S2', isla: 1, caras: [{ n: 3, mangueras: [{ n: 5, p: 'Diésel B10' }, { n: 6, p: 'Corriente' }] }, { n: 4, mangueras: [{ n: 7, p: 'Diésel B10' }, { n: 8, p: 'Corriente' }] }, { n: 5, mangueras: [{ n: 9, p: 'Corriente' }, { n: 10, p: 'Extra' }] }, { n: 6, mangueras: [{ n: 11, p: 'Corriente' }, { n: 12, p: 'Extra' }] }] },
+  { id: 'S3', isla: 2, caras: [{ n: 7, mangueras: [{ n: 13, p: 'Extra' }, { n: 14, p: 'Corriente' }] }, { n: 8, mangueras: [{ n: 15, p: 'Extra' }, { n: 16, p: 'Corriente' }] }] },
+  { id: 'S4', isla: 2, caras: [{ n: 9, mangueras: [{ n: 17, p: 'Corriente' }, { n: 18, p: 'Extra' }] }, { n: 10, mangueras: [{ n: 19, p: 'Corriente' }, { n: 20, p: 'Extra' }] }, { n: 11, mangueras: [{ n: 21, p: 'Diésel B10' }, { n: 22, p: 'Corriente' }] }, { n: 12, mangueras: [{ n: 23, p: 'Diésel B10' }, { n: 24, p: 'Corriente' }] }] },
+  { id: 'S5', isla: 3, caras: [{ n: 13, mangueras: [{ n: 25, p: 'Extra' }, { n: 26, p: 'Corriente' }] }, { n: 14, mangueras: [{ n: 27, p: 'Extra' }, { n: 28, p: 'Corriente' }] }] },
+  { id: 'S6', isla: 3, caras: [{ n: 15, mangueras: [{ n: 29, p: 'Diésel B10' }, { n: 30, p: 'Corriente' }] }, { n: 16, mangueras: [{ n: 31, p: 'Diésel B10' }, { n: 32, p: 'Corriente' }] }, { n: 17, mangueras: [{ n: 33, p: 'Corriente' }, { n: 34, p: 'Extra' }] }, { n: 18, mangueras: [{ n: 35, p: 'Corriente' }, { n: 36, p: 'Extra' }] }] }
+];
+const CFG_DEF = { layout: LAYOUT_DEF, galHoraPos: 20, m3HoraPos: 15, productos: ['Corriente','Extra','Diésel B10','GNV'], nombresSurtidores: {} };
 
 /* ========== ESTADO ========== */
 let sesion = { nombre: '', pin: '', cargo: '', rol: 'usuario', url: '' };
@@ -286,12 +294,17 @@ function enMes(iso, mes) { return !!iso && String(iso).slice(0, 7) === mes; }
 function enRango(iso) { if (!iso) return false; const d = String(iso).slice(0, 10); return d >= filtros.desde && d <= filtros.hasta; }
 
 /* Surtidores / caras / mangueras */
-function nombreSurt(i) { return (cfg().nombresSurtidores || {})['S' + i] || ('S' + i); }
-function surtidores() { return Array.from({ length: cfg().surtidores }, (_, i) => ({ id: 'S' + (i + 1), nombre: nombreSurt(i + 1) })); }
-function carasDe(sid) { return Array.from({ length: cfg().carasPorSurtidor }, (_, i) => sid + '-C' + (i + 1)); }
-function mangueras() { return Array.from({ length: cfg().manguerasPorCara }, (_, i) => 'M' + (i + 1)); }
-function totalPosiciones() { return cfg().surtidores * cfg().carasPorSurtidor; }
-function labelCara(c) { const [s, k] = c.split('-'); return nombreSurt(+s.slice(1)) + ' · Cara ' + k.slice(1); }
+function layout() { const l = cfg().layout; return Array.isArray(l) && l.length ? l : LAYOUT_DEF; }
+function nombreSurt(i) { const id = typeof i === 'string' ? i : 'S' + i; return (cfg().nombresSurtidores || {})[id] || id; }
+function surtidores() { return layout().map(s => ({ id: s.id, isla: s.isla, nombre: nombreSurt(s.id), caras: s.caras })); }
+function surtDe(sid) { return layout().find(s => s.id === sid) || { id: sid, caras: [] }; }
+function carasDe(sid) { return surtDe(sid).caras.map(c => sid + '-C' + c.n); }
+function caraObj(cid) { if (!cid) return null; const [sid, k] = String(cid).split('-C'); return surtDe(sid).caras.find(c => String(c.n) === k) || null; }
+function mangueras(cid) { const c = caraObj(cid); return c ? c.mangueras.map(m => ({ id: 'M' + m.n, p: m.p })) : []; }
+function totalPosiciones() { return layout().reduce((t, s) => t + s.caras.length, 0); }
+function totalMangueras() { return layout().reduce((t, s) => t + s.caras.reduce((u, c) => u + c.mangueras.length, 0), 0); }
+function numCara(cid) { return String(cid || '').split('-C')[1] || ''; }
+function labelCara(c) { const [sid] = String(c).split('-C'); return nombreSurt(sid) + ' · Cara ' + numCara(c); }
 
 /* ========== RED ========== */
 async function api(action, extra = {}) {
@@ -416,9 +429,9 @@ function vInicio() {
     const mtS = mtM.filter(x => x.surtidor === s.id);
     const lector = S.mt.filter(x => x.surtidor === s.id && x.parte === 'Lector').sort((a, b) => b.fecha.localeCompare(a.fecha))[0];
     const abierta = abiertas.some(a => (a.surtidores || []).includes(s.id) || (a.caras || []).some(c => c.startsWith(s.id + '-')) || a.alcance === 'Toda la EDS');
-    html += `<div class="surt" data-surt="${s.id}"><div class="h"><b>${esc(s.nombre)}</b>${abierta ? '<span class="tag t-r">Afectado</span>' : ''}</div><div class="caras">${caras.map(c => {
+    html += `<div class="surt" data-surt="${s.id}"><div class="h"><b>${esc(s.nombre)} <small style="font-weight:600;color:var(--gris);font-size:12px">Isla ${s.isla}</small></b>${abierta ? '<span class="tag t-r">Afectado</span>' : ''}</div><div class="caras">${caras.map(c => {
       const hasAf = afM.some(a => (a.caras || []).includes(c)), hasMt = mtS.some(x => x.cara === c);
-      return `<div class="cara ${hasAf ? 'af' : ''} ${hasMt ? 'mt' : ''}" title="${esc(labelCara(c))}">C${c.split('-C')[1]}</div>`; }).join('')}</div>
+      return `<div class="cara ${hasAf ? 'af' : ''} ${hasMt ? 'mt' : ''}" title="${esc(labelCara(c))}">C${numCara(c)}</div>`; }).join('')}</div>
       <div class="m"><span><b>${afS.length}</b> afect.</span><span><b>${mtS.length}</b> cambios</span><span title="Último cambio de lector">Lector: <b>${lector ? fmtF(lector.fecha) : '—'}</b></span></div></div>`;
   });
   html += `</div><div class="hint" style="margin-top:8px">Cara roja = tuvo afectación en el mes · Cara naranja = cambio de parte en el mes. Toca un surtidor para ver su mantenimiento.</div>`;
@@ -436,7 +449,7 @@ function barras(pares, fmt, cls = '') {
 }
 function alcanceTxt(a) {
   if (a.alcance === 'Toda la EDS') return 'Toda la EDS';
-  if (a.alcance === 'Surtidores') return (a.surtidores || []).map(s => nombreSurt(+s.slice(1))).join(', ') || 'Surtidores';
+  if (a.alcance === 'Surtidores') return (a.surtidores || []).map(s => nombreSurt(s)).join(', ') || 'Surtidores';
   if (a.alcance === 'Caras') return (a.caras || []).map(labelCara).join(', ') || 'Caras';
   return a.alcance || '';
 }
@@ -471,7 +484,7 @@ function vMt() {
   });
   html += `</tbody></table></div></div><h2 class="sec">Registros del mes</h2>`;
   if (!arr.length) return html + `<div class="card empty"><b>Sin cambios registrados</b>Registra cada válvula, manguera, pistola, codo, breakaway, filtro o lector que se cambie.</div>`;
-  html += `<div class="list">${arr.map(x => `<div class="row" data-open-mt="${x.id}"><div><div class="ti">${esc(x.parte)} <span class="tag t-o">${esc(nombreSurt(+String(x.surtidor).slice(1)))}${x.cara ? ' · Cara ' + esc(String(x.cara).split('-C')[1]) : ''}${x.manguera ? ' · ' + esc(x.manguera) : ''}</span></div></div>
+  html += `<div class="list">${arr.map(x => `<div class="row" data-open-mt="${x.id}"><div><div class="ti">${esc(x.parte)} <span class="tag t-o">${esc(nombreSurt(x.surtidor))}${x.cara ? ' · Cara ' + esc(numCara(x.cara)) : ''}${x.manguera ? ' · ' + esc(x.manguera) : ''}</span></div></div>
     <div class="rt"><div class="big">${fmtF(x.fecha)}</div>${n0(x.costo) ? `<small style="font-size:12px;color:var(--gris)">${fmtCOP(x.costo)}</small>` : ''}</div>
     <div class="su">${[`<b>${esc(x.consecutivo || '')}</b>`, esc(x.producto), esc(x.motivo), 'cant. ' + (n0(x.cantidad) || 1), esc(x.tecnico), 'reportó ' + esc(x.reportadoPor)].filter(Boolean).join(' · ')}${x.observaciones ? '<br>' + esc(x.observaciones) : ''}</div></div>`).join('')}</div>`;
   return html;
@@ -516,7 +529,7 @@ function vInf() {
 
   // Lectores por cara
   const lect = mt.filter(x => x.parte === 'Lector');
-  if (lect.length) html += `<h2 class="sec">Cambios de lector por cara</h2><div class="card tw"><table><thead><tr><th>Fecha</th><th>Surtidor</th><th>Cara</th><th>Motivo</th><th>Técnico</th><th>Reportó</th></tr></thead><tbody>${lect.sort((a, b) => b.fecha.localeCompare(a.fecha)).map(x => `<tr><td>${fmtF(x.fecha)}</td><td>${esc(nombreSurt(+String(x.surtidor).slice(1)))}</td><td>${x.cara ? 'Cara ' + esc(String(x.cara).split('-C')[1]) : '—'}</td><td>${esc(x.motivo || '')}</td><td>${esc(x.tecnico || '')}</td><td>${esc(x.reportadoPor || '')}</td></tr>`).join('')}</tbody></table></div>`;
+  if (lect.length) html += `<h2 class="sec">Cambios de lector por cara</h2><div class="card tw"><table><thead><tr><th>Fecha</th><th>Surtidor</th><th>Cara</th><th>Motivo</th><th>Técnico</th><th>Reportó</th></tr></thead><tbody>${lect.sort((a, b) => b.fecha.localeCompare(a.fecha)).map(x => `<tr><td>${fmtF(x.fecha)}</td><td>${esc(nombreSurt(x.surtidor))}</td><td>${x.cara ? 'Cara ' + esc(numCara(x.cara)) : '—'}</td><td>${esc(x.motivo || '')}</td><td>${esc(x.tecnico || '')}</td><td>${esc(x.reportadoPor || '')}</td></tr>`).join('')}</tbody></table></div>`;
 
   // Daños por área
   const ar = {}; dn.forEach(d => { const k = d.area || 'Sin dato'; ar[k] = ar[k] || { n: 0, pend: 0, costo: 0 }; ar[k].n++; if (d.estado !== 'Reparado') ar[k].pend++; ar[k].costo += n0(d.costo); });
@@ -529,15 +542,14 @@ function vCfg() {
   const c = cfg();
   let html = `<div class="card pad"><b style="font-size:16px">Configuración de la estación</b><div class="hint">Solo la administradora puede cambiar esto. Afecta los formularios y los cálculos estimados.</div>
     <div class="grid" style="margin-top:14px">
-      <div><label class="fl">Surtidores</label><input class="in" type="number" min="1" max="30" id="cSurt" value="${c.surtidores}"></div>
-      <div><label class="fl">Caras por surtidor</label><input class="in" type="number" min="1" max="6" id="cCaras" value="${c.carasPorSurtidor}"></div>
-      <div><label class="fl">Mangueras por cara</label><input class="in" type="number" min="1" max="6" id="cMang" value="${c.manguerasPorCara}"></div>
       <div><label class="fl">Productos <span>(separados por coma)</span></label><input class="in" id="cProd" value="${esc((c.productos || []).join(', '))}"></div>
       <div><label class="fl">Galones por hora por posición <span>(para estimar pérdida)</span></label><input class="in" type="number" step="0.1" id="cGal" value="${c.galHoraPos}"></div>
       <div><label class="fl">m³ GNV por hora por posición</label><input class="in" type="number" step="0.1" id="cM3" value="${c.m3HoraPos}"></div>
       <div class="full"><label class="fl">Nombres de surtidores <span>(opcional, ej: S1=Isla 1 Norte, S2=Isla 1 Sur)</span></label><input class="in" id="cNom" value="${esc(Object.entries(c.nombresSurtidores || {}).map(([k, v]) => k + '=' + v).join(', '))}"></div>
-    </div><div class="hint" style="margin-top:8px">Total posiciones de llenado: <b>${totalPosiciones()}</b> caras · <b>${totalPosiciones() * c.manguerasPorCara}</b> mangueras. Calibra los galones/hora con el promedio real de Sicom para que la estimación se acerque a la realidad.</div>
+    </div><div class="hint" style="margin-top:8px">Total posiciones de llenado: <b>${totalPosiciones()}</b> caras · <b>${totalMangueras()}</b> mangueras. Calibra los galones/hora con el promedio real de Sicom para que la estimación se acerque a la realidad.</div>
     <div class="actions"><button class="btn pri" id="btnCfgSave">Guardar configuración</button></div></div>`;
+  html += `<h2 class="sec">Distribución de surtidores (según Terpel POS)</h2><div class="card"><div class="tw"><table><thead><tr><th>Isla</th><th>Surtidor</th><th>Cara</th><th>Mangueras</th></tr></thead><tbody>${layout().map(s => s.caras.map((cc, i) => `<tr>${i === 0 ? `<td rowspan="${s.caras.length}">${s.isla}</td><td rowspan="${s.caras.length}"><b>${esc(nombreSurt(s.id))}</b></td>` : ''}<td>Cara ${cc.n}</td><td>${cc.mangueras.map(m => `<span class="cell has" style="margin-right:4px">M${m.n}<small>${esc(m.p)}</small></span>`).join('')}</td></tr>`).join('')).join('')}</tbody></table></div>
+    <div class="pad" style="padding-top:8px"><details><summary style="cursor:pointer;font-size:13px;color:var(--gris)">Avanzado: editar distribución (JSON)</summary><textarea class="in" id="cLayout" style="min-height:160px;font-family:ui-monospace,monospace;font-size:12px;margin-top:8px">${esc(JSON.stringify(layout()))}</textarea><div class="hint">Formato: lista de surtidores con id, isla y caras; cada cara con su número n y sus mangueras (n y p = producto). Se guarda con el botón "Guardar configuración".</div></details></div></div>`;
   html += `<h2 class="sec">Usuarios que pueden reportar</h2><div class="card"><div class="tw"><table><thead><tr><th>Nombre</th><th>Cargo</th><th>Rol</th><th>Activo</th><th></th></tr></thead><tbody>${(S.usuarios || []).map(u => `<tr><td><b>${esc(u.nombre)}</b></td><td>${esc(u.cargo || '')}</td><td>${u.rol === 'admin' ? '<span class="tag t-o">Administrador</span>' : '<span class="tag t-n">Usuario</span>'}</td><td>${String(u.activo).toUpperCase() === 'NO' ? 'No' : 'Sí'}</td><td style="text-align:right"><button class="btn sm" data-user-edit="${esc(u.nombre)}">Editar</button></td></tr>`).join('')}</tbody></table></div><div class="pad" style="padding-top:8px"><button class="btn" id="btnNewUser">+ Agregar usuario</button> <span class="hint" style="display:inline">Los PIN también se pueden cambiar directamente en la hoja <b>Usuarios</b>.</span></div></div>`;
   return html;
 }
@@ -577,7 +589,7 @@ function fAf() {
   </div></div>
   <div class="sec2"><label class="fl">Alcance</label>${seg('alcance', ['Toda la EDS', 'Surtidores', 'Caras'], a.alcance)}
     <div id="alcSurt" class="chips" style="margin-top:10px;${a.alcance === 'Surtidores' ? '' : 'display:none'}">${surtidores().map(s => `<button type="button" data-chip="surtidores" data-val="${s.id}" class="${(a.surtidores || []).includes(s.id) ? 'on' : ''}">${esc(s.nombre)}</button>`).join('')}</div>
-    <div id="alcCaras" class="chips" style="margin-top:10px;${a.alcance === 'Caras' ? '' : 'display:none'}">${surtidores().map(s => `<div class="grp">${esc(s.nombre)}</div>` + carasDe(s.id).map(cc => `<button type="button" data-chip="caras" data-val="${cc}" class="${(a.caras || []).includes(cc) ? 'on' : ''}">Cara ${cc.split('-C')[1]}</button>`).join('')).join('')}</div>
+    <div id="alcCaras" class="chips" style="margin-top:10px;${a.alcance === 'Caras' ? '' : 'display:none'}">${surtidores().map(s => `<div class="grp">${esc(s.nombre)}</div>` + carasDe(s.id).map(cc => `<button type="button" data-chip="caras" data-val="${cc}" class="${(a.caras || []).includes(cc) ? 'on' : ''}">Cara ${numCara(cc)}</button>`).join('')).join('')}</div>
     <div class="grid" style="margin-top:12px"><div><label class="fl">Posiciones afectadas</label><input class="in" type="number" min="0" data-k="posiciones" value="${esc(a.posiciones)}"><div class="hint">Se calcula solo según el alcance; puedes corregirlo.</div></div></div></div>
   <div class="sec2"><div class="grid">
     <div><label class="fl">Galones no vendidos <span>(estimado)</span></label><input class="in" type="number" step="0.1" min="0" data-k="galones" value="${esc(a.galones)}" ${a.producto === 'GNV' ? 'disabled' : ''}></div>
@@ -595,8 +607,8 @@ function fMt() {
     <div><label class="fl">Fecha del cambio</label><input class="in" type="date" data-k="fecha" value="${esc(m.fecha || '')}"></div>
     <div><label class="fl">Parte cambiada</label><select class="in" data-k="parte"><option value="">Elige…</option>${opt(PARTES, m.parte)}</select></div>
     <div><label class="fl">Surtidor</label><select class="in" data-k="surtidor" id="mtSurt">${surtidores().map(s => `<option value="${s.id}" ${m.surtidor === s.id ? 'selected' : ''}>${esc(s.nombre)}</option>`).join('')}</select></div>
-    <div><label class="fl">Cara</label><select class="in" data-k="cara" id="mtCara"><option value="">— Sin especificar —</option>${caras.map(cc => `<option value="${cc}" ${m.cara === cc ? 'selected' : ''}>Cara ${cc.split('-C')[1]}</option>`).join('')}</select></div>
-    <div><label class="fl">Manguera <span>(opcional)</span></label><select class="in" data-k="manguera"><option value="">—</option>${mangueras().map(x => `<option ${m.manguera === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+    <div><label class="fl">Cara</label><select class="in" data-k="cara" id="mtCara"><option value="">— Sin especificar —</option>${caras.map(cc => `<option value="${cc}" ${m.cara === cc ? 'selected' : ''}>Cara ${numCara(cc)}</option>`).join('')}</select></div>
+    <div><label class="fl">Manguera <span>(opcional)</span></label><select class="in" data-k="manguera" id="mtMang"><option value="">—</option>${mangueras(m.cara).map(x => `<option value="${x.id}" ${m.manguera === x.id ? 'selected' : ''}>${x.id} · ${esc(x.p)}</option>`).join('')}</select></div>
     <div><label class="fl">Producto</label><select class="in" data-k="producto"><option value="">—</option>${opt(c.productos || [], m.producto)}</select></div>
     <div><label class="fl">Cantidad</label><input class="in" type="number" min="1" data-k="cantidad" value="${esc(m.cantidad || 1)}"></div>
     <div><label class="fl">Motivo del cambio</label><select class="in" data-k="motivo"><option value="">Elige…</option>${opt(MOTIVOS_MT, m.motivo)}</select></div>
@@ -636,7 +648,11 @@ function bindForm() {
   const ca = $('#btnCerrarAhora'); if (ca) ca.onclick = () => { actual.fin = fechaLocalISO(new Date()); body.querySelector('[data-k=fin]').value = actual.fin; postCambio('fin'); estimar(true); };
   const sv = $('#btnSave'); if (sv) sv.onclick = guardarActual;
   const dl = $('#btnDel'); if (dl) dl.onclick = eliminarActual;
-  const ms = $('#mtSurt'); if (ms) ms.addEventListener('change', () => { const sel = $('#mtCara'); sel.innerHTML = '<option value="">— Sin especificar —</option>' + carasDe(ms.value).map(cc => `<option value="${cc}">Cara ${cc.split('-C')[1]}</option>`).join(''); actual.cara = ''; });
+  const ms = $('#mtSurt'), mc = $('#mtCara'), mm = $('#mtMang');
+  const llenarMang = () => { if (!mm) return; mm.innerHTML = '<option value="">—</option>' + mangueras(actual.cara).map(x => `<option value="${x.id}">${x.id} · ${esc(x.p)}</option>`).join(''); actual.manguera = ''; };
+  if (ms) ms.addEventListener('change', () => { mc.innerHTML = '<option value="">— Sin especificar —</option>' + carasDe(ms.value).map(cc => `<option value="${cc}">Cara ${numCara(cc)}</option>`).join(''); actual.cara = ''; llenarMang(); });
+  if (mc) mc.addEventListener('change', llenarMang);
+  if (mm) mm.addEventListener('change', () => { const x = mangueras(actual.cara).find(y => y.id === mm.value); const ps = $('#dBody [data-k=producto]'); if (x && ps) { actual.producto = x.p; ps.value = x.p; } });
   postCambio('inicio');
 }
 function postCambio(k) {
@@ -646,7 +662,7 @@ function postCambio(k) {
   }
   if (k === 'alcance') { $('#alcSurt').style.display = actual.alcance === 'Surtidores' ? '' : 'none'; $('#alcCaras').style.display = actual.alcance === 'Caras' ? '' : 'none'; }
   if (['alcance', 'surtidores', 'caras'].includes(k)) {
-    const pos = actual.alcance === 'Toda la EDS' ? totalPosiciones() : actual.alcance === 'Surtidores' ? (actual.surtidores || []).length * cfg().carasPorSurtidor : (actual.caras || []).length;
+    const pos = actual.alcance === 'Toda la EDS' ? totalPosiciones() : actual.alcance === 'Surtidores' ? (actual.surtidores || []).reduce((t, sid) => t + carasDe(sid).length, 0) : (actual.caras || []).length;
     actual.posiciones = pos; const el = $('#dBody [data-k=posiciones]'); if (el) el.value = pos;
   }
   if (k === 'producto') { const g = $('#dBody [data-k=galones]'), m = $('#dBody [data-k=m3]'); g.disabled = actual.producto === 'GNV'; m.disabled = actual.producto === 'Líquidos'; if (g.disabled) { g.value = ''; actual.galones = ''; } if (m.disabled) { m.value = ''; actual.m3 = ''; } }
@@ -689,7 +705,8 @@ async function cerrarAf(id) {
 
 /* ========== CONFIG ========== */
 async function guardarCfg() {
-  const nuevo = { ...cfg(), surtidores: +$('#cSurt').value || 6, carasPorSurtidor: +$('#cCaras').value || 1, manguerasPorCara: +$('#cMang').value || 1, galHoraPos: +$('#cGal').value || 0, m3HoraPos: +$('#cM3').value || 0,
+  let lay = cfg().layout; const tl = $('#cLayout'); if (tl && tl.value.trim()) { try { const j = JSON.parse(tl.value); if (Array.isArray(j) && j.length && j.every(x => x.id && Array.isArray(x.caras))) lay = j; else return toast('La distribución no tiene el formato esperado', true); } catch (e) { return toast('La distribución (JSON) tiene un error de formato', true); } }
+  const nuevo = { ...cfg(), layout: lay, galHoraPos: +$('#cGal').value || 0, m3HoraPos: +$('#cM3').value || 0,
     productos: $('#cProd').value.split(',').map(s => s.trim()).filter(Boolean), nombresSurtidores: {} };
   $('#cNom').value.split(',').map(s => s.trim()).filter(Boolean).forEach(p => { const [k, ...v] = p.split('='); if (k && v.length) nuevo.nombresSurtidores[k.trim().toUpperCase()] = v.join('=').trim(); });
   const b = $('#btnCfgSave'); b.disabled = true; b.innerHTML = '<span class="spin"></span>';
@@ -726,11 +743,11 @@ function exportarExcel() {
   const wb = XLSX.utils.book_new();
 
   const hAf = [['Consecutivo', 'Estado', 'Fecha inicio', 'Fecha fin', 'Duración (min)', 'Duración (h)', 'Motivo', 'Producto', 'Alcance', 'Surtidores', 'Caras', 'Posiciones', 'Galones perdidos (est.)', 'm3 GNV perdidos (est.)', 'Descripción', 'Reportado por']];
-  af.forEach(a => hAf.push([a.consecutivo, a.fin ? 'Cerrada' : 'Abierta', D(a.inicio), D(a.fin), minutos(a), Math.round(minutos(a) / 60 * 100) / 100, a.motivo, a.producto, a.alcance, (a.surtidores || []).map(s => nombreSurt(+s.slice(1))).join(', '), (a.caras || []).map(labelCara).join(', '), n0(a.posiciones), n0(a.galones), n0(a.m3), a.descripcion || '', a.reportadoPor || '']));
+  af.forEach(a => hAf.push([a.consecutivo, a.fin ? 'Cerrada' : 'Abierta', D(a.inicio), D(a.fin), minutos(a), Math.round(minutos(a) / 60 * 100) / 100, a.motivo, a.producto, a.alcance, (a.surtidores || []).map(s => nombreSurt(s)).join(', '), (a.caras || []).map(labelCara).join(', '), n0(a.posiciones), n0(a.galones), n0(a.m3), a.descripcion || '', a.reportadoPor || '']));
   addSheet(wb, hAf, 'Afectaciones', [12, 9, 16, 16, 12, 10, 30, 10, 12, 18, 30, 10, 14, 14, 40, 18]);
 
   const hMt = [['Consecutivo', 'Fecha', 'Surtidor', 'Cara', 'Manguera', 'Parte', 'Producto', 'Cantidad', 'Motivo del cambio', 'Técnico / Proveedor', 'Costo', 'Observaciones', 'Reportado por']];
-  mt.forEach(x => hMt.push([x.consecutivo, D(x.fecha), nombreSurt(+String(x.surtidor).slice(1)), x.cara ? 'Cara ' + String(x.cara).split('-C')[1] : '', x.manguera || '', x.parte, x.producto || '', n0(x.cantidad) || 1, x.motivo || '', x.tecnico || '', n0(x.costo), x.observaciones || '', x.reportadoPor || '']));
+  mt.forEach(x => hMt.push([x.consecutivo, D(x.fecha), nombreSurt(x.surtidor), x.cara ? 'Cara ' + numCara(x.cara) : '', x.manguera || '', x.parte, x.producto || '', n0(x.cantidad) || 1, x.motivo || '', x.tecnico || '', n0(x.costo), x.observaciones || '', x.reportadoPor || '']));
   addSheet(wb, hMt, 'Mantenimiento', [12, 12, 12, 8, 10, 16, 10, 9, 22, 20, 12, 40, 18]);
 
   const hDn = [['Consecutivo', 'Estado', 'Fecha reporte', 'Fecha reparación', 'Días abierto', 'Área', 'Elemento', 'Ubicación', 'Prioridad', 'Descripción', 'Reparado por', 'Costo', 'Observaciones', 'Reportado por']];
@@ -746,7 +763,7 @@ function exportarExcel() {
   res.push([], ['PARTES CAMBIADAS POR SURTIDOR'], ['Parte', ...surtidores().map(s => s.nombre), 'Total']);
   PARTES.forEach(p => { const fila = surtidores().map(s => mt.filter(x => x.surtidor === s.id && x.parte === p).reduce((t, x) => t + (n0(x.cantidad) || 1), 0)); res.push([p, ...fila, fila.reduce((a, b) => a + b, 0)]); });
   res.push([], ['CAMBIOS DE LECTOR POR CARA'], ['Fecha', 'Surtidor', 'Cara', 'Motivo', 'Técnico', 'Reportó']);
-  mt.filter(x => x.parte === 'Lector').forEach(x => res.push([D(x.fecha), nombreSurt(+String(x.surtidor).slice(1)), x.cara ? 'Cara ' + String(x.cara).split('-C')[1] : '', x.motivo || '', x.tecnico || '', x.reportadoPor || '']));
+  mt.filter(x => x.parte === 'Lector').forEach(x => res.push([D(x.fecha), nombreSurt(x.surtidor), x.cara ? 'Cara ' + numCara(x.cara) : '', x.motivo || '', x.tecnico || '', x.reportadoPor || '']));
   res.push([], ['DAÑOS LOCATIVOS POR ÁREA'], ['Área', 'Reportados', 'Pendientes', 'Costo']);
   const ar = {}; dn.forEach(d => { const k = d.area || 'Sin dato'; ar[k] = ar[k] || [0, 0, 0]; ar[k][0]++; if (d.estado !== 'Reparado') ar[k][1]++; ar[k][2] += n0(d.costo); });
   Object.entries(ar).forEach(([k, v]) => res.push([k, ...v]));
