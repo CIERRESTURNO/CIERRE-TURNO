@@ -301,6 +301,7 @@ function surtDe(sid) { return layout().find(s => s.id === sid) || { id: sid, car
 function carasDe(sid) { return surtDe(sid).caras.map(c => sid + '-C' + c.n); }
 function caraObj(cid) { if (!cid) return null; const [sid, k] = String(cid).split('-C'); return surtDe(sid).caras.find(c => String(c.n) === k) || null; }
 function mangueras(cid) { const c = caraObj(cid); return c ? c.mangueras.map(m => ({ id: 'M' + m.n, p: m.p })) : []; }
+function islas() { const m = {}; layout().forEach(x => { m[x.isla] = m[x.isla] || []; m[x.isla].push(x.id); }); return Object.keys(m).sort((a, b) => a - b).map(k => ({ n: +k, surtidores: m[k] })); }
 function totalPosiciones() { return layout().reduce((t, s) => t + s.caras.length, 0); }
 function totalMangueras() { return layout().reduce((t, s) => t + s.caras.reduce((u, c) => u + c.mangueras.length, 0), 0); }
 function numCara(cid) { return String(cid || '').split('-C')[1] || ''; }
@@ -449,6 +450,7 @@ function barras(pares, fmt, cls = '') {
 }
 function alcanceTxt(a) {
   if (a.alcance === 'Toda la EDS') return 'Toda la EDS';
+  if (a.alcance === 'Isla / POS') return (a.islas || []).map(i => 'POS / Isla ' + i).join(', ') + ' (' + (a.surtidores || []).map(nombreSurt).join(', ') + ')';
   if (a.alcance === 'Surtidores') return (a.surtidores || []).map(s => nombreSurt(s)).join(', ') || 'Surtidores';
   if (a.alcance === 'Caras') return (a.caras || []).map(labelCara).join(', ') || 'Caras';
   return a.alcance || '';
@@ -572,7 +574,7 @@ $('#dClose').onclick = cerrarDrawer; $('#overlay').onclick = cerrarDrawer;
 
 function nuevo(tipo) {
   const base = { id: uid(), reportadoPor: sesion.nombre, creado: new Date().toISOString() };
-  if (tipo === 'af') return { ...base, motivo: '', producto: 'Líquidos', alcance: 'Caras', surtidores: [], caras: [], inicio: fechaLocalISO(new Date()), fin: '', posiciones: '', galones: '', m3: '', descripcion: '' };
+  if (tipo === 'af') return { ...base, motivo: '', producto: 'Líquidos', alcance: 'Caras', islas: [], surtidores: [], caras: [], inicio: fechaLocalISO(new Date()), fin: '', posiciones: '', galones: '', m3: '', descripcion: '' };
   if (tipo === 'mt') return { ...base, fecha: hoyISO(), surtidor: 'S1', cara: '', manguera: '', parte: '', producto: '', cantidad: 1, motivo: '', tecnico: '', costo: '', observaciones: '' };
   return { ...base, fecha: hoyISO(), estado: 'Reportado', area: '', elemento: '', ubicacion: '', prioridad: 'Media', descripcion: '', fechaReparacion: '', reparadoPor: '', costo: '', observaciones: '' };
 }
@@ -587,7 +589,8 @@ function fAf() {
     <div><label class="fl">Inicio</label><input class="in" type="datetime-local" data-k="inicio" value="${esc(a.inicio || '')}"></div>
     <div><label class="fl">Fin <span>(vacío = sigue abierta)</span></label><input class="in" type="datetime-local" data-k="fin" value="${esc(a.fin || '')}"><div class="hint" id="durHint"></div></div>
   </div></div>
-  <div class="sec2"><label class="fl">Alcance</label>${seg('alcance', ['Toda la EDS', 'Surtidores', 'Caras'], a.alcance)}
+  <div class="sec2"><label class="fl">Alcance</label>${seg('alcance', ['Toda la EDS', 'Isla / POS', 'Surtidores', 'Caras'], a.alcance)}
+    <div id="alcIsla" class="chips" style="margin-top:10px;${a.alcance === 'Isla / POS' ? '' : 'display:none'}">${islas().map(i => `<button type="button" data-chip="islas" data-val="${i.n}" class="${(a.islas || []).map(String).includes(String(i.n)) ? 'on' : ''}">POS / Isla ${i.n} <span style="font-weight:500;opacity:.8">(${i.surtidores.map(nombreSurt).join(', ')})</span></button>`).join('')}</div>
     <div id="alcSurt" class="chips" style="margin-top:10px;${a.alcance === 'Surtidores' ? '' : 'display:none'}">${surtidores().map(s => `<button type="button" data-chip="surtidores" data-val="${s.id}" class="${(a.surtidores || []).includes(s.id) ? 'on' : ''}">${esc(s.nombre)}</button>`).join('')}</div>
     <div id="alcCaras" class="chips" style="margin-top:10px;${a.alcance === 'Caras' ? '' : 'display:none'}">${surtidores().map(s => `<div class="grp">${esc(s.nombre)}</div>` + carasDe(s.id).map(cc => `<button type="button" data-chip="caras" data-val="${cc}" class="${(a.caras || []).includes(cc) ? 'on' : ''}">Cara ${numCara(cc)}</button>`).join('')).join('')}</div>
     <div class="grid" style="margin-top:12px"><div><label class="fl">Posiciones afectadas</label><input class="in" type="number" min="0" data-k="posiciones" value="${esc(a.posiciones)}"><div class="hint">Se calcula solo según el alcance; puedes corregirlo.</div></div></div></div>
@@ -660,9 +663,11 @@ function postCambio(k) {
     if (tipoActual === 'dn' && k === 'estado') { if (actual.estado === 'Reparado' && !actual.fechaReparacion) { actual.fechaReparacion = hoyISO(); const el = $('#dBody [data-k=fechaReparacion]'); if (el) el.value = actual.fechaReparacion; } }
     return;
   }
-  if (k === 'alcance') { $('#alcSurt').style.display = actual.alcance === 'Surtidores' ? '' : 'none'; $('#alcCaras').style.display = actual.alcance === 'Caras' ? '' : 'none'; }
-  if (['alcance', 'surtidores', 'caras'].includes(k)) {
-    const pos = actual.alcance === 'Toda la EDS' ? totalPosiciones() : actual.alcance === 'Surtidores' ? (actual.surtidores || []).reduce((t, sid) => t + carasDe(sid).length, 0) : (actual.caras || []).length;
+  if (k === 'motivo' && actual.motivo === 'Caída Terpel POS' && !(actual.islas || []).length && !(actual.caras || []).length) { actual.alcance = 'Isla / POS'; $$('#dBody [data-seg=alcance] button').forEach(b => b.classList.toggle('on', b.dataset.val === actual.alcance)); postCambio('alcance'); return; }
+  if (k === 'alcance') { $('#alcIsla').style.display = actual.alcance === 'Isla / POS' ? '' : 'none'; $('#alcSurt').style.display = actual.alcance === 'Surtidores' ? '' : 'none'; $('#alcCaras').style.display = actual.alcance === 'Caras' ? '' : 'none'; }
+  if (k === 'islas' || (k === 'alcance' && actual.alcance === 'Isla / POS')) { actual.surtidores = islas().filter(i => (actual.islas || []).map(String).includes(String(i.n))).flatMap(i => i.surtidores); }
+  if (['alcance', 'surtidores', 'caras', 'islas'].includes(k)) {
+    const pos = actual.alcance === 'Toda la EDS' ? totalPosiciones() : (actual.alcance === 'Surtidores' || actual.alcance === 'Isla / POS') ? (actual.surtidores || []).reduce((t, sid) => t + carasDe(sid).length, 0) : (actual.caras || []).length;
     actual.posiciones = pos; const el = $('#dBody [data-k=posiciones]'); if (el) el.value = pos;
   }
   if (k === 'producto') { const g = $('#dBody [data-k=galones]'), m = $('#dBody [data-k=m3]'); g.disabled = actual.producto === 'GNV'; m.disabled = actual.producto === 'Líquidos'; if (g.disabled) { g.value = ''; actual.galones = ''; } if (m.disabled) { m.value = ''; actual.m3 = ''; } }
@@ -680,7 +685,7 @@ function estimar(silencioso) {
 
 async function guardarActual() {
   const a = actual;
-  if (tipoActual === 'af') { if (!a.motivo) return toast('Elige el motivo', true); if (!a.inicio) return toast('Pon la hora de inicio', true); if (a.fin && a.fin < a.inicio) return toast('El fin no puede ser antes del inicio', true); if (a.alcance === 'Surtidores' && !(a.surtidores || []).length) return toast('Marca los surtidores afectados', true); if (a.alcance === 'Caras' && !(a.caras || []).length) return toast('Marca las caras afectadas', true); }
+  if (tipoActual === 'af') { if (!a.motivo) return toast('Elige el motivo', true); if (!a.inicio) return toast('Pon la hora de inicio', true); if (a.fin && a.fin < a.inicio) return toast('El fin no puede ser antes del inicio', true); if (a.alcance === 'Surtidores' && !(a.surtidores || []).length) return toast('Marca los surtidores afectados', true); if (a.alcance === 'Isla / POS' && !(a.islas || []).length) return toast('Marca la isla / POS afectado', true); if (a.alcance === 'Caras' && !(a.caras || []).length) return toast('Marca las caras afectadas', true); }
   if (tipoActual === 'mt') { if (!a.parte) return toast('Elige la parte cambiada', true); if (!a.fecha) return toast('Pon la fecha', true); }
   if (tipoActual === 'dn') { if (!a.area) return toast('Elige el área', true); if (!a.descripcion) return toast('Describe el daño', true); if (a.estado === 'Reparado' && !a.fechaReparacion) a.fechaReparacion = hoyISO(); }
   const btn = $('#btnSave'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Guardando…';
