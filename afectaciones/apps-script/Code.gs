@@ -240,3 +240,34 @@ function filaDn(d) {
 function salida(o) {
   return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
 }
+
+/* ---------- utilidad: pestaña de referencia "Distribución" (ejecutar una vez desde el editor) ---------- */
+function crearDistribucion() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let h = ss.getSheetByName('Distribución');
+  if (!h) h = ss.insertSheet('Distribución'); else h.clear();
+  const enc = ['Isla', 'Surtidor', 'Cara', 'Manguera', 'Producto', 'Venta cara (gal/h)', 'Venta cara (gal/min)'];
+  const L = [
+    ['1','S1',1,1,'Corriente',30.8],['1','S1',1,2,'Extra',30.8],['1','S1',2,3,'Corriente',22.8],['1','S1',2,4,'Extra',22.8],
+    ['1','S2',3,5,'Diésel B10',28.7],['1','S2',3,6,'Corriente',28.7],['1','S2',4,7,'Diésel B10',28.9],['1','S2',4,8,'Corriente',28.9],
+    ['1','S2',5,9,'Corriente',24.6],['1','S2',5,10,'Extra',24.6],['1','S2',6,11,'Corriente',25.2],['1','S2',6,12,'Extra',25.2],
+    ['2','S3',7,13,'Extra',35.8],['2','S3',7,14,'Corriente',35.8],['2','S3',8,15,'Extra',33.2],['2','S3',8,16,'Corriente',33.2],
+    ['2','S4',9,17,'Corriente',38.9],['2','S4',9,18,'Extra',38.9],['2','S4',10,19,'Corriente',27.6],['2','S4',10,20,'Extra',27.6],
+    ['2','S4',11,21,'Diésel B10',33.2],['2','S4',11,22,'Corriente',33.2],['2','S4',12,23,'Diésel B10',31.5],['2','S4',12,24,'Corriente',31.5],
+    ['3','S5',13,25,'Extra',23.7],['3','S5',13,26,'Corriente',23.7],['3','S5',14,27,'Extra',19.7],['3','S5',14,28,'Corriente',19.7],
+    ['3','S6',15,29,'Diésel B10',28.4],['3','S6',15,30,'Corriente',28.4],['3','S6',16,31,'Diésel B10',25.0],['3','S6',16,32,'Corriente',25.0],
+    ['3','S6',17,33,'Corriente',27.6],['3','S6',17,34,'Extra',27.6],['3','S6',18,35,'Corriente',12.1],['3','S6',18,36,'Extra',12.1],
+    ['GNV','G1',1,1,'GNV',''],['GNV','G1',2,2,'GNV',''],['GNV','G2',3,3,'GNV',''],['GNV','G2',4,4,'GNV','']
+  ];
+  h.getRange(1, 1, 1, enc.length).setValues([enc]).setFontWeight('bold').setBackground('#3B3B3B').setFontColor('#ffffff');
+  const filas = L.map((f, i) => f.concat([f[5] === '' ? '' : '=F' + (i + 2) + '/60']));
+  h.getRange(2, 1, filas.length, enc.length).setValues(filas);
+  h.getRange(2, 6, filas.length, 1).setNumberFormat('0.0');
+  h.getRange(2, 7, filas.length, 1).setNumberFormat('0.00');
+  const r = filas.length + 3;
+  h.getRange(r, 5).setValue('Promedio por cara (líquidos)').setFontWeight('bold');
+  h.getRange(r, 6).setFormula('=SUM(F2:F37)/2/18').setNumberFormat('0.0');
+  h.getRange(r + 1, 1).setValue('Fuente: Reporte de venta detallada Terpel POS, 1 al 7 de noviembre de 2026 (83.625 gal). gal/h = galones de la semana / (7 días × 24 h). GNV no aparece en ese reporte.').setFontStyle('italic').setFontColor('#6E6E6E');
+  h.setFrozenRows(1);
+  h.autoResizeColumns(1, enc.length);
+}
