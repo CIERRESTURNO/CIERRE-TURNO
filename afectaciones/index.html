@@ -248,7 +248,11 @@ const GAS_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbyYc-tVfcziV0h6
 const LS = 'planve_afect';
 
 const MOTIVOS = ['Caída Terpel POS','Obra en la EDS','Cierre de posiciones de llenado','Bloqueo de la avenida','Carro varado en posición de llenado','Bloqueo de surtidor','Bloqueo de cara','Falla eléctrica','Falta de producto / descargue','Bloqueo total sistema GNV','Falla GNV (compresor / surtidor)','Lector bloqueado / sin lectura','Otro'];
-const PARTES = ['Válvula de aire','Manguera','Pistola','Codo / swivel','Breakaway','Filtro','Lector','Otro'];
+const PARTES = ['Manguera','Manguera corta','Codo / swivel','Breakaway','Pistola','Filtro','Lector','Válvula de aire (máquina de llantas)','Otro'];
+// A qué nivel se registra cada parte: manguera (1-36), cara, surtidor, o equipo aparte (no es de surtidor)
+const NIVEL = { 'Manguera': 'manguera', 'Manguera corta': 'manguera', 'Codo / swivel': 'manguera', 'Breakaway': 'manguera', 'Pistola': 'manguera', 'Filtro': 'surtidor', 'Lector': 'cara', 'Válvula de aire (máquina de llantas)': 'equipo', 'Otro': 'libre' };
+const EQUIPOS = ['Máquina de aire (llantas)', 'Compresor GNV', 'Otro equipo'];
+const esEquipo = sid => !!sid && !layout().some(x => x.id === sid);
 const MOTIVOS_MT = ['Desgaste normal','Daño por vehículo / cliente','Fuga','Preventivo','Garantía','Otro'];
 const AREAS = ['Baños','Jardines','Sifones / desagües','Llaves / grifería','Techo / cubierta','Iluminación','Pintura / fachada','Pisos / andenes','Puertas / chapas','Eléctrico','Otro'];
 const PRIORIDADES = ['Baja','Media','Alta'];
@@ -509,17 +513,20 @@ function vMt() {
   if (filtros.mtSurt) arr = arr.filter(x => x.surtidor === filtros.mtSurt);
   if (filtros.mtParte) arr = arr.filter(x => x.parte === filtros.mtParte);
   arr.sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
-  let html = `<div class="toolbar">${selMes()}<select class="f" data-f="mtSurt"><option value="">Todos los surtidores</option>${surtidores().map(s => `<option value="${s.id}" ${filtros.mtSurt === s.id ? 'selected' : ''}>${esc(s.nombre)}</option>`).join('')}</select>
+  let html = `<div class="toolbar">${selMes()}<select class="f" data-f="mtSurt"><option value="">Todos los surtidores</option>${surtidores().map(s => `<option value="${s.id}" ${filtros.mtSurt === s.id ? 'selected' : ''}>${esc(s.nombre)}</option>`).join('')}${EQUIPOS.map(e => `<option ${filtros.mtSurt === e ? 'selected' : ''}>${e}</option>`).join('')}</select>
     <select class="f" data-f="mtParte"><option value="">Todas las partes</option>${PARTES.map(p => `<option ${filtros.mtParte === p ? 'selected' : ''}>${p}</option>`).join('')}</select><div class="sp"></div><button class="btn pri" data-new="mt">+ Cambio de parte</button></div>`;
 
   // Matriz último cambio
   html += `<div class="card"><div class="pad" style="padding-bottom:6px"><b>Último cambio por surtidor</b> <span class="hint" style="display:inline">(fecha · total histórico)</span></div><div class="tw"><table><thead><tr><th>Parte</th>${surtidores().map(s => `<th style="text-align:center">${esc(s.nombre)}</th>`).join('')}</tr></thead><tbody>`;
-  PARTES.filter(p => p !== 'Otro').forEach(p => {
+  PARTES.filter(p => p !== 'Otro' && NIVEL[p] !== 'equipo').forEach(p => {
     html += `<tr><td><b>${p}</b></td>${surtidores().map(s => { const xs = S.mt.filter(x => x.surtidor === s.id && x.parte === p); const ult = xs.map(x => x.fecha).sort().pop(); const n = xs.reduce((t, x) => t + (n0(x.cantidad) || 1), 0);
       return `<td style="text-align:center"><span class="cell ${n ? 'has' : ''}">${ult ? fmtF(ult) : '—'}${n ? `<small>${n} cambio${n > 1 ? 's' : ''}</small>` : ''}</span></td>`; }).join('')}</tr>`;
   });
-  html += `</tbody></table></div></div><h2 class="sec">Registros del mes</h2>`;
-  if (!arr.length) return html + `<div class="card empty"><b>Sin cambios registrados</b>Registra cada válvula, manguera, pistola, codo, breakaway, filtro o lector que se cambie.</div>`;
+  html += `</tbody></table></div></div>`;
+  const eqs = S.mt.filter(x => esEquipo(x.surtidor));
+  html += `<div class="card pad" style="margin-top:12px"><b>Otros equipos</b> <span class="hint" style="display:inline">(no son de surtidor)</span><div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">${EQUIPOS.map(e => { const xs = eqs.filter(x => x.surtidor === e); const ult = xs.map(x => x.fecha).sort().pop(); return `<div><div style="font-size:13px;font-weight:600">${esc(e)}</div><span class="cell ${xs.length ? 'has' : ''}">${ult ? fmtF(ult) : '—'}${xs.length ? `<small>${xs.length} cambio${xs.length > 1 ? 's' : ''}</small>` : ''}</span></div>`; }).join('')}</div></div>
+  <h2 class="sec">Registros del mes</h2>`;
+  if (!arr.length) return html + `<div class="card empty"><b>Sin cambios registrados</b>Registra cada manguera, manguera corta, codo, breakaway, pistola (por manguera 1-36), filtro (por surtidor), lector (por cara) o válvula de aire de la máquina de llantas.</div>`;
   html += `<div class="list">${arr.map(x => `<div class="row" data-open-mt="${x.id}"><div><div class="ti">${esc(x.parte)} <span class="tag t-o">${esc(nombreSurt(x.surtidor))}${x.cara ? ' · Cara ' + esc(numCara(x.cara)) : ''}${x.manguera ? ' · ' + esc(x.manguera) : ''}</span></div></div>
     <div class="rt"><div class="big">${fmtF(x.fecha)}</div>${n0(x.costo) ? `<small style="font-size:12px;color:var(--gris)">${fmtCOP(x.costo)}</small>` : ''}</div>
     <div class="su">${[`<b>${esc(x.consecutivo || '')}</b>`, esc(x.producto), esc(x.motivo), 'cant. ' + (n0(x.cantidad) || 1), esc(x.tecnico), 'reportó ' + esc(x.reportadoPor)].filter(Boolean).join(' · ')}${x.observaciones ? '<br>' + esc(x.observaciones) : ''}</div></div>`).join('')}</div>`;
@@ -643,9 +650,10 @@ function fMt() {
   return `<div class="sec2"><div class="grid">
     <div><label class="fl">Fecha del cambio</label><input class="in" type="date" data-k="fecha" value="${esc(m.fecha || '')}"></div>
     <div><label class="fl">Parte cambiada</label><select class="in" data-k="parte"><option value="">Elige…</option>${opt(PARTES, m.parte)}</select></div>
-    <div><label class="fl">Surtidor</label><select class="in" data-k="surtidor" id="mtSurt">${surtidores().map(s => `<option value="${s.id}" ${m.surtidor === s.id ? 'selected' : ''}>${esc(s.nombre)}</option>`).join('')}</select></div>
-    <div><label class="fl">Cara</label><select class="in" data-k="cara" id="mtCara"><option value="">— Sin especificar —</option>${caras.map(cc => `<option value="${cc}" ${m.cara === cc ? 'selected' : ''}>Cara ${numCara(cc)}</option>`).join('')}</select></div>
-    <div><label class="fl">Manguera <span>(opcional)</span></label><select class="in" data-k="manguera" id="mtMang"><option value="">—</option>${mangueras(m.cara).map(x => `<option value="${x.id}" ${m.manguera === x.id ? 'selected' : ''}>${x.id} · ${esc(x.p)}</option>`).join('')}</select></div>
+    <div id="rowEquipo" style="display:none"><label class="fl">Equipo</label><select class="in" id="mtEquipo">${EQUIPOS.map(e => `<option ${m.surtidor === e ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+    <div id="rowSurt"><label class="fl">Surtidor</label><select class="in" data-k="surtidor" id="mtSurt">${surtidores().map(s => `<option value="${s.id}" ${m.surtidor === s.id ? 'selected' : ''}>${esc(s.nombre)}</option>`).join('')}</select></div>
+    <div id="rowCara"><label class="fl">Cara</label><select class="in" data-k="cara" id="mtCara"><option value="">— Sin especificar —</option>${caras.map(cc => `<option value="${cc}" ${m.cara === cc ? 'selected' : ''}>Cara ${numCara(cc)}</option>`).join('')}</select></div>
+    <div id="rowMang"><label class="fl">Manguera <span id="mangHint">(opcional)</span></label><select class="in" data-k="manguera" id="mtMang"><option value="">—</option>${mangueras(m.cara).map(x => `<option value="${x.id}" ${m.manguera === x.id ? 'selected' : ''}>${x.id} · ${esc(x.p)}</option>`).join('')}</select></div>
     <div><label class="fl">Producto</label><select class="in" data-k="producto"><option value="">—</option>${opt(c.productos || [], m.producto)}</select></div>
     <div><label class="fl">Cantidad</label><input class="in" type="number" min="1" data-k="cantidad" value="${esc(m.cantidad || 1)}"></div>
     <div><label class="fl">Motivo del cambio</label><select class="in" data-k="motivo"><option value="">Elige…</option>${opt(MOTIVOS_MT, m.motivo)}</select></div>
@@ -685,7 +693,14 @@ function bindForm() {
   const ca = $('#btnCerrarAhora'); if (ca) ca.onclick = () => { actual.fin = fechaLocalISO(new Date()); body.querySelector('[data-k=fin]').value = actual.fin; postCambio('fin'); estimar(true); };
   const sv = $('#btnSave'); if (sv) sv.onclick = guardarActual;
   const dl = $('#btnDel'); if (dl) dl.onclick = eliminarActual;
-  const ms = $('#mtSurt'), mc = $('#mtCara'), mm = $('#mtMang');
+  const ms = $('#mtSurt'), mc = $('#mtCara'), mm = $('#mtMang'), me = $('#mtEquipo');
+  const nivelUI = () => { if (tipoActual !== 'mt') return; const n = NIVEL[actual.parte] || 'libre'; const eq = n === 'equipo';
+    $('#rowEquipo').style.display = eq ? '' : 'none'; $('#rowSurt').style.display = eq ? 'none' : ''; $('#rowCara').style.display = (eq || n === 'surtidor') ? 'none' : ''; $('#rowMang').style.display = (eq || n === 'surtidor' || n === 'cara') ? 'none' : '';
+    const h = $('#mangHint'); if (h) h.textContent = n === 'manguera' ? '(1 a 36)' : '(opcional)';
+    if (eq) { if (!esEquipo(actual.surtidor)) { actual.surtidor = me.value; } actual.cara = ''; actual.manguera = ''; } else if (esEquipo(actual.surtidor)) { actual.surtidor = ms.value; } };
+  const mp = $('#dBody [data-k=parte]'); if (mp) mp.addEventListener('change', nivelUI);
+  if (me) me.addEventListener('change', () => { actual.surtidor = me.value; });
+  setTimeout(nivelUI, 0);
   const llenarMang = () => { if (!mm) return; mm.innerHTML = '<option value="">—</option>' + mangueras(actual.cara).map(x => `<option value="${x.id}">${x.id} · ${esc(x.p)}</option>`).join(''); actual.manguera = ''; };
   if (ms) ms.addEventListener('change', () => { mc.innerHTML = '<option value="">— Sin especificar —</option>' + carasDe(ms.value).map(cc => `<option value="${cc}">Cara ${numCara(cc)}</option>`).join(''); actual.cara = ''; llenarMang(); });
   if (mc) mc.addEventListener('change', llenarMang);
@@ -721,7 +736,8 @@ function estimar(silencioso) {
 async function guardarActual() {
   const a = actual;
   if (tipoActual === 'af') { if (!a.motivo) return toast('Elige el motivo', true); if (!a.inicio) return toast('Pon la hora de inicio', true); if (a.fin && a.fin < a.inicio) return toast('El fin no puede ser antes del inicio', true); if (a.alcance === 'Surtidores' && !(a.surtidores || []).length) return toast('Marca los surtidores afectados', true); if (a.alcance === 'Isla / POS' && !(a.islas || []).length) return toast('Marca la isla / POS afectado', true); if (a.alcance === 'Caras' && !(a.caras || []).length) return toast('Marca las caras afectadas', true); }
-  if (tipoActual === 'mt') { if (!a.parte) return toast('Elige la parte cambiada', true); if (!a.fecha) return toast('Pon la fecha', true); }
+  if (tipoActual === 'mt') { if (!a.parte) return toast('Elige la parte cambiada', true); if (!a.fecha) return toast('Pon la fecha', true); const n = NIVEL[a.parte] || 'libre';
+    if (n === 'manguera' && !a.manguera) return toast('Indica la manguera (1 a 36)', true); if ((n === 'manguera' || n === 'cara') && !a.cara) return toast('Indica la cara', true); if (n !== 'equipo' && n !== 'libre' && !a.surtidor) return toast('Indica el surtidor', true); }
   if (tipoActual === 'dn') { if (!a.area) return toast('Elige el área', true); if (!a.descripcion) return toast('Describe el daño', true); if (a.estado === 'Reparado' && !a.fechaReparacion) a.fechaReparacion = hoyISO(); }
   const btn = $('#btnSave'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Guardando…';
   try {
