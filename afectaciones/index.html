@@ -247,21 +247,25 @@ textarea.in{min-height:80px;resize:vertical}
 const GAS_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbyYc-tVfcziV0h6qpxaWzPSXBtk5StE1I6CRkDCLzx91TtttCMxhur_qDCmfVBm5EYMrA/exec';   // ← pegar aquí la URL del Apps Script publicado (…/exec) para que nadie tenga que escribirla
 const LS = 'planve_afect';
 
-const MOTIVOS = ['Caída Terpel POS','Obra en la EDS','Cierre de posiciones de llenado','Bloqueo de la avenida','Carro varado en posición de llenado','Bloqueo de surtidor','Bloqueo de cara','Falla eléctrica','Falta de producto / descargue','Falla GNV (compresor / surtidor)','Otro'];
+const MOTIVOS = ['Caída Terpel POS','Obra en la EDS','Cierre de posiciones de llenado','Bloqueo de la avenida','Carro varado en posición de llenado','Bloqueo de surtidor','Bloqueo de cara','Falla eléctrica','Falta de producto / descargue','Bloqueo total sistema GNV','Falla GNV (compresor / surtidor)','Lector bloqueado / sin lectura','Otro'];
 const PARTES = ['Válvula de aire','Manguera','Pistola','Codo / swivel','Breakaway','Filtro','Lector','Otro'];
 const MOTIVOS_MT = ['Desgaste normal','Daño por vehículo / cliente','Fuga','Preventivo','Garantía','Otro'];
 const AREAS = ['Baños','Jardines','Sifones / desagües','Llaves / grifería','Techo / cubierta','Iluminación','Pintura / fachada','Pisos / andenes','Puertas / chapas','Eléctrico','Otro'];
 const PRIORIDADES = ['Baja','Media','Alta'];
 const ESTADOS_DN = ['Reportado','En reparación','Reparado'];
 const LAYOUT_DEF = [
-  { id: 'S1', isla: 1, caras: [{ n: 1, mangueras: [{ n: 1, p: 'Corriente' }, { n: 2, p: 'Extra' }] }, { n: 2, mangueras: [{ n: 3, p: 'Corriente' }, { n: 4, p: 'Extra' }] }] },
-  { id: 'S2', isla: 1, caras: [{ n: 3, mangueras: [{ n: 5, p: 'Diésel B10' }, { n: 6, p: 'Corriente' }] }, { n: 4, mangueras: [{ n: 7, p: 'Diésel B10' }, { n: 8, p: 'Corriente' }] }, { n: 5, mangueras: [{ n: 9, p: 'Corriente' }, { n: 10, p: 'Extra' }] }, { n: 6, mangueras: [{ n: 11, p: 'Corriente' }, { n: 12, p: 'Extra' }] }] },
-  { id: 'S3', isla: 2, caras: [{ n: 7, mangueras: [{ n: 13, p: 'Extra' }, { n: 14, p: 'Corriente' }] }, { n: 8, mangueras: [{ n: 15, p: 'Extra' }, { n: 16, p: 'Corriente' }] }] },
-  { id: 'S4', isla: 2, caras: [{ n: 9, mangueras: [{ n: 17, p: 'Corriente' }, { n: 18, p: 'Extra' }] }, { n: 10, mangueras: [{ n: 19, p: 'Corriente' }, { n: 20, p: 'Extra' }] }, { n: 11, mangueras: [{ n: 21, p: 'Diésel B10' }, { n: 22, p: 'Corriente' }] }, { n: 12, mangueras: [{ n: 23, p: 'Diésel B10' }, { n: 24, p: 'Corriente' }] }] },
-  { id: 'S5', isla: 3, caras: [{ n: 13, mangueras: [{ n: 25, p: 'Extra' }, { n: 26, p: 'Corriente' }] }, { n: 14, mangueras: [{ n: 27, p: 'Extra' }, { n: 28, p: 'Corriente' }] }] },
-  { id: 'S6', isla: 3, caras: [{ n: 15, mangueras: [{ n: 29, p: 'Diésel B10' }, { n: 30, p: 'Corriente' }] }, { n: 16, mangueras: [{ n: 31, p: 'Diésel B10' }, { n: 32, p: 'Corriente' }] }, { n: 17, mangueras: [{ n: 33, p: 'Corriente' }, { n: 34, p: 'Extra' }] }, { n: 18, mangueras: [{ n: 35, p: 'Corriente' }, { n: 36, p: 'Extra' }] }] }
+  { id: 'S1', isla: 1, caras: [{ n: 1, gh: 30.8, mangueras: [{ n: 1, p: 'Corriente' }, { n: 2, p: 'Extra' }] }, { n: 2, gh: 22.8, mangueras: [{ n: 3, p: 'Corriente' }, { n: 4, p: 'Extra' }] }] },
+  { id: 'S2', isla: 1, caras: [{ n: 3, gh: 28.7, mangueras: [{ n: 5, p: 'Diésel B10' }, { n: 6, p: 'Corriente' }] }, { n: 4, gh: 28.9, mangueras: [{ n: 7, p: 'Diésel B10' }, { n: 8, p: 'Corriente' }] }, { n: 5, gh: 24.6, mangueras: [{ n: 9, p: 'Corriente' }, { n: 10, p: 'Extra' }] }, { n: 6, gh: 25.2, mangueras: [{ n: 11, p: 'Corriente' }, { n: 12, p: 'Extra' }] }] },
+  { id: 'S3', isla: 2, caras: [{ n: 7, gh: 35.8, mangueras: [{ n: 13, p: 'Extra' }, { n: 14, p: 'Corriente' }] }, { n: 8, gh: 33.2, mangueras: [{ n: 15, p: 'Extra' }, { n: 16, p: 'Corriente' }] }] },
+  { id: 'S4', isla: 2, caras: [{ n: 9, gh: 38.9, mangueras: [{ n: 17, p: 'Corriente' }, { n: 18, p: 'Extra' }] }, { n: 10, gh: 27.6, mangueras: [{ n: 19, p: 'Corriente' }, { n: 20, p: 'Extra' }] }, { n: 11, gh: 33.2, mangueras: [{ n: 21, p: 'Diésel B10' }, { n: 22, p: 'Corriente' }] }, { n: 12, gh: 31.5, mangueras: [{ n: 23, p: 'Diésel B10' }, { n: 24, p: 'Corriente' }] }] },
+  { id: 'S5', isla: 3, caras: [{ n: 13, gh: 23.7, mangueras: [{ n: 25, p: 'Extra' }, { n: 26, p: 'Corriente' }] }, { n: 14, gh: 19.7, mangueras: [{ n: 27, p: 'Extra' }, { n: 28, p: 'Corriente' }] }] },
+  { id: 'S6', isla: 3, caras: [{ n: 15, gh: 28.4, mangueras: [{ n: 29, p: 'Diésel B10' }, { n: 30, p: 'Corriente' }] }, { n: 16, gh: 25.0, mangueras: [{ n: 31, p: 'Diésel B10' }, { n: 32, p: 'Corriente' }] }, { n: 17, gh: 27.6, mangueras: [{ n: 33, p: 'Corriente' }, { n: 34, p: 'Extra' }] }, { n: 18, gh: 12.1, mangueras: [{ n: 35, p: 'Corriente' }, { n: 36, p: 'Extra' }] }] },
+  { id: 'G1', isla: 'GNV', gnv: true, caras: [{ n: 1, mangueras: [{ n: 1, p: 'GNV' }] }, { n: 2, mangueras: [{ n: 2, p: 'GNV' }] }] },
+  { id: 'G2', isla: 'GNV', gnv: true, caras: [{ n: 3, mangueras: [{ n: 3, p: 'GNV' }] }, { n: 4, mangueras: [{ n: 4, p: 'GNV' }] }] }
 ];
-const CFG_DEF = { layout: LAYOUT_DEF, galHoraPos: 20, m3HoraPos: 15, productos: ['Corriente','Extra','Diésel B10','GNV'], nombresSurtidores: {} };
+// Perfil horario: factor de venta por hora del día (1 = promedio), medido en el POS 1-7 nov 2026
+const PERFIL_HORA_DEF = [0.37, 0.31, 0.26, 0.38, 0.58, 1.09, 1.08, 1.17, 1.16, 1.25, 1.18, 1.35, 1.25, 1.44, 1.34, 1.31, 1.31, 1.38, 1.22, 1.22, 1.1, 1.01, 0.78, 0.48];
+const CFG_DEF = { layout: LAYOUT_DEF, perfilHora: PERFIL_HORA_DEF, galHoraPos: 27.7, m3HoraPos: 15, productos: ['Corriente','Extra','Diésel B10','GNV'], nombresSurtidores: {} };
 
 /* ========== ESTADO ========== */
 let sesion = { nombre: '', pin: '', cargo: '', rol: 'usuario', url: '' };
@@ -296,12 +300,41 @@ function enRango(iso) { if (!iso) return false; const d = String(iso).slice(0, 1
 /* Surtidores / caras / mangueras */
 function layout() { const l = cfg().layout; return Array.isArray(l) && l.length ? l : LAYOUT_DEF; }
 function nombreSurt(i) { const id = typeof i === 'string' ? i : 'S' + i; return (cfg().nombresSurtidores || {})[id] || id; }
-function surtidores() { return layout().map(s => ({ id: s.id, isla: s.isla, nombre: nombreSurt(s.id), caras: s.caras })); }
+function surtidores() { return layout().map(s => ({ id: s.id, isla: s.isla, gnv: !!s.gnv, nombre: nombreSurt(s.id), caras: s.caras })); }
 function surtDe(sid) { return layout().find(s => s.id === sid) || { id: sid, caras: [] }; }
 function carasDe(sid) { return surtDe(sid).caras.map(c => sid + '-C' + c.n); }
 function caraObj(cid) { if (!cid) return null; const [sid, k] = String(cid).split('-C'); return surtDe(sid).caras.find(c => String(c.n) === k) || null; }
 function mangueras(cid) { const c = caraObj(cid); return c ? c.mangueras.map(m => ({ id: 'M' + m.n, p: m.p })) : []; }
-function islas() { const m = {}; layout().forEach(x => { m[x.isla] = m[x.isla] || []; m[x.isla].push(x.id); }); return Object.keys(m).sort((a, b) => a - b).map(k => ({ n: +k, surtidores: m[k] })); }
+function islas() { const m = {}; layout().filter(x => !x.gnv).forEach(x => { m[x.isla] = m[x.isla] || []; m[x.isla].push(x.id); }); return Object.keys(m).sort((a, b) => a - b).map(k => ({ n: +k, surtidores: m[k] })); }
+function posDe(a) {
+  const todos = layout();
+  let sel;
+  if (a.alcance === 'Toda la EDS') sel = todos.flatMap(x => x.caras.map(c => ({ gnv: !!x.gnv })));
+  else if (a.alcance === 'Caras') sel = (a.caras || []).map(cid => ({ gnv: !!surtDe(String(cid).split('-C')[0]).gnv }));
+  else sel = (a.surtidores || []).flatMap(sid => surtDe(sid).caras.map(() => ({ gnv: !!surtDe(sid).gnv })));
+  if (a.producto === 'Líquidos') sel = sel.filter(x => !x.gnv); else if (a.producto === 'GNV') sel = sel.filter(x => x.gnv);
+  return { liq: sel.filter(x => !x.gnv).length, gnv: sel.filter(x => x.gnv).length };
+}
+function carasSel(a) {
+  if (a.alcance === 'Toda la EDS') return layout().flatMap(x => x.caras.map(c => ({ ...c, gnv: !!x.gnv })));
+  if (a.alcance === 'Caras') return (a.caras || []).map(cid => { const sd = surtDe(String(cid).split('-C')[0]); const c = caraObj(cid); return c ? { ...c, gnv: !!sd.gnv } : null; }).filter(Boolean);
+  return (a.surtidores || []).flatMap(sid => surtDe(sid).caras.map(c => ({ ...c, gnv: !!surtDe(sid).gnv })));
+}
+function factorHorario(ini, fin) {
+  const perfil = cfg().perfilHora || PERFIL_HORA_DEF; if (!ini || !fin || fin <= ini) return 1;
+  let t = new Date(ini), suma = 0, mins = 0;
+  while (t < fin) { const sig = new Date(t); sig.setMinutes(sig.getMinutes() + 1); const paso = Math.min(sig, fin) - t; suma += (perfil[t.getHours()] ?? 1) * paso; mins += paso; t = sig; if (mins > 7 * 86400000) break; }
+  return mins ? suma / mins : 1;
+}
+function estimarPerdida(a) {
+  const c = cfg(), ini = a.inicio ? new Date(a.inicio) : null, fin = a.fin ? new Date(a.fin) : new Date();
+  const horas = ini ? Math.max(0, (fin - ini) / 3600000) : 0, f = factorHorario(ini, fin);
+  let sel = carasSel(a);
+  if (a.producto === 'Líquidos') sel = sel.filter(x => !x.gnv); else if (a.producto === 'GNV') sel = sel.filter(x => x.gnv);
+  const gal = sel.filter(x => !x.gnv).reduce((t, x) => t + (n0(x.gh) || c.galHoraPos), 0) * horas * f;
+  const m3 = sel.filter(x => x.gnv).reduce((t, x) => t + (n0(x.mh) || c.m3HoraPos), 0) * horas * f;
+  return { gal: Math.round(gal * 10) / 10, m3: Math.round(m3 * 10) / 10, factor: f, liq: sel.filter(x => !x.gnv).length, gnv: sel.filter(x => x.gnv).length };
+}
 function totalPosiciones() { return layout().reduce((t, s) => t + s.caras.length, 0); }
 function totalMangueras() { return layout().reduce((t, s) => t + s.caras.reduce((u, c) => u + c.mangueras.length, 0), 0); }
 function numCara(cid) { return String(cid || '').split('-C')[1] || ''; }
@@ -423,18 +456,19 @@ function vInicio() {
 
   html += `<div class="kpis">${kpi(afM.length, 'Afectaciones', 'r')}${kpi(fmtMin(min), 'Tiempo afectado', 'r')}${kpi(fmtN(gal), 'Galones no vendidos (est.)', 'o', 'gal')}${kpi(fmtN(m3), 'm³ GNV no vendidos (est.)', 'o', 'm³')}${kpi(mtM.reduce((s, x) => s + (n0(x.cantidad) || 1), 0), 'Partes cambiadas', '')}${kpi(dnAb.length, 'Daños locativos abiertos', dnAb.length ? 'o' : 'g')}</div>`;
 
-  html += `<h2 class="sec">Surtidores · ${esc(mesTxt)}</h2><div class="grid-s">`;
-  surtidores().forEach(s => {
+  const tarjeta = s => {
     const caras = carasDe(s.id);
     const afS = afM.filter(a => (a.surtidores || []).includes(s.id) || (a.caras || []).some(c => c.startsWith(s.id + '-')) || a.alcance === 'Toda la EDS');
     const mtS = mtM.filter(x => x.surtidor === s.id);
     const lector = S.mt.filter(x => x.surtidor === s.id && x.parte === 'Lector').sort((a, b) => b.fecha.localeCompare(a.fecha))[0];
     const abierta = abiertas.some(a => (a.surtidores || []).includes(s.id) || (a.caras || []).some(c => c.startsWith(s.id + '-')) || a.alcance === 'Toda la EDS');
-    html += `<div class="surt" data-surt="${s.id}"><div class="h"><b>${esc(s.nombre)} <small style="font-weight:600;color:var(--gris);font-size:12px">Isla ${s.isla}</small></b>${abierta ? '<span class="tag t-r">Afectado</span>' : ''}</div><div class="caras">${caras.map(c => {
+    return `<div class="surt" data-surt="${s.id}"><div class="h"><b>${esc(s.nombre)} <small style="font-weight:600;color:var(--gris);font-size:12px">${s.gnv ? 'GNV' : 'Isla ' + s.isla}</small></b>${abierta ? '<span class="tag t-r">Afectado</span>' : ''}</div><div class="caras">${caras.map(c => {
       const hasAf = afM.some(a => (a.caras || []).includes(c)), hasMt = mtS.some(x => x.cara === c);
       return `<div class="cara ${hasAf ? 'af' : ''} ${hasMt ? 'mt' : ''}" title="${esc(labelCara(c))}">C${numCara(c)}</div>`; }).join('')}</div>
       <div class="m"><span><b>${afS.length}</b> afect.</span><span><b>${mtS.length}</b> cambios</span><span title="Último cambio de lector">Lector: <b>${lector ? fmtF(lector.fecha) : '—'}</b></span></div></div>`;
-  });
+  };
+  html += `<h2 class="sec">Surtidores de líquidos · ${esc(mesTxt)}</h2><div class="grid-s">${surtidores().filter(s => !s.gnv).map(tarjeta).join('')}</div>`;
+  html += `<h2 class="sec">GNV · ${esc(mesTxt)}</h2><div class="grid-s">${surtidores().filter(s => s.gnv).map(tarjeta).join('')}`;
   html += `</div><div class="hint" style="margin-top:8px">Cara roja = tuvo afectación en el mes · Cara naranja = cambio de parte en el mes. Toca un surtidor para ver su mantenimiento.</div>`;
 
   html += `<div class="two" style="margin-top:18px"><div class="card pad"><h2 class="sec" style="margin-top:0">Motivos de afectación (tiempo)</h2>${barras(agrupar(afM, 'motivo', a => minutos(a)), fmtMin)}</div>
@@ -545,13 +579,13 @@ function vCfg() {
   let html = `<div class="card pad"><b style="font-size:16px">Configuración de la estación</b><div class="hint">Solo la administradora puede cambiar esto. Afecta los formularios y los cálculos estimados.</div>
     <div class="grid" style="margin-top:14px">
       <div><label class="fl">Productos <span>(separados por coma)</span></label><input class="in" id="cProd" value="${esc((c.productos || []).join(', '))}"></div>
-      <div><label class="fl">Galones por hora por posición <span>(para estimar pérdida)</span></label><input class="in" type="number" step="0.1" id="cGal" value="${c.galHoraPos}"></div>
-      <div><label class="fl">m³ GNV por hora por posición</label><input class="in" type="number" step="0.1" id="cM3" value="${c.m3HoraPos}"></div>
+      <div><label class="fl">Galones/h por cara <span>(solo si una cara no tiene dato propio)</span></label><input class="in" type="number" step="0.1" id="cGal" value="${c.galHoraPos}"></div>
+      <div><label class="fl">m³ GNV por hora por cara</label><input class="in" type="number" step="0.1" id="cM3" value="${c.m3HoraPos}"></div>
       <div class="full"><label class="fl">Nombres de surtidores <span>(opcional, ej: S1=Isla 1 Norte, S2=Isla 1 Sur)</span></label><input class="in" id="cNom" value="${esc(Object.entries(c.nombresSurtidores || {}).map(([k, v]) => k + '=' + v).join(', '))}"></div>
-    </div><div class="hint" style="margin-top:8px">Total posiciones de llenado: <b>${totalPosiciones()}</b> caras · <b>${totalMangueras()}</b> mangueras. Calibra los galones/hora con el promedio real de Sicom para que la estimación se acerque a la realidad.</div>
+    </div><div class="hint" style="margin-top:8px">Total posiciones de llenado: <b>${totalPosiciones()}</b> caras (${layout().filter(x => !x.gnv).reduce((t, x) => t + x.caras.length, 0)} líquidos + ${layout().filter(x => x.gnv).reduce((t, x) => t + x.caras.length, 0)} GNV) · <b>${totalMangueras()}</b> mangueras. Los gal/h de cada cara y el perfil horario vienen medidos del Terpel POS (1–7 nov 2026); se pueden actualizar en "Avanzado".</div>
     <div class="actions"><button class="btn pri" id="btnCfgSave">Guardar configuración</button></div></div>`;
-  html += `<h2 class="sec">Distribución de surtidores (según Terpel POS)</h2><div class="card"><div class="tw"><table><thead><tr><th>Isla</th><th>Surtidor</th><th>Cara</th><th>Mangueras</th></tr></thead><tbody>${layout().map(s => s.caras.map((cc, i) => `<tr>${i === 0 ? `<td rowspan="${s.caras.length}">${s.isla}</td><td rowspan="${s.caras.length}"><b>${esc(nombreSurt(s.id))}</b></td>` : ''}<td>Cara ${cc.n}</td><td>${cc.mangueras.map(m => `<span class="cell has" style="margin-right:4px">M${m.n}<small>${esc(m.p)}</small></span>`).join('')}</td></tr>`).join('')).join('')}</tbody></table></div>
-    <div class="pad" style="padding-top:8px"><details><summary style="cursor:pointer;font-size:13px;color:var(--gris)">Avanzado: editar distribución (JSON)</summary><textarea class="in" id="cLayout" style="min-height:160px;font-family:ui-monospace,monospace;font-size:12px;margin-top:8px">${esc(JSON.stringify(layout()))}</textarea><div class="hint">Formato: lista de surtidores con id, isla y caras; cada cara con su número n y sus mangueras (n y p = producto). Se guarda con el botón "Guardar configuración".</div></details></div></div>`;
+  html += `<h2 class="sec">Distribución de surtidores (según Terpel POS)</h2><div class="card"><div class="tw"><table><thead><tr><th>Isla</th><th>Surtidor</th><th>Cara</th><th class="num">Venta/h</th><th>Mangueras</th></tr></thead><tbody>${layout().map(s => s.caras.map((cc, i) => `<tr>${i === 0 ? `<td rowspan="${s.caras.length}">${esc(String(s.isla))}</td><td rowspan="${s.caras.length}"><b>${esc(nombreSurt(s.id))}</b></td>` : ''}<td>Cara ${cc.n}</td><td class="num">${cc.gh ? fmtN(cc.gh, 1) + ' gal/h' : (s.gnv ? fmtN(cc.mh || c.m3HoraPos, 1) + ' m³/h' : '—')}</td><td>${cc.mangueras.map(m => `<span class="cell has" style="margin-right:4px">M${m.n}<small>${esc(m.p)}</small></span>`).join('')}</td></tr>`).join('')).join('')}</tbody></table></div>
+    <div class="pad" style="padding-top:8px"><details><summary style="cursor:pointer;font-size:13px;color:var(--gris)">Avanzado: editar distribución (JSON)</summary><textarea class="in" id="cLayout" style="min-height:160px;font-family:ui-monospace,monospace;font-size:12px;margin-top:8px">${esc(JSON.stringify(layout()))}</textarea><div class="hint">Formato: lista de surtidores con id, isla y caras; cada cara con su número n, su venta gh (gal/h) o mh (m³/h) y sus mangueras (n y p = producto). Se guarda con el botón "Guardar configuración".</div></details></div></div>`;
   html += `<h2 class="sec">Usuarios que pueden reportar</h2><div class="card"><div class="tw"><table><thead><tr><th>Nombre</th><th>Cargo</th><th>Rol</th><th>Activo</th><th></th></tr></thead><tbody>${(S.usuarios || []).map(u => `<tr><td><b>${esc(u.nombre)}</b></td><td>${esc(u.cargo || '')}</td><td>${u.rol === 'admin' ? '<span class="tag t-o">Administrador</span>' : '<span class="tag t-n">Usuario</span>'}</td><td>${String(u.activo).toUpperCase() === 'NO' ? 'No' : 'Sí'}</td><td style="text-align:right"><button class="btn sm" data-user-edit="${esc(u.nombre)}">Editar</button></td></tr>`).join('')}</tbody></table></div><div class="pad" style="padding-top:8px"><button class="btn" id="btnNewUser">+ Agregar usuario</button> <span class="hint" style="display:inline">Los PIN también se pueden cambiar directamente en la hoja <b>Usuarios</b>.</span></div></div>`;
   return html;
 }
@@ -597,7 +631,7 @@ function fAf() {
   <div class="sec2"><div class="grid">
     <div><label class="fl">Galones no vendidos <span>(estimado)</span></label><input class="in" type="number" step="0.1" min="0" data-k="galones" value="${esc(a.galones)}" ${a.producto === 'GNV' ? 'disabled' : ''}></div>
     <div><label class="fl">m³ GNV no vendidos <span>(estimado)</span></label><input class="in" type="number" step="0.1" min="0" data-k="m3" value="${esc(a.m3)}" ${a.producto === 'Líquidos' ? 'disabled' : ''}></div>
-    <div class="full"><button type="button" class="btn sm" id="btnEst">Calcular estimado</button> <span class="hint" style="display:inline">= posiciones × horas × ${c.galHoraPos} gal/h (líquidos) o ${c.m3HoraPos} m³/h (GNV). Si tienes el dato real de Sicom, escríbelo encima.</span></div>
+    <div class="full"><button type="button" class="btn sm" id="btnEst">Calcular estimado</button> <span class="hint" style="display:inline">usa el ritmo real de venta de cada cara (gal/h medido en el POS) y la hora del día de la afectación; GNV usa ${c.m3HoraPos} m³/h por cara. Si tienes el dato real de Sicom, escríbelo encima.</span></div>
     <div class="full"><label class="fl">Descripción <span>(qué pasó, quién atendió, ticket Terpel…)</span></label><textarea class="in" data-k="descripcion">${esc(a.descripcion || '')}</textarea></div>
   </div></div>
   <div class="actions">${actual.consecutivo && esAdmin() ? '<button class="btn danger" id="btnDel">Eliminar</button>' : ''}<div class="sp"></div>${!a.fin ? '<button class="btn" id="btnCerrarAhora">Cerrar ahora</button>' : ''}<button class="btn pri" id="btnSave">Guardar</button></div>`;
@@ -663,24 +697,25 @@ function postCambio(k) {
     if (tipoActual === 'dn' && k === 'estado') { if (actual.estado === 'Reparado' && !actual.fechaReparacion) { actual.fechaReparacion = hoyISO(); const el = $('#dBody [data-k=fechaReparacion]'); if (el) el.value = actual.fechaReparacion; } }
     return;
   }
+  if (k === 'motivo' && /GNV/.test(actual.motivo || '') && actual.producto !== 'GNV') { actual.producto = 'GNV'; $$('#dBody [data-seg=producto] button').forEach(b => b.classList.toggle('on', b.dataset.val === 'GNV')); if (/Bloqueo total/.test(actual.motivo)) { actual.alcance = 'Surtidores'; actual.surtidores = layout().filter(x => x.gnv).map(x => x.id); $$('#dBody [data-seg=alcance] button').forEach(b => b.classList.toggle('on', b.dataset.val === 'Surtidores')); $$('#dBody [data-chip=surtidores]').forEach(b => b.classList.toggle('on', actual.surtidores.includes(b.dataset.val))); } postCambio('producto'); postCambio('alcance'); return; }
   if (k === 'motivo' && actual.motivo === 'Caída Terpel POS' && !(actual.islas || []).length && !(actual.caras || []).length) { actual.alcance = 'Isla / POS'; $$('#dBody [data-seg=alcance] button').forEach(b => b.classList.toggle('on', b.dataset.val === actual.alcance)); postCambio('alcance'); return; }
   if (k === 'alcance') { $('#alcIsla').style.display = actual.alcance === 'Isla / POS' ? '' : 'none'; $('#alcSurt').style.display = actual.alcance === 'Surtidores' ? '' : 'none'; $('#alcCaras').style.display = actual.alcance === 'Caras' ? '' : 'none'; }
   if (k === 'islas' || (k === 'alcance' && actual.alcance === 'Isla / POS')) { actual.surtidores = islas().filter(i => (actual.islas || []).map(String).includes(String(i.n))).flatMap(i => i.surtidores); }
-  if (['alcance', 'surtidores', 'caras', 'islas'].includes(k)) {
-    const pos = actual.alcance === 'Toda la EDS' ? totalPosiciones() : (actual.alcance === 'Surtidores' || actual.alcance === 'Isla / POS') ? (actual.surtidores || []).reduce((t, sid) => t + carasDe(sid).length, 0) : (actual.caras || []).length;
+  if (['alcance', 'surtidores', 'caras', 'islas', 'producto'].includes(k)) {
+    const pp = posDe(actual); actual.posLiq = pp.liq; actual.posGnv = pp.gnv; const pos = pp.liq + pp.gnv;
     actual.posiciones = pos; const el = $('#dBody [data-k=posiciones]'); if (el) el.value = pos;
   }
   if (k === 'producto') { const g = $('#dBody [data-k=galones]'), m = $('#dBody [data-k=m3]'); g.disabled = actual.producto === 'GNV'; m.disabled = actual.producto === 'Líquidos'; if (g.disabled) { g.value = ''; actual.galones = ''; } if (m.disabled) { m.value = ''; actual.m3 = ''; } }
   const h = $('#durHint'); if (h) h.textContent = actual.inicio ? (actual.fin ? 'Duración: ' + fmtMin(minutos(actual)) : 'Abierta hace ' + fmtMin(minutos(actual))) : '';
 }
 function estimar(silencioso) {
-  const a = actual, c = cfg();
+  const a = actual;
   if (!a.inicio) return toast('Pon la hora de inicio', true);
-  const horas = minutos(a) / 60, pos = n0(a.posiciones);
-  if (!pos) return silencioso ? null : toast('Indica el alcance o las posiciones afectadas', true);
-  if (a.producto !== 'GNV') { a.galones = Math.round(pos * horas * c.galHoraPos * 10) / 10; $('#dBody [data-k=galones]').value = a.galones; }
-  if (a.producto !== 'Líquidos') { a.m3 = Math.round(pos * horas * c.m3HoraPos * 10) / 10; $('#dBody [data-k=m3]').value = a.m3; }
-  if (!silencioso) toast('Estimado calculado · corrígelo si tienes el dato real');
+  const e = estimarPerdida(a);
+  if (!(e.liq + e.gnv)) return silencioso ? null : toast('Indica el alcance o las posiciones afectadas', true);
+  if (a.producto !== 'GNV') { a.galones = e.gal; $('#dBody [data-k=galones]').value = a.galones; }
+  if (a.producto !== 'Líquidos') { a.m3 = e.m3; $('#dBody [data-k=m3]').value = a.m3; }
+  if (!silencioso) toast(`Estimado con el ritmo real de cada cara (factor horario ${e.factor.toFixed(2)}) · corrígelo si tienes el dato real`);
 }
 
 async function guardarActual() {
@@ -703,8 +738,8 @@ async function cerrarAf(id) {
   const a = S.af.find(x => x.id === id); if (!a) return;
   if (!await confirmar(`¿Cerrar la afectación "${a.motivo}" ahora (${fmtMin(minutos(a))})? Se calculará la pérdida estimada si no tiene dato.`)) return;
   const c = cfg(); a.fin = fechaLocalISO(new Date());
-  const horas = minutos(a) / 60, pos = n0(a.posiciones);
-  if (pos) { if (a.producto !== 'GNV' && !n0(a.galones)) a.galones = Math.round(pos * horas * c.galHoraPos * 10) / 10; if (a.producto !== 'Líquidos' && !n0(a.m3)) a.m3 = Math.round(pos * horas * c.m3HoraPos * 10) / 10; }
+  const e = estimarPerdida(a);
+  if (a.producto !== 'GNV' && !n0(a.galones)) a.galones = e.gal; if (a.producto !== 'Líquidos' && !n0(a.m3)) a.m3 = e.m3;
   try { await api('saveAf', { item: a, accion: 'Afectación cerrada' }); toast('Afectación cerrada ✓'); await cargar(); } catch (e) { toast('Error: ' + e.message, true); }
 }
 
