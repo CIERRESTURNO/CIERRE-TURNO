@@ -269,5 +269,5 @@ function crearDistribucion() {
   h.getRange(r, 6).setFormula('=SUM(F2:F37)/2/18').setNumberFormat('0.0');
   h.getRange(r + 1, 1).setValue('Fuente: Reporte de venta detallada Terpel POS, 1 al 7 de noviembre de 2026 (83.625 gal). gal/h = galones de la semana / (7 días × 24 h). GNV no aparece en ese reporte.').setFontStyle('italic').setFontColor('#6E6E6E');
   h.setFrozenRows(1);
-  h.autoResizeColumns(1, enc.length);
+  [60, 80, 60, 80, 110, 130, 140].forEach((w, i) => h.setColumnWidth(i + 1, w));
 }

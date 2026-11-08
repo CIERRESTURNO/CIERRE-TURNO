@@ -488,7 +488,7 @@ function barras(pares, fmt, cls = '') {
 }
 function alcanceTxt(a) {
   if (a.alcance === 'Toda la EDS') return 'Toda la EDS';
-  if (a.alcance === 'Isla / POS') return (a.islas || []).map(i => 'POS / Isla ' + i).join(', ') + ' (' + (a.surtidores || []).map(nombreSurt).join(', ') + ')';
+  if (a.alcance === 'Isla / POS') return (a.islas || []).map(i => 'POS ' + i + ' · Isla ' + i).join(', ') + ' (' + (a.surtidores || []).map(nombreSurt).join(', ') + ')';
   if (a.alcance === 'Surtidores') return (a.surtidores || []).map(s => nombreSurt(s)).join(', ') || 'Surtidores';
   if (a.alcance === 'Caras') return (a.caras || []).map(labelCara).join(', ') || 'Caras';
   return a.alcance || '';
@@ -631,7 +631,7 @@ function fAf() {
     <div><label class="fl">Fin <span>(vacío = sigue abierta)</span></label><input class="in" type="datetime-local" data-k="fin" value="${esc(a.fin || '')}"><div class="hint" id="durHint"></div></div>
   </div></div>
   <div class="sec2"><label class="fl">Alcance</label>${seg('alcance', ['Toda la EDS', 'Isla / POS', 'Surtidores', 'Caras'], a.alcance)}
-    <div id="alcIsla" class="chips" style="margin-top:10px;${a.alcance === 'Isla / POS' ? '' : 'display:none'}">${islas().map(i => `<button type="button" data-chip="islas" data-val="${i.n}" class="${(a.islas || []).map(String).includes(String(i.n)) ? 'on' : ''}">POS / Isla ${i.n} <span style="font-weight:500;opacity:.8">(${i.surtidores.map(nombreSurt).join(', ')})</span></button>`).join('')}</div>
+    <div id="alcIsla" class="chips" style="margin-top:10px;${a.alcance === 'Isla / POS' ? '' : 'display:none'}">${islas().map(i => `<button type="button" data-chip="islas" data-val="${i.n}" class="${(a.islas || []).map(String).includes(String(i.n)) ? 'on' : ''}">POS ${i.n} · Isla ${i.n} <span style="font-weight:500;opacity:.8">(${i.surtidores.map(nombreSurt).join(', ')})</span></button>`).join('')}</div>
     <div id="alcSurt" class="chips" style="margin-top:10px;${a.alcance === 'Surtidores' ? '' : 'display:none'}">${surtidores().map(s => `<button type="button" data-chip="surtidores" data-val="${s.id}" class="${(a.surtidores || []).includes(s.id) ? 'on' : ''}">${esc(s.nombre)}</button>`).join('')}</div>
     <div id="alcCaras" class="chips" style="margin-top:10px;${a.alcance === 'Caras' ? '' : 'display:none'}">${surtidores().map(s => `<div class="grp">${esc(s.nombre)}</div>` + carasDe(s.id).map(cc => `<button type="button" data-chip="caras" data-val="${cc}" class="${(a.caras || []).includes(cc) ? 'on' : ''}">Cara ${numCara(cc)}</button>`).join('')).join('')}</div>
     <div class="grid" style="margin-top:12px"><div><label class="fl">Posiciones afectadas</label><input class="in" type="number" min="0" data-k="posiciones" value="${esc(a.posiciones)}"><div class="hint">Se calcula solo según el alcance; puedes corregirlo.</div></div></div></div>
