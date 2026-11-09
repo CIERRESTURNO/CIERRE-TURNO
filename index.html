@@ -429,6 +429,9 @@ const MEDIOS = [
 // ---------- PROMOTORES ----------
 // La lista se lee de promotores.txt (mismo repositorio): un nombre por línea, editable sin tocar este archivo.
 // Si no se puede leer, se usa esta lista de respaldo.
+// Pestaña PROMOTORES de la hoja de Google publicada como CSV (Archivo > Compartir > Publicar en la web).
+// Si está vacío, se usa promotores.txt del repositorio.
+const PROMOTORES_SHEET_CSV = "";
 const PROMOTORES_RESPALDO = [
   'Angie Michelle Urrea Cubillos','Brayam Enrique Galán Rodríguez','Carlos Alberto Gutiérrez Rodríguez',
   'Cristian Camilo Bohórquez Gutiérrez','Diego Fernando Ardila Alférez','Francisco Donado Luna',
@@ -444,12 +447,19 @@ function llenarPromotores(lista){
   var otro=document.createElement('option');otro.value='__otro__';otro.textContent='Otro (no estoy en la lista)';sel.appendChild(otro);
   if(actual) sel.value=actual;
 }
+function parsearLista(t){
+  return t.split(/\r?\n/).map(function(l){return l.split(',')[0].replace(/^"|"$/g,'').trim();})
+    .filter(function(l){return l && l.charAt(0)!=='#' && l.toLowerCase()!=='promotor' && l.toLowerCase()!=='nombre';});
+}
 function cargarPromotores(){
   llenarPromotores(PROMOTORES_RESPALDO);
-  fetch('promotores.txt?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():'';}).then(function(t){
-    var lista=t.split(/\r?\n/).map(function(l){return l.trim();}).filter(function(l){return l && l.charAt(0)!=='#';});
-    if(lista.length) llenarPromotores(lista);
-  }).catch(function(){});
+  var fuente = PROMOTORES_SHEET_CSV ? PROMOTORES_SHEET_CSV+(PROMOTORES_SHEET_CSV.indexOf('?')>-1?'&':'?')+'v='+Date.now() : 'promotores.txt?v='+Date.now();
+  fetch(fuente,{cache:'no-store'}).then(function(r){return r.ok?r.text():'';}).then(function(t){
+    var lista=parsearLista(t); if(lista.length) llenarPromotores(lista);
+    else if(PROMOTORES_SHEET_CSV) return fetch('promotores.txt?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t2){var l2=parsearLista(t2); if(l2.length) llenarPromotores(l2);});
+  }).catch(function(){
+    fetch('promotores.txt?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t2){var l2=parsearLista(t2); if(l2.length) llenarPromotores(l2);}).catch(function(){});
+  });
 }
 function cambioPromotor(){
   var sel=document.getElementById('empleado_sel'), txt=document.getElementById('empleado');
