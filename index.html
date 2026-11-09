@@ -131,6 +131,27 @@
   .btn-secondary { background: var(--bg); color: var(--text2); border: 2px solid var(--border); }
   .toast { position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%); background: var(--green); color: #fff; padding: 12px 24px; border-radius: 24px; font-weight: 800; font-size: 14px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 999; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
   .toast.show { opacity: 1; }
+
+  /* --- Turno automático --- */
+  .turno-auto { background: linear-gradient(135deg,#fff5f5,#fff); border: 2px solid var(--rojo); border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 10px; }
+  .turno-auto .ta-lbl { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); }
+  .turno-auto .ta-turno { font-size: 24px; font-weight: 900; color: var(--rojo); margin: 4px 0 2px; }
+  .turno-auto .ta-fecha { font-size: 17px; font-weight: 800; color: var(--text); }
+  .turno-auto .ta-nota { font-size: 12px; color: var(--text3); margin-top: 6px; font-weight: 600; }
+  .ta-cambiar { margin-top: 10px; background: #fff; border: 2px solid var(--border); border-radius: 10px; padding: 9px 14px; font-size: 13px; font-weight: 800; color: var(--text2); cursor: pointer; }
+  .turno-manual { display: none; margin-top: 12px; border-top: 2px dashed var(--border); padding-top: 12px; text-align: left; }
+  .turno-manual.show { display: block; }
+  .efectivo-nota { background: #fffbeb; border: 2px solid var(--amber); border-radius: 10px; padding: 10px 12px; font-size: 13px; font-weight: 700; color: #92400e; margin-bottom: 10px; line-height: 1.4; }
+  .confirm-overlay { display:none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 500; align-items: flex-end; justify-content: center; }
+  .confirm-overlay.show { display: flex; }
+  .confirm-box { background: #fff; width: 100%; max-width: 520px; border-radius: 18px 18px 0 0; padding: 18px 16px 24px; }
+  .confirm-box h3 { font-size: 16px; font-weight: 900; color: var(--rojo); margin-bottom: 10px; }
+  .confirm-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 15px; font-weight: 700; }
+  .confirm-row span:last-child { font-weight: 900; }
+  .confirm-row.big span:last-child { color: var(--green); font-size: 18px; }
+  .confirm-warn { background: #fef2f2; border: 2px solid var(--rojo); border-radius: 10px; padding: 10px; font-size: 13px; font-weight: 800; color: var(--rojo); margin-top: 10px; }
+  .confirm-btns { display: flex; gap: 10px; margin-top: 14px; }
+  .confirm-btns button { flex: 1; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 900; border: none; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -163,23 +184,42 @@
   <div class="sec-title">📋 Datos del Turno</div>
   <div class="card">
     <div class="field">
-      <label>Nombre y Apellido *</label>
-      <input type="text" id="empleado" placeholder="Nombre y apellido..." autocomplete="name" style="font-size:18px;">
+      <label>¿Quién cierra? *</label>
+      <select id="empleado_sel" onchange="cambioPromotor()" style="font-size:17px;">
+        <option value="">— Busca tu nombre —</option>
+      </select>
+      <input type="text" id="empleado" placeholder="Escribe tu nombre y apellido completos" autocomplete="name" style="font-size:17px;display:none;margin-top:8px;">
     </div>
-    <div class="row2">
-      <div class="field">
-        <label>Turno *</label>
-        <select id="turno">
-          <option value="">— Seleccionar —</option>
-          <option>🌙 12:00am - 6:00am</option>
-          <option>🌅 6:00am - 2:00pm</option>
-          <option>☀️ 2:00pm - 9:30pm</option>
-          <option>🌆 9:30pm - 12:00am</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Fecha *</label>
-        <input type="date" id="fecha" style="font-size:15px;font-weight:600;">
+
+    <div class="turno-auto">
+      <div class="ta-lbl">Estás cerrando el turno</div>
+      <div class="ta-turno" id="ta_turno">—</div>
+      <div class="ta-fecha" id="ta_fecha">—</div>
+      <div class="ta-nota" id="ta_nota">El turno y la fecha se calculan solos con la hora de tu celular.</div>
+      <button type="button" class="ta-cambiar" id="ta_btn" onclick="toggleManual()">✏️ No es mi turno, cambiar</button>
+
+      <div class="turno-manual" id="turno_manual">
+        <div class="row2">
+          <div class="field">
+            <label>Turno *</label>
+            <select id="turno" onchange="actualizarResumenTurno()">
+              <option value="">— Seleccionar —</option>
+              <option>🌙 12:00am - 6:00am</option>
+              <option>🌅 6:00am - 2:00pm</option>
+              <option>☀️ 2:00pm - 9:30pm</option>
+              <option>🌆 9:30pm - 12:00am</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Fecha *</label>
+            <input type="date" id="fecha" style="font-size:15px;font-weight:600;" onchange="actualizarResumenTurno()">
+            <div class="field-hint">Turno 9:30pm-12am: fecha del día en que <b>empezó</b>, no del día siguiente.</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>¿Por qué lo cambias? *</label>
+          <input type="text" id="motivo_cambio" placeholder="Ej: salí antes / cierro tarde el turno de ayer">
+        </div>
       </div>
     </div>
   </div>
@@ -290,6 +330,7 @@
   <div class="card" style="background:#fff8e1;border-color:#fbbf24;margin-bottom:10px">
     <p style="font-size:13px;font-weight:700;color:#92400e">⚠️ Escribe los valores SIN puntos ni comas<br><span style="font-weight:400">Ejemplo: un millón quinientos = <strong>1500000</strong></span></p>
   </div>
+  <div class="efectivo-nota">💵 <b>Efectivo</b> = solo lo que consignaste en la máquina <b>Cash Today (Prosegur)</b> en tu turno.<br>El datáfono va en su propia casilla. <b>No</b> copies el renglón "Efectivo" de la tirilla del POS.</div>
   <div id="pago-list"></div>
   <div class="card" style="display:flex;align-items:center;justify-content:space-between">
     <span style="font-size:13px;color:var(--text2);font-weight:700">Total Recibido</span>
@@ -344,6 +385,22 @@
   <button class="btn btn-secondary" onclick="limpiar()">🔄 Limpiar</button>
   <button class="btn btn-primary" id="btn-enviar" onclick="enviarSheets()">📤 Enviar al Administrador</button>
 </div>
+<div class="confirm-overlay" id="confirm_overlay">
+  <div class="confirm-box">
+    <h3>✅ Revisa antes de enviar</h3>
+    <div class="confirm-row"><span>Promotor</span><span id="cf_prom"></span></div>
+    <div class="confirm-row"><span>Turno</span><span id="cf_turno"></span></div>
+    <div class="confirm-row"><span>Fecha</span><span id="cf_fecha"></span></div>
+    <div class="confirm-row big"><span>Efectivo (Cash Today)</span><span id="cf_efec"></span></div>
+    <div class="confirm-row"><span>Total ventas</span><span id="cf_total"></span></div>
+    <div class="confirm-row"><span>Diferencia</span><span id="cf_dif"></span></div>
+    <div class="confirm-warn" id="cf_warn" style="display:none"></div>
+    <div class="confirm-btns">
+      <button style="background:var(--bg);color:var(--text2)" onclick="cerrarConfirm()">↩ Corregir</button>
+      <button style="background:var(--green);color:#fff" onclick="confirmarEnvio()">📤 Sí, enviar</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -368,6 +425,77 @@ const MEDIOS = [
   { id:'moneda',              nombre:'Moneda',                emoji:'🪙' },
 ];
 
+
+// ---------- PROMOTORES (mismos nombres que en Terpel POS) ----------
+const PROMOTORES = [
+  'Angie Michelle Urrea Cubillos','Brayam Enrique Galán Rodríguez','Carlos Alberto Gutiérrez Rodríguez',
+  'Cristian Camilo Bohórquez Gutiérrez','Diego Fernando Ardila Alférez','Francisco Donado Luna',
+  'Gustavo Adolfo Fonseca Porras','Harold Antonio Barrera Ruiz','Johan Santiago Martínez Aldana',
+  'John Israel Parada Duarte','Juan José Zamora Bastidas','Juan Luis Pérez Hernández',
+  'Kate Lourdes Jiménez Roa','Luis Alberto Vélez Escalona','Luis Alirio Cuellar',
+  'Óscar Andrés Riveros Africano','Ricardo Morales Moreno','Yaneth Romero Monroy'
+];
+function cambioPromotor(){
+  var sel=document.getElementById('empleado_sel'), txt=document.getElementById('empleado');
+  if(sel.value==='__otro__'){txt.style.display='block';txt.value='';txt.focus();}
+  else{txt.style.display='none';txt.value=sel.value;}
+}
+function nombrePromotor(){ return document.getElementById('empleado').value.trim(); }
+
+// ---------- TURNO Y FECHA AUTOMÁTICOS ----------
+const TURNOS = {N1:'🌙 12:00am - 6:00am', M:'🌅 6:00am - 2:00pm', T:'☀️ 2:00pm - 9:30pm', N0:'🌆 9:30pm - 12:00am'};
+var turnoManual = false;
+function pad(x){return (x<10?'0':'')+x;}
+function isoLocal(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+// Según la hora en que se ENVÍA el cierre, deduce qué turno acaba de terminar y de qué día es.
+function turnoAutomatico(){
+  var now=new Date(), m=now.getHours()*60+now.getMinutes(), d=new Date(now), t;
+  if(m>=23*60+45){ t='N0'; }                              // 11:45pm-12am: cierra 9:30pm-12am de hoy
+  else if(m<6*60){ t='N0'; d.setDate(d.getDate()-1); }    // 12am-6am: cierra 9:30pm-12am de AYER
+  else if(m<13*60+30){ t='N1'; }                          // 6am-1:30pm: cierra 12am-6am de hoy
+  else if(m<21*60){ t='M'; }                              // 1:30pm-9pm: cierra 6am-2pm de hoy
+  else { t='T'; }                                         // 9pm-11:45pm: cierra 2pm-9:30pm de hoy
+  return {turno:TURNOS[t], fecha:isoLocal(d)};
+}
+function fechaLarga(iso){
+  var p=iso.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]);
+  var txt=d.toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'});
+  return txt.charAt(0).toUpperCase()+txt.slice(1);
+}
+function aplicarTurnoAuto(){
+  if(turnoManual) return;
+  var a=turnoAutomatico();
+  document.getElementById('turno').value=a.turno;
+  document.getElementById('fecha').value=a.fecha;
+  actualizarResumenTurno();
+}
+function actualizarResumenTurno(){
+  var t=document.getElementById('turno').value, f=document.getElementById('fecha').value;
+  document.getElementById('ta_turno').textContent=t||'—';
+  document.getElementById('ta_fecha').textContent=f?fechaLarga(f):'—';
+  var nota=document.getElementById('ta_nota');
+  if(turnoManual){nota.textContent='⚠️ Turno/fecha cambiados a mano. Esto queda registrado.';}
+  else if(t===TURNOS.N0 && f!==isoLocal(new Date())){nota.textContent='Ya pasó medianoche: este cierre es del turno 9:30pm-12am de AYER. Si tu turno es 12am-6am, ciérralo aparte a las 6am.';}
+  else {nota.textContent='El turno y la fecha se calculan solos con la hora de tu celular.';}
+}
+function toggleManual(){
+  turnoManual=!turnoManual;
+  document.getElementById('turno_manual').classList.toggle('show',turnoManual);
+  document.getElementById('ta_btn').textContent=turnoManual?'↩ Volver al turno automático':'✏️ No es mi turno, cambiar';
+  if(!turnoManual){document.getElementById('motivo_cambio').value='';aplicarTurnoAuto();}
+  actualizarResumenTurno();
+}
+
+// ---------- DUPLICADOS ----------
+function claveEnvio(){return (nombrePromotor()+'|'+document.getElementById('turno').value+'|'+document.getElementById('fecha').value).toLowerCase();}
+function yaEnviado(){
+  try{var r=JSON.parse(localStorage.getItem('ct_ultimo')||'null'); if(r&&r.clave===claveEnvio())return r;}catch(e){}
+  return null;
+}
+function marcarEnviado(){
+  try{localStorage.setItem('ct_ultimo',JSON.stringify({clave:claveEnvio(),hora:new Date().toLocaleTimeString('es-CO',{hour12:false})}));}catch(e){}
+}
+
 var variosCount = 0;
 var encuestaFiles = [];
 var ultimoPromotor = '';
@@ -375,7 +503,11 @@ var ultimoTurno = '';
 var ultimaFecha = '';
 
 window.onload = function() {
-  document.getElementById('fecha').valueAsDate = new Date();
+  var sel=document.getElementById('empleado_sel');
+  PROMOTORES.forEach(function(p){var o=document.createElement('option');o.textContent=p;o.value=p;sel.appendChild(o);});
+  var otro=document.createElement('option');otro.value='__otro__';otro.textContent='Otro (no estoy en la lista)';sel.appendChild(otro);
+  aplicarTurnoAuto();
+  setInterval(aplicarTurnoAuto, 60000);
   var pagoList = document.getElementById('pago-list');
   MEDIOS.forEach(function(mp) {
     pagoList.innerHTML += `
@@ -505,10 +637,13 @@ function previewEncuestas(input) {
 function validar() {
   var errores = [];
   document.querySelectorAll('.error').forEach(function(el){el.classList.remove('error');});
-  var emp = document.getElementById('empleado').value.trim();
+  var emp = nombrePromotor();
   var turno = document.getElementById('turno').value;
-  if (!emp || emp.split(' ').filter(function(w){return w.length>0;}).length < 2){errores.push('Nombre y Apellido completos');document.getElementById('empleado').classList.add('error');}
+  if (!emp || emp.split(' ').filter(function(w){return w.length>0;}).length < 2){errores.push('Tu nombre (escógelo en la lista)');document.getElementById('empleado_sel').classList.add('error');document.getElementById('empleado').classList.add('error');}
   if (!turno){errores.push('Turno');document.getElementById('turno').classList.add('error');}
+  if (!document.getElementById('fecha').value){errores.push('Fecha');document.getElementById('fecha').classList.add('error');}
+  if (turnoManual && !document.getElementById('motivo_cambio').value.trim()){errores.push('Motivo del cambio de turno/fecha');document.getElementById('motivo_cambio').classList.add('error');}
+  if (document.getElementById('pago_efectivo').value.trim()===''){errores.push('Efectivo (escribe 0 si no consignaste)');document.getElementById('pago_efectivo').classList.add('error');}
   var campos = [
     ['co_precio','Precio Corriente'],['co_gal','Galones Corriente'],
     ['ex_precio','Precio Extra'],['ex_gal','Galones Extra'],
@@ -533,7 +668,24 @@ function validar() {
 }
 function enviarSheets() {
   if (!validar()) return;
-  var emp = document.getElementById('empleado').value.trim();
+  var grand=getV('r_grand'), pagos=getV('r_pagos'), dif=grand-pagos;
+  document.getElementById('cf_prom').textContent=nombrePromotor();
+  document.getElementById('cf_turno').textContent=document.getElementById('turno').value;
+  document.getElementById('cf_fecha').textContent=fechaLarga(document.getElementById('fecha').value);
+  document.getElementById('cf_efec').textContent='$'+fmt(n('pago_efectivo'));
+  document.getElementById('cf_total').textContent='$'+fmt(grand);
+  document.getElementById('cf_dif').textContent=(dif===0?'✅ Cuadrado':(dif>0?'▲ Faltante $':'▼ Sobrante $')+fmt(Math.abs(dif)));
+  var w=document.getElementById('cf_warn'), msgs=[];
+  var dup=yaEnviado(); if(dup) msgs.push('⚠️ Ya enviaste este mismo cierre hoy a las '+dup.hora+'. Si lo envías otra vez quedará repetido.');
+  if(Math.abs(dif)>50000) msgs.push('⚠️ La diferencia es muy grande. Revisa galones, precios y medios de pago antes de enviar.');
+  if(n('pago_efectivo')>grand*0.8 && grand>0) msgs.push('⚠️ El efectivo es casi toda la venta. ¿Seguro que no sumaste el datáfono?');
+  w.innerHTML=msgs.join('<br><br>'); w.style.display=msgs.length?'block':'none';
+  document.getElementById('confirm_overlay').classList.add('show');
+}
+function cerrarConfirm(){document.getElementById('confirm_overlay').classList.remove('show');}
+function confirmarEnvio() {
+  cerrarConfirm();
+  var emp = nombrePromotor();
   var btn = document.getElementById('btn-enviar');
   btn.textContent = '⏳ Enviando...'; btn.disabled = true;
   var coT=n('co_gal')*n('co_precio'), exT=n('ex_gal')*n('ex_precio'), acT=n('ac_gal')*n('ac_precio');
@@ -569,8 +721,9 @@ function enviarSheets() {
     pago_pruebas_combustible:n('pago_pruebas_combustible'),pago_moneda:n('pago_moneda'),
     total_pagos:pagosT,total_ventas:grand,diferencia:grand-pagosT,
     encuestas_subidas:encuestaFiles.length,
-    observaciones:document.getElementById('obs').value
+    observaciones:document.getElementById('obs').value + (turnoManual ? ' [Turno/fecha ajustados a mano. Motivo: '+document.getElementById('motivo_cambio').value.trim()+' | Enviado: '+new Date().toLocaleString('es-CO',{hour12:false})+']' : '')
   };
+  marcarEnviado();
   fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)})
   .then(function(){showToast('✅ Enviado al Administrador');btn.textContent='✅ Enviado';btn.disabled=false;})
   .catch(function(){showToast('✅ Enviado al Administrador');btn.textContent='✅ Enviado';btn.disabled=false;});
