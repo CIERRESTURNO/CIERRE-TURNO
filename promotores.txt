@@ -1,0 +1,21 @@
+# Lista de promotores del formulario de Cierre de Turno.
+# Un nombre por línea, tal como aparece en Terpel POS. Las líneas que empiezan con # se ignoran.
+# Para agregar: escribe el nombre en una línea nueva. Para retirar: borra su línea. Guarda y en ~1 minuto el formulario lo toma.
+Angie Michelle Urrea Cubillos
+Brayam Enrique Galán Rodríguez
+Carlos Alberto Gutiérrez Rodríguez
+Cristian Camilo Bohórquez Gutiérrez
+Diego Fernando Ardila Alférez
+Francisco Donado Luna
+Gustavo Adolfo Fonseca Porras
+Harold Antonio Barrera Ruiz
+Johan Santiago Martínez Aldana
+John Israel Parada Duarte
+Juan José Zamora Bastidas
+Juan Luis Pérez Hernández
+Kate Lourdes Jiménez Roa
+Luis Alberto Vélez Escalona
+Luis Alirio Cuellar
+Óscar Andrés Riveros Africano
+Ricardo Morales Moreno
+Yaneth Romero Monroy

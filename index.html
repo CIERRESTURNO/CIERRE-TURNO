@@ -426,8 +426,10 @@ const MEDIOS = [
 ];
 
 
-// ---------- PROMOTORES (mismos nombres que en Terpel POS) ----------
-const PROMOTORES = [
+// ---------- PROMOTORES ----------
+// La lista se lee de promotores.txt (mismo repositorio): un nombre por línea, editable sin tocar este archivo.
+// Si no se puede leer, se usa esta lista de respaldo.
+const PROMOTORES_RESPALDO = [
   'Angie Michelle Urrea Cubillos','Brayam Enrique Galán Rodríguez','Carlos Alberto Gutiérrez Rodríguez',
   'Cristian Camilo Bohórquez Gutiérrez','Diego Fernando Ardila Alférez','Francisco Donado Luna',
   'Gustavo Adolfo Fonseca Porras','Harold Antonio Barrera Ruiz','Johan Santiago Martínez Aldana',
@@ -435,6 +437,20 @@ const PROMOTORES = [
   'Kate Lourdes Jiménez Roa','Luis Alberto Vélez Escalona','Luis Alirio Cuellar',
   'Óscar Andrés Riveros Africano','Ricardo Morales Moreno','Yaneth Romero Monroy'
 ];
+function llenarPromotores(lista){
+  var sel=document.getElementById('empleado_sel'), actual=sel.value;
+  sel.innerHTML='<option value="">— Busca tu nombre —</option>';
+  lista.slice().sort(function(a,b){return a.localeCompare(b,'es');}).forEach(function(p){var o=document.createElement('option');o.textContent=p;o.value=p;sel.appendChild(o);});
+  var otro=document.createElement('option');otro.value='__otro__';otro.textContent='Otro (no estoy en la lista)';sel.appendChild(otro);
+  if(actual) sel.value=actual;
+}
+function cargarPromotores(){
+  llenarPromotores(PROMOTORES_RESPALDO);
+  fetch('promotores.txt?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():'';}).then(function(t){
+    var lista=t.split(/\r?\n/).map(function(l){return l.trim();}).filter(function(l){return l && l.charAt(0)!=='#';});
+    if(lista.length) llenarPromotores(lista);
+  }).catch(function(){});
+}
 function cambioPromotor(){
   var sel=document.getElementById('empleado_sel'), txt=document.getElementById('empleado');
   if(sel.value==='__otro__'){txt.style.display='block';txt.value='';txt.focus();}
@@ -503,9 +519,7 @@ var ultimoTurno = '';
 var ultimaFecha = '';
 
 window.onload = function() {
-  var sel=document.getElementById('empleado_sel');
-  PROMOTORES.forEach(function(p){var o=document.createElement('option');o.textContent=p;o.value=p;sel.appendChild(o);});
-  var otro=document.createElement('option');otro.value='__otro__';otro.textContent='Otro (no estoy en la lista)';sel.appendChild(otro);
+  cargarPromotores();
   aplicarTurnoAuto();
   setInterval(aplicarTurnoAuto, 60000);
   var pagoList = document.getElementById('pago-list');
