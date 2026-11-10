@@ -974,16 +974,19 @@ function leerRespaldoArchivo(ev) {
 }
 function applyRestore() {
   const text = document.getElementById("restoreArea").value.trim();
-  if (!text) { showToast("Pegue el respaldo antes de restaurar", "error"); return; }
+  if (!text) { showToast("Pegue el respaldo o escoja el archivo antes de restaurar", "error"); return; }
   try {
     const parsed = JSON.parse(text);
-    DATA = parsed;
+    // Restaura TODOS los meses que vengan en el respaldo (no solo el mes abierto)
+    const meses = Object.keys(parsed).filter(k => /^\d{4}-\d{2}$/.test(k));
+    if (!meses.length) { showToast("El archivo no tiene meses del cuadro", "error"); return; }
+    meses.forEach(k => { DATA[k] = parsed[k]; });
     saveData();
     renderTab();
     closeRestoreModal();
-    showToast("Datos restaurados correctamente", "success");
+    showToast("Respaldo restaurado: " + meses.length + " mes(es) (" + meses[0] + " a " + meses[meses.length-1] + ")", "success");
   } catch (err) {
-    showToast("JSON invalido: " + err.message, "error");
+    showToast("JSON inválido: " + err.message, "error");
   }
 }
 
