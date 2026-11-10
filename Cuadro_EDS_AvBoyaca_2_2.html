@@ -321,6 +321,8 @@
   <div class="modal">
     <h3>Restaurar desde respaldo</h3>
     <p>Pegue aquí el texto completo del respaldo JSON. Esto <strong>reemplazará</strong> todos los datos del mes actual.</p>
+    <p style="margin:8px 0 4px;font-weight:700">O escoja el archivo de respaldo directamente:</p>
+    <input type="file" id="restoreFile" accept=".json,application/json" onchange="leerRespaldoArchivo(event)" style="margin-bottom:10px">
     <textarea id="restoreArea" placeholder='{"2026-04":{"V":...}}'></textarea>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeRestoreModal()">Cancelar</button>
@@ -1809,6 +1811,14 @@ function openRestoreModal() {
   document.getElementById("restoreModal").classList.add("show");
 }
 function closeRestoreModal() { document.getElementById("restoreModal").classList.remove("show"); }
+function leerRespaldoArchivo(ev) {
+  const f = ev.target.files && ev.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { document.getElementById("restoreArea").value = r.result; showToast("Archivo leído: ahora toque Restaurar"); };
+  r.onerror = () => showToast("No pude leer el archivo", "error");
+  r.readAsText(f);
+}
 function applyRestore() {
   const text = document.getElementById("restoreArea").value.trim();
   if (!text) { showToast("Pegue el respaldo antes de restaurar", "error"); return; }
