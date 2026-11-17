@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Cuadre EDS Av. Boyacá</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: mesa de trabajo de cuadre — carga arriba, resumen por día, detalle por turno y promotor */
+:root{
+  --bg:#f3f5f9; --panel:#ffffff; --ink:#18202b; --muted:#5f6b7a; --line:#e1e6ee; --soft:#eef1f6;
+  --accent:#e2231a; --accent-ink:#ffffff; --accent-soft:#fde8e6; --sun:#ffc20e; --sun-soft:#fff4cf; --sky:#0a6fd6; --band:#e2231a; --band-ink:#ffffff;
+  --ok:#1f7a4d; --ok-soft:#e5f3eb; --warn:#a86300; --warn-soft:#fdf1dc; --bad:#b3261e; --bad-soft:#fbe7e5; --info:#2b5c9e; --info-soft:#e6eef9;
+  --f-display:"Fredoka","Trebuchet MS",Arial,sans-serif; --f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151b; --panel:#1a2029; --ink:#eef2f7; --muted:#9aa6b5; --line:#2c3440; --soft:#222a35;
+  --accent:#ff5a4c; --accent-ink:#1a0d0c; --accent-soft:#3a1f1c; --sun:#ffcd3c; --sun-soft:#3a3013; --sky:#6fb2ff; --band:#b8170f; --band-ink:#ffffff;
+  --ok:#5cc38f; --ok-soft:#173326; --warn:#f0b04a; --warn-soft:#3a2c14; --bad:#ff7a70; --bad-soft:#3d1c1a; --info:#86b2ec; --info-soft:#1b2a3f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151b; --panel:#1a2029; --ink:#eef2f7; --muted:#9aa6b5; --line:#2c3440; --soft:#222a35;
+  --accent:#ff5a4c; --accent-ink:#1a0d0c; --accent-soft:#3a1f1c; --sun:#ffcd3c; --sun-soft:#3a3013; --sky:#6fb2ff; --band:#b8170f; --band-ink:#ffffff;
+  --ok:#5cc38f; --ok-soft:#173326; --warn:#f0b04a; --warn-soft:#3a2c14; --bad:#ff7a70; --bad-soft:#3d1c1a; --info:#86b2ec; --info-soft:#1b2a3f; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:30px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:20px;font-weight:600}
+h3{font-size:15px;font-weight:700}
+.num,td.n,th.n{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;background:var(--band);color:var(--band-ink);border-radius:18px;padding:22px 24px 20px;position:relative;overflow:hidden;box-shadow:inset 0 -6px 0 var(--sun)}
+header.top::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:var(--sun);opacity:.22}
+header.top .eyebrow{color:var(--sun)}
+header.top p{margin:6px 0 0;color:var(--band-ink);opacity:.9;max-width:70ch}
+header.top > *{position:relative;z-index:1}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.toolbar button{border-radius:999px;border:0;padding:9px 16px}
+.toolbar .b-save{background:var(--sun);color:#1d1600}
+.toolbar .b-dl{background:var(--panel);color:var(--ink)}
+.cloud{font-size:12.5px;opacity:.95;width:100%}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.load{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.drop{border:1.5px dashed var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:6px;cursor:pointer;background:var(--soft);min-width:0}
+.drop:hover,.drop.over{border-color:var(--accent)}
+.drop:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.drop input{position:absolute;opacity:0;width:1px;height:1px}
+.drop.big{padding:18px;align-items:flex-start}
+.slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.slot{border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.slot.ok{border-color:var(--ok);background:var(--ok-soft)}
+.slot.new{border-color:var(--accent);background:var(--accent-soft)}
+@media (max-width:700px){.slots{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.drop .fname{font-family:var(--f-mono);font-size:12px;word-break:break-all}
+.drop .fname.okf{color:var(--ok)}
+.opts{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-top:12px}
+.opts label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.opts input{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);width:150px}
+.opts input[type=number]{width:120px}
+button{font:inherit;font-weight:600;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.5;cursor:default}
+.msg{margin-top:10px;font-size:13px}
+.msg.err{color:var(--bad)}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi .v{font-family:var(--f-display);font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .s{font-size:12px;color:var(--muted)}
+.kpi.main{border-color:var(--sun);background:var(--sun-soft)}
+.kpi.main .v{color:var(--ink)}
+.kpi.bad .v{color:var(--bad)} .kpi.warn .v{color:var(--warn)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;white-space:nowrap}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;background:var(--soft)}
+td.n,th.n{text-align:right}
+tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--soft)}
+tr.sel td{background:var(--accent-soft)}
+tfoot td{font-weight:700;background:var(--soft)}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)} .p-bad{background:var(--bad-soft);color:var(--bad)} .p-warn{background:var(--warn-soft);color:var(--warn)} .p-info{background:var(--info-soft);color:var(--info)} .p-mut{background:var(--soft);color:var(--muted)}
+.pos{color:var(--ok)} .neg{color:var(--bad)}
+.daybar{display:flex;flex-wrap:wrap;gap:6px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px;width:fit-content;max-width:100%}
+.tabs button{border:0;border-radius:999px;background:transparent;padding:8px 16px;color:var(--muted);font-family:var(--f-display);font-weight:600;font-size:14.5px}
+.tabs button.on{color:var(--accent-ink);background:var(--accent)}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:28px minmax(0,1.3fr) minmax(0,2fr) repeat(4,minmax(0,.8fr)) 90px;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-variant-numeric:tabular-nums}
+.bar .rk{font-family:var(--f-display);font-weight:700;color:var(--muted)}
+.bar .rk.top{background:var(--sun);color:#1d1600;border-radius:50%;width:26px;height:26px;display:grid;place-items:center}
+.bar .nm{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .track{height:14px;background:var(--soft);border-radius:4px;overflow:hidden;display:flex}
+.bar .track i{display:block;height:100%}
+.bar .c{background:var(--accent)} .bar .e{background:var(--info)} .bar .a{background:var(--warn)}
+.bar .v{display:flex;flex-direction:column;font-size:12.5px} .bar .v span{font-size:11px;color:var(--muted)}
+.bar.head{background:transparent;border:0;padding-block:0;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.metas{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.metas label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.metas input{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);width:120px}
+td.big{font-weight:700}
+tr.sep td{background:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+@media (max-width:860px){.bar{grid-template-columns:24px minmax(0,1fr) repeat(2,minmax(0,1fr));}.bar .track,.bar .hide-s{display:none}.bar.head{display:none}}
+.daybar button{padding:6px 12px;font-size:13px}
+.daybar button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.detail{display:flex;flex-direction:column;gap:14px}
+.dhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:baseline}
+.cards{display:flex;flex-direction:column;gap:8px}
+.pcard{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px}
+.pcard.e-sincierre,.pcard.e-parcial{border-left-color:var(--bad)} .pcard.e-falta,.pcard.e-noconsigno{border-left-color:var(--warn)} .pcard.e-sobra{border-left-color:var(--info)} .pcard.e-ok{border-left-color:var(--ok)}
+.pcard summary{list-style:none;cursor:pointer;padding:10px 14px;display:grid;grid-template-columns:minmax(0,1.5fr) repeat(4,minmax(0,1fr)) auto;gap:10px;align-items:center}
+.pcard summary::-webkit-details-marker{display:none}
+.pcard summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:8px}
+.pcard .who{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard .who small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.pcard .fig{display:flex;flex-direction:column;font-variant-numeric:tabular-nums;min-width:0}
+.pcard .fig b{font-weight:600}
+.pcard .fig span{font-size:11px;color:var(--muted)}
+.pbody{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.shiftline{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.shiftline .sh{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.deps{display:flex;flex-wrap:wrap;gap:6px}
+.dep{font-family:var(--f-mono);font-size:11.5px;background:var(--soft);border-radius:5px;padding:3px 7px;white-space:nowrap}
+.dep.prev{background:var(--info-soft);color:var(--info)}
+.medios{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 14px;font-size:12.5px}
+.medios div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dotted var(--line);padding:2px 0;font-variant-numeric:tabular-nums}
+.medios div.pend span:last-child{color:var(--bad);font-weight:600}
+.medios div.hl{font-weight:700}
+.note{background:var(--warn-soft);color:var(--ink);border-radius:8px;padding:10px 12px;font-size:13px}
+.note.bad{background:var(--bad-soft)} .note.info{background:var(--info-soft)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.alias{display:flex;flex-direction:column;gap:6px}
+.alias .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px}
+.alias select{font:inherit;padding:5px 8px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);max-width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:8px;font-size:12px}
+details.how summary{cursor:pointer;font-weight:600}
+details.how ul{margin:8px 0 0;padding-left:18px;color:var(--muted);max-width:90ch}
+.sample-tag{font-size:12px;color:var(--info);background:var(--info-soft);padding:3px 9px;border-radius:999px}
+@media (max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi.main{grid-column:1/-1}.grid2{grid-template-columns:1fr}
+  .pcard summary{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.pcard summary .who{grid-column:1/-1}}
+@media (max-width:560px){.load{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">EDS Terpel Av. Boyacá · Líquidos</div>
+      <h1>Cuadre diario y del mes</h1>
+      <p>Cierres de turno, CashToday, Terpel POS y datáfono en un solo lugar: efectivo, faltantes y sobrantes, galones contra presupuesto y ranking de promotores.</p>
+    </div>
+    <div class="toolbar">
+      <button class="b-save" id="btnSave" hidden>Guardar en la nube</button>
+      <button class="b-dl" id="btnXls" hidden>Descargar cuadre (Excel)</button>
+      <span class="cloud" id="cloudTag">Datos cargados</span>
+    </div>
+  </header>
+
+  <section class="panel" aria-labelledby="h-load">
+    <h2 id="h-load" style="margin-bottom:10px">Archivos</h2>
+    <label class="drop big" id="dropAll" for="fileAll">
+      <span class="eyebrow">Subir todos los archivos</span>
+      <span><b>Toca aquí o arrastra los 4 Excel juntos.</b> La herramienta reconoce cuál es cuál: cierres de turno, CashToday, venta detallada del Terpel POS y reporte del datáfono. Puedes subir solo los que cambiaron.</span>
+      <input type="file" id="fileAll" accept=".xlsx,.xls,.csv" multiple>
+    </label>
+    <div class="slots">
+      <div class="slot" id="slot-cierres"><span class="eyebrow">Cierres de turno</span><span class="fname">—</span></div>
+      <div class="slot" id="slot-cash"><span class="eyebrow">CashToday</span><span class="fname">—</span></div>
+      <div class="slot" id="slot-pos"><span class="eyebrow">Terpel POS</span><span class="fname">—</span></div>
+      <div class="slot" id="slot-dat"><span class="eyebrow">Datáfono</span><span class="fname">—</span></div>
+    </div>
+    <div class="opts">
+      <label for="optCanal">Código (canal)<input id="optCanal" type="text" value="1000"></label>
+      <label for="optTol">Tolerancia por promotor ($)<input id="optTol" type="number" value="10000" step="1000" min="0"></label>
+      <label for="optFrom">Desde<input id="optFrom" type="date"></label>
+      <label for="optTo">Hasta<input id="optTo" type="date"></label>
+      <button class="primary" id="btnRun">Cruzar archivos</button>
+      <label for="optPos" style="flex-direction:row;align-items:center;gap:6px;color:var(--ink)"><input id="optPos" type="checkbox" checked style="width:auto"> Usar Terpel POS y datáfono</label>
+    </div>
+    <div class="msg" id="msg" role="status"></div>
+  </section>
+
+  <section id="results" class="detail" aria-live="polite"></section>
+
+  <details class="panel how">
+    <summary>Cómo se asigna cada consignación</summary>
+    <ul>
+      <li>Solo se cuentan los <b>depósitos</b> del canal indicado (1000 = líquidos). Las recogidas de la transportadora y los canales 1200 / 1300 se muestran aparte.</li>
+      <li>El día operativo va de 12:00 am a 12:00 am, pero el efectivo del turno 9:30 pm – 12:00 am se consigna en la madrugada siguiente. Por eso, para cada promotor, las consignaciones antes de las 9:00 am se reparten entre el turno de la noche anterior y su turno de 12 – 6 am, buscando el corte que mejor cuadra con lo que declaró en cada cierre.</li>
+      <li>Si el promotor no tiene cierre para comparar, lo consignado antes de las 5:00 am se toma como del día anterior.</li>
+      <li>Si un cierre de 12 – 6 am quedó con fecha equivocada y en observaciones aparece "Enviado: dd/mm/aaaa", se toma la fecha de envío.</li>
+      <li>Cierres repetidos (mismo promotor, día y turno) cuentan una sola vez: el último enviado.</li>
+      <li>Los nombres de CashToday se unen con los de los cierres por nombre. Si un cajero no tiene nombre o usa otro (ej. "GUSTAVO-TOMAS"), se asocia al promotor que ese día cerró sin consignar y con el mismo monto; puedes cambiarlo en "Equivalencias".</li>
+      <li>Con el reporte del Terpel POS se sabe qué vendió cada promotor y con qué medio (Rumbo, Mi Empresa, Gopass, App Terpel, bonos…). El POS registra el datáfono como efectivo, así que el efectivo real = efectivo del POS − datáfono.</li>
+      <li>El datáfono (reporte Credibanco) no trae el nombre del promotor: cada pago se une a la venta del POS con el mismo valor y la hora más cercana; si no hay venta igual, se le asigna a quien venía usando ese datáfono. Por promotor es un estimado; por día es exacto.</li>
+      <li>De quien no cerró se muestran sus medios de pago según el POS. Sin el POS quedan como <b>pendientes</b>.</li>
+    </ul>
+  </details>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// Motor de cruce CashToday (código 1000 líquidos) vs Cierres de turno
+(function (root) {
+  const STOP = new Set(['de', 'del', 'la', 'las', 'los', 'y', 'da', 'e']);
+  const TURNOS = {
+    N1: { label: '12:00am – 6:00am', short: '12–6am', ord: 0 },
+    M: { label: '6:00am – 2:00pm', short: '6am–2pm', ord: 1 },
+    T: { label: '2:00pm – 9:30pm', short: '2–9:30pm', ord: 2 },
+    N2: { label: '9:30pm – 12:00am', short: '9:30pm–12am', ord: 3 },
+  };
+  const MEDIOS = [
+    ['Efectivo', 'efectivo'], ['Datafono Liquidos', 'datafonoLiq'], ['Datafono GNV', 'datafonoGnv'],
+    ['Gopass', 'gopass'], ['Rumbo', 'rumbo'], ['Mi Empresa', 'miEmpresa'], ['Bonos', 'bonos'],
+    ['Credito Flota Propia', 'flotaPropia'], ['Credito Recuperado', 'credRecuperado'], ['Creditos EDS', 'credEds'],
+    ['App Terpel', 'appTerpel'], ['Nequi', 'nequi'], ['DaviPlata', 'daviplata'], ['Bancolombia', 'bancolombia'],
+    ['Pruebas Combustible', 'pruebas'], ['Moneda', 'moneda'],
+  ];
+  const MEDIO_LABEL = {
+    efectivo: 'Efectivo', datafonoLiq: 'Datáfono líquidos', datafonoGnv: 'Datáfono GNV', gopass: 'Gopass', rumbo: 'Rumbo',
+    miEmpresa: 'Mi Empresa', bonos: 'Bonos', flotaPropia: 'Crédito flota propia', credRecuperado: 'Crédito recuperado',
+    credEds: 'Créditos EDS', appTerpel: 'App Terpel', nequi: 'Nequi', daviplata: 'DaviPlata', bancolombia: 'Bancolombia',
+    pruebas: 'Pruebas / muestras', moneda: 'Moneda',
+  };
+
+  const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, ' ').trim();
+  const tokens = (s) => norm(s).split(/\s+/).filter((t) => t && !STOP.has(t) && t.length > 1);
+  function lev1(a, b) { // distancia de edición <= 1
+    if (a === b) return true;
+    if (Math.abs(a.length - b.length) > 1 || Math.min(a.length, b.length) < 5) return false;
+    let i = 0, j = 0, e = 0;
+    while (i < a.length && j < b.length) {
+      if (a[i] === b[j]) { i++; j++; continue; }
+      if (++e > 1) return false;
+      if (a.length > b.length) i++; else if (b.length > a.length) j++; else { i++; j++; }
+    }
+    return e + (a.length - i) + (b.length - j) <= 1;
+  }
+  function samePerson(ta, tb) {
+    let shared = 0; const used = new Set();
+    for (const a of ta) { const k = tb.findIndex((b, idx) => !used.has(idx) && lev1(a, b)); if (k >= 0) { used.add(k); shared++; } }
+    return shared >= 2 && (shared === Math.min(ta.length, tb.length) || shared >= 3);
+  }
+  const titleCase = (s) => String(s).toLowerCase().replace(/(^|\s)(\S)/g, (m, a, b) => a + b.toUpperCase()).trim();
+
+  // ---- fechas ----
+  const pad = (n) => String(n).padStart(2, '0');
+  const ymd = (y, m, d) => `${y}-${pad(m)}-${pad(d)}`;
+  function addDays(day, n) { const [y, m, d] = day.split('-').map(Number); const dt = new Date(Date.UTC(y, m - 1, d + n)); return ymd(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate()); }
+  function excelSerialToParts(v) { const ms = Math.round((v - 25569) * 86400000); const dt = new Date(ms); return { day: ymd(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate()), sec: dt.getUTCHours() * 3600 + dt.getUTCMinutes() * 60 + dt.getUTCSeconds() }; }
+  function toParts(v) { // devuelve {day, sec}
+    if (v == null || v === '') return null;
+    if (v instanceof Date) return { day: ymd(v.getFullYear(), v.getMonth() + 1, v.getDate()), sec: v.getHours() * 3600 + v.getMinutes() * 60 + v.getSeconds() };
+    if (typeof v === 'number') return excelSerialToParts(v);
+    const s = String(v).trim();
+    let m = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+    if (m) return { day: ymd(+m[3], +m[2], +m[1]), sec: (+(m[4] || 0)) * 3600 + (+(m[5] || 0)) * 60 + (+(m[6] || 0)) };
+    m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+    if (m) return { day: ymd(+m[1], +m[2], +m[3]), sec: (+(m[4] || 0)) * 3600 + (+(m[5] || 0)) * 60 + (+(m[6] || 0)) };
+    return null;
+  }
+  function timeToSec(v) {
+    if (v == null || v === '') return null;
+    if (v instanceof Date) return v.getHours() * 3600 + v.getMinutes() * 60 + v.getSeconds();
+    if (typeof v === 'number') return Math.round((v % 1) * 86400);
+    const m = String(v).match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(a\.?\s*m\.?|p\.?\s*m\.?)?/i);
+    if (!m) return null; let h = +m[1];
+    if (m[4]) { const pm = /p/i.test(m[4]); if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; }
+    return h * 3600 + (+m[2]) * 60 + (+(m[3] || 0));
+  }
+  const fmtSec = (s) => s == null ? '' : `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
+  const num = (v) => { if (v == null || v === '') return 0; if (typeof v === 'number') return v; const n = Number(String(v).replace(/[$\s.]/g, '').replace(',', '.')); return isFinite(n) ? n : 0; };
+
+  function turnoKey(s) {
+    const t = String(s || '').toLowerCase().replace(/[^0-9a-z]/g, '');
+    if (/^12(00)?am/.test(t) || t.startsWith('1200am6') || t.startsWith('12am')) return 'N1';
+    if (t.startsWith('6')) return 'M';
+    if (t.startsWith('2')) return 'T';
+    if (t.startsWith('930') || t.startsWith('9')) return 'N2';
+    return null;
+  }
+
+  // ---- lectura de hojas (arrays de filas con encabezado) ----
+  function findHeader(rows, mustHave) {
+    for (let i = 0; i < Math.min(rows.length, 15); i++) {
+      const h = (rows[i] || []).map((c) => norm(c));
+      if (mustHave.every((k) => h.some((c) => c.includes(k)))) return i;
+    }
+    return -1;
+  }
+  const colIdx = (hdr, name) => hdr.findIndex((c) => norm(c) === norm(name));
+  const colLike = (hdr, part) => hdr.findIndex((c) => norm(c).includes(norm(part)));
+
+  function parseCierres(rows) {
+    const hi = findHeader(rows, ['promotor', 'turno', 'efectivo']);
+    if (hi < 0) throw new Error('No encontré las columnas Promotor / Turno / Efectivo en el archivo de cierres.');
+    const hdr = rows[hi];
+    const c = { fecha: colIdx(hdr, 'Fecha'), hora: colIdx(hdr, 'Hora'), prom: colIdx(hdr, 'Promotor'), turno: colIdx(hdr, 'Turno'),
+      mp: colLike(hdr, 'total medios'), tv: colLike(hdr, 'total ventas'), dif: colIdx(hdr, 'Diferencia'), obs: colLike(hdr, 'observ') };
+    const mcols = MEDIOS.map(([h, k]) => [k, colIdx(hdr, h)]);
+    const gcols = [['corriente', colIdx(hdr, 'Corriente Gal')], ['extra', colIdx(hdr, 'Extra Gal')], ['acpm', colIdx(hdr, 'ACPM Gal')]];
+    const out = [];
+    for (let i = hi + 1; i < rows.length; i++) {
+      const r = rows[i]; if (!r || !r[c.prom]) continue;
+      const fp = toParts(r[c.fecha]); const tk = turnoKey(r[c.turno]);
+      if (!fp || !tk) continue;
+      const obs = c.obs >= 0 && r[c.obs] ? String(r[c.obs]) : '';
+      let day = fp.day, fix = null;
+      const env = obs.match(/Enviado:\s*(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (env && tk === 'N1') { const d2 = ymd(+env[3], +env[2], +env[1]); if (d2 !== day) { fix = `Fecha digitada ${day.slice(8)}/${day.slice(5, 7)}; se toma ${d2.slice(8)}/${d2.slice(5, 7)} (turno 12–6am enviado ese día)`; day = d2; } }
+      const m = {}; for (const [k, ix] of mcols) m[k] = ix >= 0 ? num(r[ix]) : 0;
+      const gal = {}; for (const [k, ix] of gcols) gal[k] = ix >= 0 ? num(r[ix]) : 0;
+      out.push({ gal, row: i + 1, day, hora: timeToSec(r[c.hora]), name: String(r[c.prom]).trim(), turno: tk, medios: m,
+        totalMedios: c.mp >= 0 ? num(r[c.mp]) : 0, totalVentas: c.tv >= 0 ? num(r[c.tv]) : 0, dif: c.dif >= 0 ? num(r[c.dif]) : 0, obs, fix });
+    }
+    return out;
+  }
+
+  function parseCash(rows, canal) {
+    const hi = findHeader(rows, ['fecha', 'importe']);
+    if (hi < 0) throw new Error('No encontré las columnas Fecha transacción / Importe en el archivo de CashToday.');
+    const hdr = rows[hi];
+    const c = { f: colLike(hdr, 'fecha'), tipo: colLike(hdr, 'tipo'), canal: colIdx(hdr, 'Canal'), login: colLike(hdr, 'login'),
+      cajero: colLike(hdr, 'cajero'), origen: colIdx(hdr, 'Origen'), imp: colLike(hdr, 'importe'), ncash: colLike(hdr, 'nombre cashtoday') };
+    const deps = [], recogidas = [], otros = {};
+    for (let i = hi + 1; i < rows.length; i++) {
+      const r = rows[i]; if (!r || r[c.f] == null || r[c.f] === '') continue;
+      const p = toParts(r[c.f]); if (!p) continue;
+      const tipo = norm(r[c.tipo]); const amt = num(r[c.imp]);
+      if (tipo.startsWith('recog')) { recogidas.push({ ...p, amt, origen: r[c.origen] }); continue; }
+      if (!tipo.startsWith('dep')) continue;
+      const cn = String(r[c.canal] ?? '').trim();
+      if (cn !== String(canal)) { otros[cn || '(vacío)'] = (otros[cn || '(vacío)'] || 0) + amt; continue; }
+      deps.push({ row: i + 1, ...p, amt, login: String(r[c.login] ?? '').trim(), name: String(r[c.cajero] ?? '').trim(), origen: String(r[c.origen] ?? '') });
+    }
+    deps.sort((a, b) => a.day < b.day ? -1 : a.day > b.day ? 1 : a.sec - b.sec);
+    return { deps, recogidas, otros };
+  }
+
+  // ---- Terpel POS (venta detallada combustible) ----
+  const POS_MEDIOS = { efectivo: 'Efectivo + datáfono', efbono: 'Efectivo + bono (mixto)', tarjeta: 'Tarjeta débito/crédito', bonos: 'Bono Vive Terpel', rumbo: 'Rumbo',
+    miEmpresa: 'Mi Empresa', gopass: 'Gopass', appTerpel: 'App Terpel', bbva: 'BBVA', flotaPropia: 'Consumo propio', nequi: 'Nequi', daviplata: 'DaviPlata', bancolombia: 'Bancolombia', otros: 'Otros' };
+  function posMedio(m, ident) {
+    const t = norm(m), i = norm(ident);
+    if (t.includes('efectivo') && t.includes('bono')) return 'efbono';
+    if (t.startsWith('efectivo')) return 'efectivo';
+    if (t.includes('tarjeta')) return 'tarjeta';
+    if (t.includes('bono')) return 'bonos';
+    if (t.includes('gopass')) return 'gopass';
+    if (t.includes('app')) return 'appTerpel';
+    if (t.includes('empresa')) return 'miEmpresa';
+    if (t.includes('consumo')) return 'flotaPropia';
+    if (t.includes('credito') || i.includes('rumbo')) return 'rumbo';
+    if (t.includes('bbva')) return 'bbva';
+    if (t.includes('nequi')) return 'nequi';
+    if (t.includes('davi')) return 'daviplata';
+    if (t.includes('bancolombia')) return 'bancolombia';
+    return 'otros';
+  }
+  function parsePOS(rows) {
+    const hi = findHeader(rows, ['promotor', 'valor venta', 'medio pago']);
+    if (hi < 0) throw new Error('No encontré las columnas Promotor / Valor venta / Medio pago del reporte del Terpel POS.');
+    const hdr = rows[hi];
+    const c = { prom: colIdx(hdr, 'PROMOTOR'), fecha: colIdx(hdr, 'FECHA'), hora: colIdx(hdr, 'HORA'), val: colLike(hdr, 'valor venta'), medio: colIdx(hdr, 'MEDIO PAGO'),
+      ident: colLike(hdr, 'medio de identificacion'), prod: colIdx(hdr, 'PRODUCTO'), isla: colIdx(hdr, 'ISLA'), tipo: colIdx(hdr, 'TIPO FACTURA'), cant: colIdx(hdr, 'CANTIDAD') };
+    const out = [];
+    for (let i = hi + 1; i < rows.length; i++) {
+      const r = rows[i]; if (!r || !r[c.prom]) continue;
+      const fp = toParts(r[c.fecha]); const sec = timeToSec(r[c.hora]); if (!fp || sec == null) continue;
+      const pn = norm(r[c.prod]); const prod = pn.includes('extra') ? 'extra' : (pn.includes('acpm') || pn.includes('diesel') || pn.includes('bio')) ? 'acpm' : pn.includes('urea') ? 'urea' : 'corriente';
+      out.push({ name: String(r[c.prom]).trim(), day: fp.day, sec, val: num(r[c.val]), gal: c.cant >= 0 ? num(r[c.cant]) : 0, prod, medio: posMedio(r[c.medio], c.ident >= 0 ? r[c.ident] : ''), medioTxt: String(r[c.medio] || ''), isla: r[c.isla] });
+    }
+    return out;
+  }
+  // ---- datáfono (reporte unificado Credibanco) ----
+  function parseDatafono(rows) {
+    const hi = findHeader(rows, ['terminal', 'valor compra']);
+    if (hi < 0) throw new Error('No encontré las columnas Terminal / Valor compra del reporte del datáfono.');
+    const hdr = rows[hi];
+    const c = { f: colLike(hdr, 'fecha y hora'), term: colIdx(hdr, 'Terminal'), est: colLike(hdr, 'estado transac'), tipo: colLike(hdr, 'tipo transac'), val: colLike(hdr, 'valor compra'), medio: colLike(hdr, 'medio de pago') };
+    const compras = [], reversos = []; let negadas = 0;
+    for (let i = hi + 1; i < rows.length; i++) {
+      const r = rows[i]; if (!r) continue; const p = toParts(r[c.f]); if (!p) continue;
+      const est = norm(r[c.est]), tipo = norm(r[c.tipo]); const val = num(r[c.val]);
+      if (!est.startsWith('aprobada')) { negadas += val; continue; }
+      const o = { ...p, val, term: String(r[c.term] || ''), medio: String(r[c.medio] || '') };
+      if (tipo.includes('reverso') || tipo.includes('anula')) reversos.push(o); else if (tipo.includes('compra')) compras.push(o);
+    }
+    for (const v of reversos) { const x = compras.find((d) => !d.rev && d.term === v.term && d.val === v.val); if (x) x.rev = true; }
+    return { txs: compras.filter((d) => !d.rev), negadas };
+  }
+
+  // ---- identidad de promotores ----
+  function buildPeople(cierres, deps, alias, posRows) {
+    const nodes = []; const key = new Map();
+    const add = (name, src, login) => { const k = src + '|' + norm(name) + '|' + (login || ''); if (!key.has(k)) { key.set(k, nodes.length); nodes.push({ name, src, login, tk: tokens(name) }); } return key.get(k); };
+    cierres.forEach((c) => { c.node = add(c.name, 'c'); });
+    deps.forEach((d) => { d.node = add(d.name || ('Cédula ' + d.login), 'd', d.login); });
+    (posRows || []).forEach((v) => { v.node = add(v.name, 'p'); });
+    const par = nodes.map((_, i) => i); const f = (x) => par[x] === x ? x : (par[x] = f(par[x]));
+    for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+      if ((nodes[i].login && nodes[i].login === nodes[j].login) || samePerson(nodes[i].tk, nodes[j].tk)) par[f(i)] = f(j);
+    }
+    // equivalencias manuales/automáticas: login o nombre de cajero -> nombre del promotor en cierres
+    for (const [k, target] of Object.entries(alias || {})) {
+      if (!target) continue;
+      const src = nodes.findIndex((n) => n.src === 'd' && (n.login === k || norm(n.name) === norm(k)));
+      const tt = tokens(target);
+      const dst = nodes.findIndex((n) => n.src === 'c' && (norm(n.name) === norm(target) || samePerson(n.tk, tt)));
+      if (src >= 0 && dst >= 0) par[f(src)] = f(dst);
+    }
+    const groups = {};
+    nodes.forEach((n, i) => { const r = f(i); (groups[r] = groups[r] || []).push(n); });
+    const people = {};
+    for (const [r, ns] of Object.entries(groups)) {
+      const fromC = ns.filter((n) => n.src === 'c').sort((a, b) => b.tk.length - a.tk.length || b.name.length - a.name.length);
+      const best = fromC[0] || ns.slice().sort((a, b) => b.tk.length - a.tk.length)[0];
+      const cashKeys = [...new Set(ns.filter((n) => n.src === 'd').map((n) => n.login || n.name))];
+      people[r] = { id: r, name: titleCase(best.name), aliases: [...new Set(ns.map((n) => n.name))], logins: [...new Set(ns.map((n) => n.login).filter(Boolean))],
+        hasCierres: fromC.length > 0, hasCash: cashKeys.length > 0, cashKeys, cashNames: [...new Set(ns.filter((n) => n.src === 'd').map((n) => n.name))] };
+    }
+    cierres.forEach((c) => { c.pid = String(f(c.node)); });
+    deps.forEach((d) => { d.pid = String(f(d.node)); });
+    (posRows || []).forEach((v) => { v.pid = String(f(v.node)); });
+    return people;
+  }
+
+  // ---- cruce ----
+  function cruzar(cierresRaw, cash, opts = {}) {
+    const alias = { ...(opts.alias || {}) };
+    let auto = {};
+    if (opts.autoAlias !== false) {
+      const first = cruzarBase(cierresRaw, cash, { ...opts, alias });
+      auto = sugerirAlias(first, alias);
+      const res = cruzarBase(cierresRaw, cash, { ...opts, alias: { ...auto, ...alias } });
+      res.autoAlias = auto; return res;
+    }
+    const res = cruzarBase(cierresRaw, cash, { ...opts, alias }); res.autoAlias = {}; return res;
+  }
+
+  // Cajeros de CashToday que no se pudieron unir por nombre: se asocian a un promotor
+  // que ese mismo día cerró pero "no consignó", si el monto coincide (±3%) en todos sus días.
+  function sugerirAlias(R, manual) {
+    const out = {};
+    const orphans = Object.values(R.people).filter((p) => p.hasCash && !p.hasCierres);
+    for (const o of orphans) {
+      if (o.cashKeys.some((k) => k in manual)) continue;
+      const votes = {}; let daysSeen = 0;
+      for (const d of R.days) {
+        if (!d.inCash) continue;
+        const row = d.rows.find((r) => r.pid === o.id); if (!row) continue;
+        daysSeen++;
+        const cands = d.rows.filter((r) => r.estado === 'noconsigno' && Math.abs(r.efe - row.dep) <= Math.max(20000, r.efe * 0.03));
+        cands.forEach((c) => { votes[c.name] = (votes[c.name] || 0) + 1; });
+      }
+      const ranked = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+      if (ranked.length && (ranked.length === 1 || ranked[0][1] > ranked[1][1])) o.cashKeys.forEach((k) => { out[k] = ranked[0][0]; });
+    }
+    return out;
+  }
+
+  function cruzarBase(cierresRaw, cash, opts = {}) {
+    const CUT_HI = (opts.cortePaso ?? 9) * 3600;      // depósitos antes de esta hora pueden ser del día anterior
+    const CUT_DEF = (opts.corteDefecto ?? 5) * 3600;  // corte por defecto si no hay cierre para comparar
+    const TOL = opts.tolerancia ?? 10000;
+    const deps = cash.deps.map((d) => ({ ...d }));
+    const cierresAll = cierresRaw.map((c) => ({ ...c }));
+    const posRows = (opts.pos || []).map((v) => ({ ...v }));
+    const people = buildPeople(cierresAll, deps, opts.alias, posRows);
+
+    // quitar duplicados (mismo promotor, día y turno: se deja el último enviado)
+    const seen = new Map(); let dupes = 0;
+    cierresAll.forEach((c, i) => { const k = c.pid + '|' + c.day + '|' + c.turno; if (seen.has(k)) dupes++; seen.set(k, i); });
+    const cierres = [...seen.values()].sort((a, b) => a - b).map((i) => cierresAll[i]);
+
+    const cBy = {}; // pid -> day -> [cierres]
+    cierres.forEach((c) => { ((cBy[c.pid] = cBy[c.pid] || {})[c.day] = cBy[c.pid][c.day] || []).push(c); });
+    const efeOf = (pid, day) => (cBy[pid]?.[day] || []).reduce((s, c) => s + c.medios.efectivo, 0);
+    const cOf = (pid, day, t) => (cBy[pid]?.[day] || []).find((c) => c.turno === t);
+    const n1Of = (pid, day) => cOf(pid, day, 'N1');
+
+    // asignación de cada depósito a un día operativo
+    const byP = {}; deps.forEach((d) => { (byP[d.pid] = byP[d.pid] || []).push(d); });
+    const firstCalAll = deps.length ? deps.map((d) => d.day).reduce((a, b) => a < b ? a : b) : null;
+    for (const [pid, list] of Object.entries(byP)) {
+      const attributed = {};
+      const addA = (d, day, why) => { d.opDay = day; d.why = why; attributed[day] = (attributed[day] || 0) + d.amt; };
+      const cal = [...new Set(list.map((d) => d.day))].sort();
+      for (const C of cal) {
+        const prev = addDays(C, -1);
+        const early = list.filter((d) => d.day === C && d.sec < CUT_HI);
+        const late = list.filter((d) => d.day === C && d.sec >= CUT_HI);
+        if (early.length) {
+          // E1: efectivo pendiente del turno que terminó tarde el día anterior (2–9:30pm o 9:30pm–12am)
+          const lateTurnos = C === firstCalAll ? ['N2'] : ['T', 'N2'];
+          const prevLate = (cBy[pid]?.[prev] || []).filter((c) => lateTurnos.includes(c.turno));
+          const prevLateDep = list.filter((d) => d.opDay === prev && d.day === prev && d.sec >= 14 * 3600).reduce((s, d) => s + d.amt, 0);
+          const E1 = prevLate.length ? Math.max(0, prevLate.reduce((s, c) => s + c.medios.efectivo, 0) - prevLateDep) : null;
+          const n1 = n1Of(pid, C); const E2 = n1 ? n1.medios.efectivo : null;
+          // si no tiene turno de día en C, lo que consigne antes del mediodía también es del turno 12–6am
+          const extraB = n1 && !cOf(pid, C, 'M') && !cOf(pid, C, 'T') ? late.filter((d) => d.sec < 12 * 3600).reduce((s, d) => s + d.amt, 0) : 0;
+          let best = 0;
+          if (E1 == null && E2 == null) {
+            best = early.filter((d) => d.sec < CUT_DEF).length;
+          } else {
+            const maxK = E1 == null ? early.filter((d) => d.sec < CUT_DEF).length : early.length;
+            const total = early.reduce((s, d) => s + d.amt, 0);
+            let bestCost = Infinity, bestB = Infinity, a = 0;
+            for (let k = 0; k <= maxK; k++) {
+              if (k > 0) a += early[k - 1].amt;
+              const b = total - a;
+              const cb = E2 == null ? 0 : Math.abs(b + extraB - E2);
+              const cost = (E1 == null ? 0 : Math.abs(a - E1)) + cb;
+              if (cost < bestCost - 0.5 || (Math.abs(cost - bestCost) <= 0.5 && cb < bestB)) { bestCost = cost; bestB = cb; best = k; }
+            }
+          }
+          early.forEach((d, i) => {
+            if (i < best) addA(d, prev, E1 != null ? 'cuadra con el cierre del día anterior' : 'antes de las ' + (CUT_DEF / 3600) + ':00, sin cierre para comparar');
+            else addA(d, C, E2 != null ? 'cuadra con el cierre 12–6am' : 'madrugada del mismo día');
+          });
+        }
+        late.forEach((d) => addA(d, C, ''));
+      }
+    }
+
+    // turno de un depósito: según los cierres del promotor ese día, o inferido por la hora
+    function shiftFor(d, pid) {
+      const cs = cBy[pid]?.[d.opDay] || [];
+      const has = (t) => cs.some((c) => c.turno === t);
+      let t;
+      if (d.day !== d.opDay) t = has('N2') || !has('T') ? 'N2' : 'T';                 // madrugada siguiente
+      else if (d.sec < CUT_HI) t = has('N1') || !has('M') ? 'N1' : 'M';
+      else if (d.sec < 12 * 3600 && has('N1') && !has('M') && !has('T')) t = 'N1';
+      else if (d.sec >= 21.5 * 3600 && has('N2') && !has('T')) t = 'N2';
+      else if (d.sec >= 21.5 * 3600 && has('N2') && has('T')) t = d.sec >= 22.5 * 3600 ? 'N2' : 'T';
+      else if (d.sec < 16 * 3600) t = has('M') || !has('T') ? 'M' : 'T';
+      else t = has('T') || !has('N2') ? 'T' : 'N2';
+      if (cs.length === 1 && d.day === d.opDay && !(cs[0].turno === 'N1' && d.sec >= 12 * 3600 && d.sec < 21 * 3600)) t = cs[0].turno;
+      return { t, inferred: !has(t) };
+    }
+
+    // armar días
+    const days = {};
+    const getDay = (D) => days[D] || (days[D] = { day: D, people: {}, cierres: [], deps: [] });
+    const getPD = (D, pid) => { const dd = getDay(D); return dd.people[pid] || (dd.people[pid] = { pid, name: people[pid].name, cierres: [], deps: [] }); };
+    cierres.forEach((c) => { getDay(c.day).cierres.push(c); getPD(c.day, c.pid).cierres.push(c); });
+    deps.forEach((d) => { const s = shiftFor(d, d.pid); d.turno = s.t; d.inferred = s.inferred; getDay(d.opDay).deps.push(d); getPD(d.opDay, d.pid).deps.push(d); });
+
+    // ---- Terpel POS + datáfono ----
+    const posDays = new Set(posRows.map((v) => v.day));
+    const datTxs = ((opts.datafono && opts.datafono.txs) || []).map((d) => ({ ...d }));
+    const datDays = new Set(datTxs.map((d) => d.day));
+    const WIN = { N1: [0, 6], M: [6, 14], T: [14, 21.5], N2: [21.5, 24] };
+    const posShift = (v) => {
+      const h = v.sec / 3600; const cs = (cBy[v.pid]?.[v.day] || []).map((c) => c.turno);
+      const t0 = Object.keys(WIN).find((k) => h >= WIN[k][0] && h < WIN[k][1]) || 'N2';
+      if (!cs.length || cs.includes(t0)) return t0;
+      let best = t0, bd = Infinity;
+      for (const t of cs) { const [a, b] = WIN[t]; const dd = h < a ? a - h : h >= b ? h - b : 0; if (dd < bd) { bd = dd; best = t; } }
+      return bd <= 2 ? best : t0; // cerca del cambio de turno: se toma el turno que sí cerró
+    };
+    // promotor sin cierre ese día: sus ventas se agrupan en bloques (pausas de más de 3 h) y cada bloque toma el turno de su hora mediana
+    const byPD = {}; posRows.forEach((v) => { (byPD[v.pid + '|' + v.day] = byPD[v.pid + '|' + v.day] || []).push(v); });
+    for (const list of Object.values(byPD)) {
+      const v0 = list[0]; if ((cBy[v0.pid]?.[v0.day] || []).length) { list.forEach((v) => { v.turno = posShift(v); }); continue; }
+      list.sort((x, y) => x.sec - y.sec);
+      const blocks = []; let cur = [];
+      for (const v of list) { if (cur.length && v.sec - cur[cur.length - 1].sec > 3 * 3600) { blocks.push(cur); cur = []; } cur.push(v); }
+      if (cur.length) blocks.push(cur);
+      for (const bl of blocks) { const med = bl[Math.floor(bl.length / 2)].sec / 3600; const t = Object.keys(WIN).find((k) => med >= WIN[k][0] && med < WIN[k][1]) || 'N2'; bl.forEach((v) => { v.turno = t; }); }
+    }
+    // pocas ventas sueltas (<5) en un turno que no cerró: van al turno cerrado más cercano
+    for (const list of Object.values(byPD)) {
+      const cs = (cBy[list[0].pid]?.[list[0].day] || []).map((c) => c.turno); if (!cs.length) continue;
+      const cnt = {}; list.forEach((v) => { cnt[v.turno] = (cnt[v.turno] || 0) + 1; });
+      for (const v of list) if (!cs.includes(v.turno) && cnt[v.turno] < 5) {
+        const h = v.sec / 3600; let best = cs[0], bd = Infinity;
+        for (const t of cs) { const [x, y] = WIN[t]; const dd = h < x ? x - h : h >= y ? h - y : 0; if (dd < bd) { bd = dd; best = t; } }
+        v.turno = best;
+      }
+    }
+    // cruce datáfono -> venta del POS (mismo valor, ±30 min); el resto, por terminal y hora cercana
+    if (datTxs.length && posRows.length) {
+      const abs = (day, sec) => { const [y, m, d] = day.split('-').map(Number); return Date.UTC(y, m - 1, d) / 1000 + sec; };
+      const cand = posRows.filter((v) => (v.medio === 'efectivo' || v.medio === 'efbono' || v.medio === 'tarjeta') && v.val > 0);
+      cand.forEach((v) => { v.t = abs(v.day, v.sec); });
+      datTxs.forEach((d) => { d.t = abs(d.day, d.sec); });
+      const byVal = {}; cand.forEach((v) => { (byVal[v.val] = byVal[v.val] || []).push(v); });
+      const doPairs = (filterD, score) => {
+        const pairs = [];
+        for (const d of datTxs) { if (d.m || !filterD(d)) continue; for (const v of byVal[d.val] || []) { if (v.m) continue; const dt = d.t - v.t; if (dt >= -1800 && dt <= 1800) pairs.push([score(d, v, dt), d, v]); } }
+        pairs.sort((x, y) => x[0] - y[0]);
+        for (const [, d, v] of pairs) { if (d.m || v.m) continue; d.m = v; v.m = d; d.pid = v.pid; d.turno = v.turno; d.via = 'valor'; }
+      };
+      // 1) valores "raros" (no redondos): casi únicos
+      doPairs((d) => d.val % 1000 !== 0, (d, v, dt) => Math.abs(dt + 90));
+      // 2) valores redondos: se prefiere el promotor que venía usando ese datáfono
+      const use = {}; datTxs.filter((d) => d.m).forEach((d) => { (use[d.term] = use[d.term] || []).push(d); });
+      Object.values(use).forEach((l) => l.sort((x, y) => x.t - y.t));
+      const nearPids = (term, t) => { const l = use[term] || []; const out = new Set(); for (const x of l) if (Math.abs(x.t - t) <= 2700) out.add(x.pid); return out; };
+      doPairs(() => true, (d, v, dt) => Math.abs(dt + 90) + (nearPids(d.term, d.t).has(v.pid) ? 0 : 1500));
+      const byTerm = {}; datTxs.filter((d) => d.m).forEach((d) => { (byTerm[d.term] = byTerm[d.term] || []).push(d); });
+      for (const d of datTxs) {
+        if (d.m) continue; let best = null, bd = (opts.fbWin ?? 3600);
+        for (const x of byTerm[d.term] || []) { const dd = Math.abs(x.t - d.t); if (dd < bd) { bd = dd; best = x; } }
+        if (best) { d.pid = best.pid; d.turno = best.turno; d.via = 'terminal'; }
+      }
+    }
+    const posAgg = {}; // day -> pid -> turno -> agg
+    const newAgg = () => ({ ventas: 0, n: 0, m: {}, dat: 0, datValor: 0, gal: 0, g: {}, v: {} });
+    const getA = (day, pid, t) => { const a = ((posAgg[day] = posAgg[day] || {})[pid] = posAgg[day][pid] || {}); return a[t] || (a[t] = newAgg()); };
+    posRows.forEach((v) => { const a = getA(v.day, v.pid, v.turno); a.ventas += v.val; a.n++; a.m[v.medio] = (a.m[v.medio] || 0) + v.val; a.gal += v.gal; a.g[v.prod] = (a.g[v.prod] || 0) + v.gal; a.v[v.prod] = (a.v[v.prod] || 0) + v.val; getPD(v.day, v.pid); });
+    const datSinAsignar = {};
+    datTxs.forEach((d) => { if (!d.pid) { datSinAsignar[d.day] = (datSinAsignar[d.day] || 0) + d.val; return; } const a = getA(d.day, d.pid, d.turno); a.dat += d.val; if (d.via === 'valor') a.datValor += d.val; });
+    const finA = (a) => { a.efBruto = (a.m.efectivo || 0) + (a.m.efbono || 0) + (a.m.tarjeta || 0); a.esperado = a.efBruto - a.dat; return a; };
+    const sumA = (list) => { const t = newAgg(); list.forEach((a) => { t.ventas += a.ventas; t.n += a.n; t.dat += a.dat; t.datValor += a.datValor; t.gal += a.gal; for (const [k, v] of Object.entries(a.m)) t.m[k] = (t.m[k] || 0) + v; for (const [k, v] of Object.entries(a.g)) t.g[k] = (t.g[k] || 0) + v; for (const [k, v] of Object.entries(a.v)) t.v[k] = (t.v[k] || 0) + v; }); return finA(t); };
+
+    const cashDays = deps.map((d) => d.day);
+    const firstCal = cashDays.length ? cashDays.reduce((a, b) => a < b ? a : b) : null;
+    const lastTs = deps.length ? deps[deps.length - 1] : null;
+
+    const result = [];
+    for (const D of Object.keys(days).sort()) {
+      const dd = days[D];
+      const inCash = firstCal && D >= firstCal && lastTs && D <= lastTs.day;
+      const complete = inCash && lastTs && (lastTs.day > addDays(D, 1) || (lastTs.day === addDays(D, 1) && lastTs.sec >= CUT_HI));
+      const rows = Object.values(dd.people).map((p) => {
+        p.cierres.sort((a, b) => TURNOS[a.turno].ord - TURNOS[b.turno].ord);
+        p.deps.sort((a, b) => a.day < b.day ? -1 : a.day > b.day ? 1 : a.sec - b.sec);
+        const efe = p.cierres.reduce((s, c) => s + c.medios.efectivo, 0);
+        const dep = p.deps.reduce((s, d) => s + d.amt, 0);
+        const diff = dep - efe;
+        // líneas por turno
+        const ts = [...new Set([...p.cierres.map((c) => c.turno), ...p.deps.map((d) => d.turno)])].sort((x, y) => TURNOS[x].ord - TURNOS[y].ord);
+        const lines = ts.map((t) => {
+          const c = p.cierres.find((x) => x.turno === t); const ds = p.deps.filter((d) => d.turno === t);
+          return { t, cierre: c || null, efe: c ? c.medios.efectivo : 0, dep: ds.reduce((s, d) => s + d.amt, 0), deps: ds };
+        });
+        // aviso: el turno digitado no coincide con la hora de las consignaciones
+        const VENT = { N1: [0, 12], M: [6, 17.5], T: [13.5, 24], N2: [21.5, 24] };
+        lines.forEach((l) => {
+          if (!l.cierre || !l.deps.length) return;
+          const out = l.deps.filter((d) => d.day === D && (d.sec / 3600 < VENT[l.t][0] || d.sec / 3600 > VENT[l.t][1])).reduce((s, d) => s + d.amt, 0);
+          if (out > l.dep / 2) l.aviso = 'Las consignaciones no son del horario de ' + TURNOS[l.t].short + ': revise si el turno quedó mal digitado en el cierre.';
+        });
+        const sinCierreAmt = lines.filter((l) => !l.cierre).reduce((s, l) => s + l.dep, 0);
+        const turnosSinCierre = lines.filter((l) => !l.cierre && l.dep > 0).map((l) => l.t);
+        const diffCerrados = dep - sinCierreAmt - efe;
+        if (posDays.has(D)) {
+          const pa = posAgg[D]?.[p.pid] || {};
+          lines.forEach((l) => { l.pos = pa[l.t] ? finA(pa[l.t]) : null; });
+          for (const t of Object.keys(pa)) if (!lines.find((l) => l.t === t)) lines.push({ t, cierre: null, efe: 0, dep: 0, deps: [], pos: finA(pa[t]), soloPos: true });
+          lines.sort((x, y) => TURNOS[x.t].ord - TURNOS[y.t].ord);
+          lines.forEach((l) => { if (!l.cierre && l.pos && l.pos.ventas > 0 && !turnosSinCierre.includes(l.t)) turnosSinCierre.push(l.t); });
+        }
+        let estado;
+        const posP = posDays.has(D) ? sumA(Object.values(posAgg[D]?.[p.pid] || {})) : null;
+        const ventasSinCierre = lines.filter((l) => !l.cierre && l.pos).reduce((s, l) => s + l.pos.ventas, 0);
+        if (!p.cierres.length) estado = dep > 0 || ventasSinCierre > 0 ? 'sincierre' : 'nada';
+        else if (ventasSinCierre > 0 && !sinCierreAmt) estado = 'parcial';
+        else if (sinCierreAmt > 0) estado = 'parcial';
+        else if (!p.deps.length) estado = 'noconsigno';
+        else if (Math.abs(diff) <= TOL) estado = 'ok';
+        else estado = diff < 0 ? 'falta' : 'sobra';
+        const turnosDep = [...new Set(p.deps.map((d) => d.turno).filter(Boolean))];
+        const medios = {}; p.cierres.forEach((c) => { for (const [k, v] of Object.entries(c.medios)) medios[k] = (medios[k] || 0) + v; });
+        return { ...p, efe, dep, diff, estado, posP, difPOS: posP && datDays.has(D) ? dep - posP.esperado : null, ventasSinCierre, turnosDep, medios, lines, sinCierreAmt, turnosSinCierre, diffCerrados,
+          totalVentas: p.cierres.reduce((s, c) => s + c.totalVentas, 0), totalMedios: p.cierres.reduce((s, c) => s + c.totalMedios, 0),
+          difCierre: p.cierres.reduce((s, c) => s + c.dif, 0) };
+      }).sort((a, b) => {
+        const o = { sincierre: 0, parcial: 1, falta: 2, noconsigno: 3, sobra: 4, ok: 5, nada: 6 };
+        return o[a.estado] - o[b.estado] || a.name.localeCompare(b.name);
+      });
+      const tot = (f) => rows.reduce((s, r) => s + f(r), 0);
+      const medios = {}; rows.forEach((r) => { for (const [k, v] of Object.entries(r.medios)) medios[k] = (medios[k] || 0) + v; });
+      const byShift = {}; for (const k of Object.keys(TURNOS)) byShift[k] = { efe: 0, dep: 0, cierres: 0 };
+      dd.cierres.forEach((c) => { byShift[c.turno].efe += c.medios.efectivo; byShift[c.turno].cierres++; });
+      dd.deps.forEach((d) => { byShift[d.turno].dep += d.amt; });
+      const posD = posDays.has(D) ? sumA(Object.values(posAgg[D] || {}).flatMap((x) => Object.values(x))) : null;
+      if (posD) { posD.datSinAsignar = datSinAsignar[D] || 0; posD.datTotal = posD.dat + posD.datSinAsignar; posD.esperado = posD.efBruto - posD.datTotal; }
+      result.push({
+        pos: posD, hasDat: datDays.has(D),
+        day: D, inCash, complete, rows, medios, byShift,
+        consignado: tot((r) => r.dep), declarado: tot((r) => r.efe),
+        sinCierreEfe: tot((r) => r.estado === 'sincierre' ? r.dep : r.sinCierreAmt),
+        sinCierre: rows.filter((r) => r.estado === 'sincierre' || r.estado === 'parcial'),
+        faltante: tot((r) => { const d = r.estado === 'parcial' ? r.diffCerrados : r.diff; return r.cierres.length && d < -TOL ? -d : 0; }),
+        sobrante: tot((r) => { const d = r.estado === 'parcial' ? r.diffCerrados : r.diff; return r.cierres.length && d > TOL ? d : 0; }),
+        totalVentas: tot((r) => r.totalVentas), totalMedios: tot((r) => r.totalMedios),
+        nCierres: dd.cierres.length,
+        fixes: dd.cierres.filter((c) => c.fix),
+        movidos: dd.deps.filter((d) => d.day !== D),
+      });
+    }
+    return { posRows: posRows.map((v) => ({ pid: v.pid, day: v.day, turno: v.turno, gal: v.gal, val: v.val, prod: v.prod })), days: result, people, dupes, firstCal, lastTs, recogidas: cash.recogidas, otros: cash.otros, nDeps: deps.length };
+  }
+
+  const api = { cruzar, parseCierres, parseCash, parsePOS, parseDatafono, POS_MEDIOS, findHeader, TURNOS, MEDIO_LABEL, fmtSec, addDays };
+  if (typeof module !== 'undefined') module.exports = api; else root.Cruce = api;
+})(this);
+
+</script>
+<script>
+const SAMPLE = null;
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const money = (n) => (n < 0 ? '−' : '') + '$' + Math.round(Math.abs(n)).toLocaleString('es-CO');
+  const smoney = (n) => (n > 0 ? '+' : '') + money(n);
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+  const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const dayLabel = (d, long) => { const [y, m, dd] = d.split('-').map(Number); const w = new Date(Date.UTC(y, m - 1, dd)).getUTCDay(); return (long ? DIAS[w] + ' ' : '') + dd + ' ' + MESES[m - 1]; };
+  const store = { get(k, d) { try { const v = localStorage.getItem('cruceEfe:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('cruceEfe:' + k, JSON.stringify(v)); } catch (e) {} } };
+
+  const unpackPOS = (P) => P ? P.d.map((r) => ({ name: P.names[r[0]], day: P.days[r[1]], sec: r[2], val: r[3], medio: P.medios[r[4]], gal: r[5] || 0, prod: P.prods ? P.prods[r[6]] : 'corriente' })) : null;
+  const unpackDat = (D) => D ? { txs: D.d.map((r) => ({ day: D.days[r[0]], sec: r[1], val: r[2], term: D.terms[r[3]] })), negadas: D.negadas } : null;
+  let data = SAMPLE ? { cierres: SAMPLE.cierres, cashRaw: null, cash: SAMPLE.cash, pos: unpackPOS(SAMPLE.pos), dat: unpackDat(SAMPLE.dat), names: { ...SAMPLE.files }, sample: true }
+    : { cierres: [], cashRaw: null, cash: { deps: [], recogidas: [], otros: {} }, pos: null, dat: null, names: {}, sample: false };
+  let pending = {}; let R = null, selDay = null;
+  const FIXED_ALIAS = { 'GUSTAVO-TOMAS': 'Gustavo Adolfo Fonseca Porras' };
+  let tab = store.get('tab', 'mes');
+  let metas = store.get('metas', { N1: '', M: '', T: '', N2: '' });
+  let budgets = { '2026-11': 355707, ...store.get('budgets', {}) };
+  const budgetOf = (mk) => +budgets[mk] || 0;
+  const daysInMonth = (mk) => { const [y, m] = mk.split('-').map(Number); return new Date(Date.UTC(y, m, 0)).getUTCDate(); };
+  let rankSort = store.get('rankSort', 'gal');
+  let alias = store.get('alias', {});
+  const allAlias = () => ({ ...FIXED_ALIAS, ...alias });
+  $('optTol').value = store.get('tol', 10000);
+  $('optCanal').value = store.get('canal', '1000');
+  const SLOT = { cierres: 'slot-cierres', cash: 'slot-cash', pos: 'slot-pos', dat: 'slot-dat' };
+  function paintSlots() {
+    for (const [k, id] of Object.entries(SLOT)) {
+      const el = $(id); const f = el.querySelector('.fname');
+      el.classList.remove('ok', 'new');
+      if (pending[k]) { f.textContent = pending[k].name + ' (nuevo)'; el.classList.add('new'); }
+      else if (data.names[k]) { f.textContent = data.names[k]; el.classList.add('ok'); }
+      else f.textContent = 'Sin archivo';
+    }
+  }
+  paintSlots();
+
+  function readBook(file) {
+    return new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => { try { res(XLSX.read(new Uint8Array(fr.result), { type: 'array', cellDates: false })); } catch (e) { rej(e); } }; fr.onerror = () => rej(fr.error); fr.readAsArrayBuffer(file); });
+  }
+  const sheetRows = (ws) => XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+  // reconoce el tipo de archivo por sus encabezados
+  function detect(rows) {
+    if (Cruce.findHeader(rows, ['promotor', 'valor venta', 'medio pago']) >= 0) return 'pos';
+    if (Cruce.findHeader(rows, ['terminal', 'valor compra']) >= 0) return 'dat';
+    if (Cruce.findHeader(rows, ['fecha', 'importe']) >= 0) return 'cash';
+    if (Cruce.findHeader(rows, ['promotor', 'turno', 'efectivo']) >= 0) return 'cierres';
+    return null;
+  }
+  async function addFiles(files) {
+    const msg = $('msg'); msg.className = 'msg'; msg.textContent = 'Reconociendo archivos…';
+    const bad = [];
+    for (const f of files) {
+      try {
+        const wb = await readBook(f); let found = null;
+        for (const n of wb.SheetNames) { const rows = sheetRows(wb.Sheets[n]); const t = detect(rows); if (t && (!found || (t === 'cierres' && rows.length > found.rows.length))) { found = { t, rows }; if (t !== 'cierres') break; } }
+        if (!found) bad.push(f.name); else pending[found.t] = { name: f.name, rows: found.rows };
+      } catch (e) { bad.push(f.name); }
+    }
+    paintSlots();
+    msg.textContent = bad.length ? 'No reconocí: ' + bad.join(', ') + '.' : 'Listo. Toca "Cruzar archivos".';
+    if (bad.length) msg.className = 'msg err';
+  }
+  const dropAll = $('dropAll'), fileAll = $('fileAll');
+  fileAll.addEventListener('change', () => { if (fileAll.files.length) addFiles([...fileAll.files]); fileAll.value = ''; });
+  dropAll.addEventListener('dragover', (e) => { e.preventDefault(); dropAll.classList.add('over'); });
+  dropAll.addEventListener('dragleave', () => dropAll.classList.remove('over'));
+  dropAll.addEventListener('drop', (e) => { e.preventDefault(); dropAll.classList.remove('over'); if (e.dataTransfer.files.length) addFiles([...e.dataTransfer.files]); });
+
+  // combina por día: los días que trae el archivo nuevo reemplazan a los guardados; los demás se conservan
+  const mergeByDay = (oldArr, newArr, dayOf) => { const nd = new Set(newArr.map(dayOf)); return [...(oldArr || []).filter((x) => !nd.has(dayOf(x))), ...newArr]; };
+  async function loadFiles() {
+    const msg = $('msg'); msg.className = 'msg'; msg.textContent = 'Cruzando…';
+    const canal = $('optCanal').value.trim() || '1000';
+    try {
+      const any = Object.keys(pending).length;
+      if (pending.cierres) { const c = Cruce.parseCierres(pending.cierres.rows); if (!c.length) throw new Error('El archivo de cierres no tiene filas válidas.'); data.cierres = mergeByDay(data.cierres, c, (x) => x.day); data.names.cierres = pending.cierres.name; }
+      if (pending.cash) {
+        const c = Cruce.parseCash(pending.cash.rows, canal); if (!c.deps.length) throw new Error('No hay depósitos con código ' + canal + ' en "' + pending.cash.name + '".');
+        data.cash = { deps: mergeByDay(data.cash.deps, c.deps, (x) => x.day).sort((x, y) => x.day < y.day ? -1 : x.day > y.day ? 1 : x.sec - y.sec), recogidas: mergeByDay(data.cash.recogidas, c.recogidas, (x) => x.day), otros: c.otros };
+        data.names.cash = pending.cash.name;
+      }
+      if (pending.pos) { data.pos = mergeByDay(data.pos, Cruce.parsePOS(pending.pos.rows), (x) => x.day); data.names.pos = pending.pos.name; }
+      if (pending.dat) { const d = Cruce.parseDatafono(pending.dat.rows); data.dat = { txs: mergeByDay(data.dat && data.dat.txs, d.txs, (x) => x.day), negadas: d.negadas }; data.names.dat = pending.dat.name; }
+      store.set('canal', canal);
+      if (any) { data.sample = false; $('optFrom').value = ''; $('optTo').value = ''; }
+      pending = {}; paintSlots();
+      run(); msg.textContent = any ? 'Archivos sumados a lo que ya tenías.' : '';
+      if (any && (cloud.assets || cloud.local)) saveCloud();
+    } catch (e) { msg.className = 'msg err'; msg.textContent = e.message || String(e); }
+  }
+
+  // ---------- guardar en la nube (assets + db) ----------
+  const cloud = { db: null, assets: null, dl: null, doc: null, assetId: null, savedAt: null };
+  function packDataset() {
+    const idx = () => { const a = [], m = new Map(); return { a, i: (v) => { if (!m.has(v)) { m.set(v, a.length); a.push(v); } return m.get(v); } }; };
+    const N = idx(), D = idx(), Me = idx(), Pr = idx(), D2 = idx(), T = idx();
+    const pos = data.pos ? { d: data.pos.map((v) => [N.i(v.name), D.i(v.day), v.sec, v.val, Me.i(v.medio), Math.round(v.gal * 1000) / 1000, Pr.i(v.prod)]) } : null;
+    if (pos) { pos.names = N.a; pos.days = D.a; pos.medios = Me.a; pos.prods = Pr.a; }
+    const dat = data.dat ? { d: data.dat.txs.map((t) => [D2.i(t.day), t.sec, t.val, T.i(t.term)]), days: D2.a, terms: T.a, negadas: data.dat.negadas } : null;
+    return JSON.stringify({ v: 1, files: data.names, cierres: data.cierres, cash: data.cash, pos, dat, budgets, metas, alias });
+  }
+  function unpackDataset(o) {
+    data = { cierres: o.cierres || [], cashRaw: null, cash: o.cash || { deps: [], recogidas: [], otros: {} }, pos: unpackPOS(o.pos), dat: unpackDat(o.dat), names: o.files || {}, sample: false };
+    if (o.budgets) { budgets = { ...budgets, ...o.budgets }; store.set('budgets', budgets); }
+    if (o.metas) { metas = { ...metas, ...o.metas }; store.set('metas', metas); }
+    if (o.alias) { alias = { ...o.alias, ...alias }; }
+  }
+  const fmtWhen = (iso) => { try { const d = new Date(iso); return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }); } catch (e) { return iso; } };
+  function coverage() { const ds = [...new Set(data.cash.deps.map((d) => d.day))].sort(); return ds.length ? dayLabel(ds[0]) + ' a ' + dayLabel(ds[ds.length - 1]) : ''; }
+  function paintCloud(extra) {
+    const t = $('cloudTag');
+    if (extra) { t.textContent = extra; return; }
+    if (cloud.savedAt) t.textContent = (cloud.local ? 'Guardado en este navegador el ' : 'Guardado en la nube el ') + fmtWhen(cloud.savedAt) + ' · datos del ' + coverage();
+    else if (!data.cash.deps.length) t.textContent = 'Sin datos todavía: sube tus archivos abajo';
+    else if (data.sample) t.textContent = 'Datos de ejemplo: tus archivos del 12 al 17 nov' + (cloud.assets ? ' · aún sin guardar' : '');
+    else t.textContent = 'Datos del ' + coverage() + (cloud.assets ? ' · sin guardar' : '');
+  }
+  // fuera de Claude (GitHub o archivo en el computador): se guarda en este navegador con IndexedDB
+  const idb = {
+    open() { return new Promise((res, rej) => { const r = indexedDB.open('cuadreEDS', 1); r.onupgradeneeded = () => r.result.createObjectStore('estado'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+    async get(k) { const db = await idb.open(); return new Promise((res, rej) => { const t = db.transaction('estado').objectStore('estado').get(k); t.onsuccess = () => res(t.result); t.onerror = () => rej(t.error); }); },
+    async set(k, v) { const db = await idb.open(); return new Promise((res, rej) => { const t = db.transaction('estado', 'readwrite'); t.objectStore('estado').put(v, k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); },
+  };
+  async function saveCloud() {
+    if (cloud.local) {
+      const btn = $('btnSave'); btn.disabled = true; paintCloud('Guardando…');
+      try { const now = new Date().toISOString(); await idb.set('actual', { json: packDataset(), savedAt: now }); cloud.savedAt = now; paintCloud(); }
+      catch (e) { paintCloud('No se pudo guardar en este navegador.'); }
+      btn.disabled = false; return;
+    }
+    if (!cloud.assets || !cloud.db) return;
+    const btn = $('btnSave'); btn.disabled = true; paintCloud('Guardando…');
+    try {
+      const blob = new Blob([packDataset()], { type: 'application/json' });
+      const up = await cloud.assets.upload(blob, { filename: 'cuadre-datos.json' }).catch(() => cloud.assets.upload(blob));
+      const prev = cloud.assetId; const now = new Date().toISOString();
+      await cloud.doc.set({ assetId: up.id, savedAt: now, files: data.names, desde: [...new Set(data.cash.deps.map((d) => d.day))].sort()[0] || '', budgets });
+      cloud.assetId = up.id; cloud.savedAt = now;
+      if (prev && prev !== up.id) cloud.assets.delete(prev).catch(() => {});
+      paintCloud();
+    } catch (e) { paintCloud('No se pudo guardar (' + ((e && e.code) || 'error') + '). Intenta de nuevo.'); }
+    btn.disabled = false;
+  }
+  async function initCloud() {
+    try {
+      const c = window.claude;
+      if (!c || !c.use) {
+        cloud.local = true; $('btnSave').hidden = false; $('btnSave').textContent = 'Guardar en este navegador'; $('btnXls').hidden = false;
+        try { const st = await idb.get('actual'); if (st && st.json) { unpackDataset(JSON.parse(st.json)); cloud.savedAt = st.savedAt; paintSlots(); $('optFrom').value = ''; $('optTo').value = ''; run(); } } catch (e) {}
+        paintCloud(); return;
+      }
+      const [db, assets, dl] = await Promise.all([c.use('db'), c.use('assets'), c.use('downloads')]);
+      cloud.db = db; cloud.assets = assets; cloud.dl = dl;
+      if (dl) $('btnXls').hidden = false;
+      if (assets && db) $('btnSave').hidden = false;
+      if (!db) { paintCloud(); return; }
+      cloud.doc = db.doc('estado/actual');
+      paintCloud('Buscando lo guardado…');
+      const snap = await Promise.race([cloud.doc.get(), new Promise((_, rej) => setTimeout(() => rej({ code: 'timeout' }), 10000))]);
+      if (snap.exists) {
+        const meta = snap.data(); cloud.assetId = meta.assetId; cloud.savedAt = meta.savedAt;
+        if (meta.budgets) { budgets = { ...budgets, ...meta.budgets }; }
+        const res = await fetch('/_blob/' + meta.assetId); if (!res.ok) throw { code: 'blob_' + res.status };
+        unpackDataset(await res.json()); paintSlots(); $('optFrom').value = ''; $('optTo').value = ''; run();
+      }
+      paintCloud();
+    } catch (e) { paintCloud('No pude leer lo guardado (' + ((e && e.code) || 'error') + '). Se muestran los datos de ejemplo.'); }
+  }
+  $('btnSave').addEventListener('click', saveCloud);
+  $('btnXls').addEventListener('click', () => downloadXls());
+
+  $('btnRun').addEventListener('click', loadFiles);
+  $('optTol').addEventListener('change', () => { store.set('tol', +$('optTol').value || 0); run(); });
+  $('optPos').addEventListener('change', run);
+  $('optFrom').addEventListener('change', render); $('optTo').addEventListener('change', render);
+
+  function run() {
+    R = Cruce.cruzar(data.cierres, data.cash, { tolerancia: +$('optTol').value || 0, alias: allAlias(), pos: $('optPos').checked ? data.pos : null, datafono: $('optPos').checked ? data.dat : null });
+    const dd = R.days.filter((d) => d.inCash).map((d) => d.day);
+    if (dd.length) {
+      $('optFrom').min = $('optTo').min = dd[0]; $('optFrom').max = $('optTo').max = dd[dd.length - 1];
+      if (!$('optFrom').value || $('optFrom').value < dd[0] || $('optFrom').value > dd[dd.length - 1]) $('optFrom').value = dd[0];
+      if (!$('optTo').value || $('optTo').value > dd[dd.length - 1] || $('optTo').value < dd[0]) $('optTo').value = dd[dd.length - 1];
+    }
+    render();
+  }
+
+  const MKEYS = Object.keys(Cruce.MEDIO_LABEL).filter((k) => k !== 'efectivo');
+  const ESTADO = {
+    sincierre: ['Consignó sin cierre', 'p-bad'], parcial: ['Turno sin cierre', 'p-bad'], falta: ['Falta consignar', 'p-warn'],
+    noconsigno: ['Cerró, no consignó', 'p-warn'], sobra: ['Consignó de más', 'p-info'], ok: ['Cuadra', 'p-ok'], nada: ['Sin movimiento', 'p-mut'],
+  };
+
+  function render() {
+    if (!R) return;
+    const from = $('optFrom').value, to = $('optTo').value;
+    const days = R.days.filter((d) => d.inCash && (!from || d.day >= from) && (!to || d.day <= to));
+    const out = $('results');
+    if (!days.length) { out.innerHTML = data.cash.deps.length ? '<div class="panel">No hay días con datos en ese rango.</div>' : '<div class="panel"><h2 style="margin-bottom:6px">Todavía no hay datos</h2><p class="muted" style="margin:0">Sube arriba los 4 Excel (cierres de turno, CashToday, venta detallada del Terpel POS y datáfono) y toca "Cruzar archivos". Para ver el efectivo hace falta al menos el de CashToday.</p></div>'; return; }
+    if (!selDay || !days.find((d) => d.day === selDay)) selDay = (days.find((d) => d.sinCierre.length) || days[0]).day;
+    const sum = (f) => days.reduce((s, d) => s + f(d), 0);
+    const nSin = sum((d) => d.sinCierre.reduce((s, r) => s + (r.estado === 'sincierre' ? r.lines.length : r.turnosSinCierre.length), 0));
+    let h = '';
+    h += `<div class="kpis">
+      <div class="kpi main"><span class="eyebrow">Efectivo consignado (CashToday)</span><span class="v">${money(sum((d) => d.consignado))}</span><span class="s">${days.length} día${days.length > 1 ? 's' : ''} · ${dayLabel(days[0].day)} a ${dayLabel(days[days.length - 1].day)}</span></div>
+      <div class="kpi"><span class="eyebrow">Declarado en cierres</span><span class="v">${money(sum((d) => d.declarado))}</span><span class="s">${sum((d) => d.nCierres)} cierres</span></div>
+      <div class="kpi bad"><span class="eyebrow">Efectivo sin cierre</span><span class="v">${money(sum((d) => d.sinCierreEfe))}</span><span class="s">${nSin} turno${nSin === 1 ? '' : 's'} sin cierre</span></div>
+      <div class="kpi warn"><span class="eyebrow">Falta por consignar</span><span class="v">${money(sum((d) => d.faltante))}</span><span class="s">cerraron y consignaron menos</span></div>
+      <div class="kpi"><span class="eyebrow">Consignado de más</span><span class="v">${money(sum((d) => d.sobrante))}</span><span class="s">más que lo declarado</span></div>
+    </div>`;
+
+    const TABS = [['mes', 'Resumen del mes'], ['efectivo', 'Efectivo por día'], ['fs', 'Faltantes y sobrantes'], ['cuadre', 'Cuadre del día'], ['ranking', 'Ranking de promotores']];
+    h += `<div class="tabs" role="tablist">${TABS.map(([k, l]) => `<button role="tab" data-tab="${k}" aria-selected="${tab === k}" class="${tab === k ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+    if (tab === 'mes') h += renderMes(days);
+    else if (tab === 'fs') h += renderFS(days);
+    else if (tab === 'cuadre') h += renderCuadre(days);
+    else if (tab === 'ranking') h += renderRanking(days);
+    else {
+    // tabla por día
+    h += `<section class="detail"><div class="dhead"><h2>Efectivo de líquidos por día</h2><button id="btnCopy">Copiar tabla para Excel</button></div>
+    <div class="tbl"><table id="dayTable"><thead><tr><th>Día</th><th class="n">Consignado</th><th class="n">Declarado cierres</th><th class="n">Diferencia</th><th class="n">Ventas Terpel POS</th><th class="n">Efectivo esperado POS</th><th class="n">Consignado − esperado</th><th class="n">Sin cierre</th><th>Quién no cerró</th><th class="n">Falta consignar</th><th class="n">De más</th>${MKEYS.map((k) => `<th class="n">${Cruce.MEDIO_LABEL[k]}</th>`).join('')}<th class="n">Total medios</th><th class="n">Total ventas</th></tr></thead><tbody>`;
+    for (const d of days) {
+      const who = d.sinCierre.map((r) => r.name.split(' ').slice(0, 2).join(' ') + ' (' + (r.estado === 'sincierre' ? r.lines.map((l) => Cruce.TURNOS[l.t].short).join(', ') : r.turnosSinCierre.map((t) => Cruce.TURNOS[t].short).join(', ')) + ')').join('; ');
+      const df = d.consignado - d.declarado;
+      h += `<tr class="click${d.day === selDay ? ' sel' : ''}" data-day="${d.day}" tabindex="0"><td><b>${dayLabel(d.day, true)}</b>${d.complete ? '' : ' <span class="pill p-warn">parcial</span>'}</td>
+        <td class="n"><b>${money(d.consignado)}</b></td><td class="n">${money(d.declarado)}</td><td class="n ${df > 0 ? 'pos' : df < 0 ? 'neg' : ''}">${smoney(df)}</td>
+        <td class="n">${d.pos ? money(d.pos.ventas) : '—'}</td><td class="n">${d.pos && d.hasDat ? money(d.pos.esperado) : '—'}</td><td class="n ${d.pos && d.hasDat ? (d.consignado - d.pos.esperado >= 0 ? 'pos' : 'neg') : ''}">${d.pos && d.hasDat ? smoney(d.consignado - d.pos.esperado) : '—'}</td>
+        <td class="n ${d.sinCierreEfe ? 'neg' : ''}">${d.sinCierreEfe ? money(d.sinCierreEfe) : '—'}</td><td style="white-space:normal;min-width:200px">${who ? esc(who) : '<span class="muted">Todos cerraron</span>'}</td>
+        <td class="n">${d.faltante ? money(d.faltante) : '—'}</td><td class="n">${d.sobrante ? money(d.sobrante) : '—'}</td>
+        ${MKEYS.map((k) => `<td class="n">${money(d.medios[k] || 0)}</td>`).join('')}<td class="n">${money(d.totalMedios)}</td><td class="n">${money(d.totalVentas)}</td></tr>`;
+    }
+    h += `</tbody><tfoot><tr><td>Total</td><td class="n">${money(sum((d) => d.consignado))}</td><td class="n">${money(sum((d) => d.declarado))}</td><td class="n">${smoney(sum((d) => d.consignado - d.declarado))}</td><td class="n">${money(sum((d) => d.pos ? d.pos.ventas : 0))}</td><td class="n">${money(sum((d) => d.pos && d.hasDat ? d.pos.esperado : 0))}</td><td class="n">${smoney(sum((d) => d.pos && d.hasDat ? d.consignado - d.pos.esperado : 0))}</td><td class="n">${money(sum((d) => d.sinCierreEfe))}</td><td></td><td class="n">${money(sum((d) => d.faltante))}</td><td class="n">${money(sum((d) => d.sobrante))}</td>${MKEYS.map((k) => `<td class="n">${money(sum((d) => d.medios[k] || 0))}</td>`).join('')}<td class="n">${money(sum((d) => d.totalMedios))}</td><td class="n">${money(sum((d) => d.totalVentas))}</td></tr></tfoot></table></div>
+    <p class="muted" style="margin:0;font-size:12px">Los medios de pago (datáfono, Gopass, Rumbo, Mi Empresa, bonos, créditos, App Terpel, billeteras, pruebas, moneda) son lo reportado en los cierres; los turnos sin cierre no están incluidos. Efectivo esperado POS = lo que el Terpel POS registra como efectivo (que incluye lo pagado con datáfono) menos todo lo aprobado en el datáfono, incluido el de GNV que se paga en efectivo a los promotores de GNV. Desliza la tabla a la derecha para ver todo y toca un día para ver el detalle.</p></section>`;
+
+    // detalle del día
+    const d = days.find((x) => x.day === selDay);
+    h += `<section class="detail"><div class="daybar" role="tablist">${days.map((x) => `<button role="tab" aria-selected="${x.day === selDay}" class="${x.day === selDay ? 'on' : ''}" data-day="${x.day}">${dayLabel(x.day, true)}${x.sinCierre.length ? ' ●' : ''}</button>`).join('')}</div>`;
+    h += renderDay(d);
+    h += `</section>`;
+
+    }
+    h += renderSide(days);
+    out.innerHTML = h;
+    out.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; store.set('tab', tab); render(); }));
+    out.querySelectorAll('input[data-meta]').forEach((i) => i.addEventListener('change', () => { metas[i.dataset.meta] = i.value; store.set('metas', metas); render(); }));
+    out.querySelectorAll('input[data-budget]').forEach((i) => i.addEventListener('change', () => { budgets[i.dataset.budget] = +i.value || 0; store.set('budgets', budgets); render(); }));
+    const rs = $('rankSort'); if (rs) rs.addEventListener('change', () => { rankSort = rs.value; store.set('rankSort', rankSort); render(); });
+
+    out.querySelectorAll('[data-day]').forEach((el) => {
+      const go = () => { selDay = el.dataset.day; render(); };
+      el.addEventListener('click', go);
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    });
+    const bc = $('btnCopy'); if (bc) bc.addEventListener('click', () => copyTable(days, bc));
+    out.querySelectorAll('select[data-key]').forEach((s) => s.addEventListener('change', () => {
+      const k = s.dataset.key; if (s.value === '__auto') delete alias[k]; else alias[k] = s.value; if (FIXED_ALIAS[k] && s.value === FIXED_ALIAS[k]) delete alias[k]; store.set('alias', alias); run();
+    }));
+  }
+
+  function renderDay(d) {
+    const T = Cruce.TURNOS;
+    let h = `<div class="dhead"><h2>${dayLabel(d.day, true)} · ${money(d.consignado)} en efectivo consignado</h2>
+      <span class="muted">${d.nCierres} cierres · ${d.rows.filter((r) => r.estado === 'ok').length} promotores cuadran</span></div>`;
+    if (!d.complete) h += `<div class="note">Día incompleto: el archivo de CashToday llega hasta ${dayLabel(R.lastTs.day)} ${Cruce.fmtSec(R.lastTs.sec)}. Faltan consignaciones de los turnos que aún no terminan.</div>`;
+    // por turno
+    h += `<div class="grid2"><div class="tbl"><table><thead><tr><th>Turno</th><th class="n">Cierres</th><th class="n">Declarado</th><th class="n">Consignado</th><th class="n">Diferencia</th></tr></thead><tbody>`;
+    for (const k of Object.keys(T)) { const b = d.byShift[k]; const df = b.dep - b.efe;
+      h += `<tr><td>${T[k].label}</td><td class="n">${b.cierres}</td><td class="n">${money(b.efe)}</td><td class="n">${money(b.dep)}</td><td class="n ${Math.abs(df) > 10000 ? (df > 0 ? 'pos' : 'neg') : ''}">${smoney(df)}</td></tr>`; }
+    h += `</tbody></table></div>`;
+    // medios del día
+    const pend = d.sinCierre.length;
+    h += `<div class="panel" style="padding:12px 14px"><h3 style="margin-bottom:8px">Medios de pago reportados en cierres</h3><div class="medios">`;
+    for (const [k, lab] of Object.entries(Cruce.MEDIO_LABEL)) { const v = d.medios[k] || 0; h += `<div><span>${lab}</span><span>${money(v)}</span></div>`; }
+    h += `<div><span><b>Total medios de pago</b></span><span><b>${money(d.totalMedios)}</b></span></div><div><span><b>Total ventas reportadas</b></span><span><b>${money(d.totalVentas)}</b></span></div></div>`;
+    if (pend) h += `<p class="neg" style="margin:8px 0 0;font-size:12.5px">Faltan los medios de pago de ${pend} promotor${pend > 1 ? 'es' : ''} sin cierre (abajo, en rojo).</p>`;
+    h += `</div></div>`;
+    if (d.pos) h += renderPosDay(d);
+    // promotores
+    h += `<div class="legend">${Object.entries(ESTADO).filter(([k]) => k !== 'nada').map(([k, [l, c]]) => `<span class="pill ${c}">${l}</span>`).join('')}</div><div class="cards">`;
+    for (const r of d.rows) h += renderPerson(r, d);
+    h += `</div>`;
+    const notes = [];
+    d.fixes.forEach((c) => notes.push(`<b>${esc(c.name)}</b>: ${esc(c.fix)}.`));
+    if (d.movidos.length) notes.push(`${d.movidos.length} consignaciones de la madrugada del ${dayLabel(Cruce.addDays(d.day, 1))} (${money(d.movidos.reduce((s, x) => s + x.amt, 0))}) se cuentan en este día porque son del turno de la noche.`);
+    if (notes.length) h += `<div class="note info">${notes.map((n) => `<div>${n}</div>`).join('')}</div>`;
+    return h;
+  }
+
+  function depChip(x, D) { return `<span class="dep${x.day !== D ? ' prev' : ''}" title="${esc(x.why || '')}">${x.day !== D ? dayLabel(x.day) + ' ' : ''}${Cruce.fmtSec(x.sec)} · ${money(x.amt)}${x.origen && x.origen !== 'Contado' ? ' (' + esc(x.origen) + ')' : ''}</span>`; }
+
+  const TOLV = () => +$('optTol').value || 0;
+  const diffX = (r) => r.estado === 'parcial' ? r.diffCerrados : r.diff;
+  function renderFS(days) {
+    let accC = 0, accP = 0; let h = `<section class="detail"><div class="dhead"><h2>Faltantes y sobrantes por día</h2><span class="muted">El acumulado va sumando y restando día a día</span></div>
+      <div class="tbl"><table><thead><tr><th>Día</th><th class="n">Faltantes (cierre vs. consignado)</th><th class="n">Sobrantes</th><th class="n">Neto del día</th><th class="n">Acumulado</th><th class="n">Efectivo de turnos sin cierre</th><th class="n">Consignado − efectivo POS</th><th class="n">Acumulado POS</th></tr></thead><tbody>`;
+    let tF = 0, tS = 0, tSC = 0;
+    for (const d of days) {
+      let f = 0, so = 0; d.rows.forEach((r) => { if (!r.cierres.length || r.estado === 'sincierre') return; const x = diffX(r); if (x < 0) f += x; else so += x; });
+      const net = f + so; accC += net; tF += f; tS += so; tSC += d.sinCierreEfe;
+      const pd = d.pos && d.hasDat ? d.consignado - d.pos.esperado : null; if (pd != null) accP += pd;
+      const cls = (v) => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+      h += `<tr><td><b>${dayLabel(d.day, true)}</b>${d.complete ? '' : ' <span class="pill p-warn">parcial</span>'}</td><td class="n neg">${f ? money(f) : '—'}</td><td class="n pos">${so ? money(so) : '—'}</td><td class="n ${cls(net)}">${smoney(net)}</td><td class="n big ${cls(accC)}">${smoney(accC)}</td><td class="n">${d.sinCierreEfe ? money(d.sinCierreEfe) : '—'}</td><td class="n ${cls(pd)}">${pd != null ? smoney(pd) : '—'}</td><td class="n big ${cls(accP)}">${pd != null ? smoney(accP) : '—'}</td></tr>`;
+    }
+    h += `</tbody><tfoot><tr><td>Total</td><td class="n">${money(tF)}</td><td class="n">${money(tS)}</td><td class="n">${smoney(tF + tS)}</td><td class="n">${smoney(accC)}</td><td class="n">${money(tSC)}</td><td class="n">${smoney(accP)}</td><td></td></tr></tfoot></table></div>
+      <p class="muted" style="margin:0;font-size:12px">Faltantes y sobrantes = lo consignado en CashToday menos el efectivo que cada promotor declaró en su cierre. "Consignado − efectivo POS" compara todo lo consignado del día con el efectivo que debía haber según el Terpel POS y el datáfono, así que también cubre a los que no cerraron.</p>`;
+    // arrastre: lo que sobra un día pasa al día siguiente (efectivo de los turnos de noche que se consigna tarde)
+    const withPos = days.filter((d) => d.pos && d.hasDat);
+    if (withPos.length) {
+      let carry = 0, faltReal = 0;
+      h += `<div class="dhead"><h2>Con arrastre al día siguiente</h2><span class="muted">Lo que sobra un día se pasa al siguiente, por el efectivo de los turnos de noche</span></div>
+        <div class="tbl"><table><thead><tr><th>Día</th><th class="n">Consignado</th><th class="n">Efectivo que debía haber (POS)</th><th class="n">Diferencia del día</th><th class="n">Viene del día anterior</th><th class="n">Resultado</th><th class="n">Pasa al día siguiente</th><th class="n">Faltante real</th></tr></thead><tbody>`;
+      for (const d of withPos) {
+        const dif = d.consignado - d.pos.esperado; const res = dif + carry;
+        const pasa = res > 0 ? res : 0; const falta = res < 0 ? res : 0; faltReal += falta;
+        h += `<tr><td><b>${dayLabel(d.day, true)}</b></td><td class="n">${money(d.consignado)}</td><td class="n">${money(d.pos.esperado)}</td><td class="n ${dif < 0 ? 'neg' : 'pos'}">${smoney(dif)}</td><td class="n">${carry ? money(carry) : '—'}</td><td class="n big ${res < 0 ? 'neg' : 'pos'}">${smoney(res)}</td><td class="n pos">${pasa ? money(pasa) : '—'}</td><td class="n neg big">${falta ? money(falta) : '—'}</td></tr>`;
+        carry = pasa;
+      }
+      h += `</tbody><tfoot><tr><td>Total</td><td></td><td></td><td class="n">${smoney(withPos.reduce((s, d) => s + d.consignado - d.pos.esperado, 0))}</td><td></td><td></td><td class="n">${carry ? money(carry) + ' queda a favor' : '—'}</td><td class="n">${faltReal ? money(faltReal) : '—'}</td></tr></tfoot></table></div>
+        <p class="muted" style="margin:0;font-size:12px">Si un día sobra, ese sobrante se suma al día siguiente para cubrir lo que falte. Si después de sumarlo sigue faltando, eso es faltante real del día y no pasa nada al siguiente.</p>`;
+    }
+    // por promotor
+    const per = {};
+    for (const d of days) for (const r of d.rows) {
+      const p = per[r.pid] || (per[r.pid] = { name: r.name, dias: new Set(), f: 0, s: 0, sc: 0, tsc: 0, ventasSC: 0, carry: 0, fr: 0 });
+      p.dias.add(d.day);
+      if (r.cierres.length && r.estado !== 'sincierre') { const x = diffX(r); if (x < 0) p.f += x; else p.s += x; const res = x + p.carry; if (res < -TOLV()) { p.fr += res; p.carry = 0; } else p.carry = Math.max(0, res); }
+      if (r.estado === 'sincierre') { p.sc += r.dep; p.tsc += r.lines.filter((l) => !l.cierre).length; } else if (r.estado === 'parcial') { p.sc += r.sinCierreAmt; p.tsc += r.turnosSinCierre.length; }
+      p.ventasSC += r.ventasSinCierre || 0;
+    }
+    const list = Object.values(per).sort((a, b) => a.fr - b.fr || (a.f + a.s) - (b.f + b.s) || b.tsc - a.tsc);
+    h += `<div class="dhead"><h2>Por promotor</h2><span class="muted">${dayLabel(days[0].day)} a ${dayLabel(days[days.length - 1].day)}</span></div>
+      <div class="tbl"><table><thead><tr><th>Promotor</th><th class="n">Días</th><th class="n">Faltantes</th><th class="n">Sobrantes</th><th class="n">Neto</th><th class="n">Faltante real (con arrastre)</th><th class="n">Turnos sin cierre</th><th class="n">Efectivo consignado sin cierre</th><th class="n">Ventas POS sin cierre</th></tr></thead><tbody>`;
+    for (const p of list) { const n = p.f + p.s;
+      h += `<tr><td>${esc(p.name)}</td><td class="n">${p.dias.size}</td><td class="n neg">${p.f ? money(p.f) : '—'}</td><td class="n pos">${p.s ? money(p.s) : '—'}</td><td class="n big ${n < -10000 ? 'neg' : n > 10000 ? 'pos' : ''}">${smoney(n)}</td><td class="n neg">${p.fr ? money(p.fr) : '—'}</td><td class="n">${p.tsc ? `<span class="pill p-bad">${p.tsc}</span>` : '—'}</td><td class="n">${p.sc ? money(p.sc) : '—'}</td><td class="n">${p.ventasSC ? money(p.ventasSC) : '—'}</td></tr>`; }
+    h += `</tbody></table></div></section>`;
+    return h;
+  }
+
+  function renderCuadre(days) {
+    const ds = days.filter((d) => d.pos);
+    if (!ds.length) return `<div class="panel">Para el cuadre del día sube el reporte de venta detallada del Terpel POS y el del datáfono.</div>`;
+    const G = (d, k) => d.pos.g[k] || 0, V = (d, k) => d.pos.v[k] || 0, M = (d, k) => d.pos.m[k] || 0;
+    const galC = (d) => d.rows.reduce((s, r) => s + r.cierres.reduce((a, c) => a + (c.gal ? c.gal.corriente + c.gal.extra + c.gal.acpm : 0), 0), 0);
+    const otros = (d) => M(d, 'rumbo') + M(d, 'miEmpresa') + M(d, 'gopass') + M(d, 'appTerpel') + M(d, 'bonos') + M(d, 'bbva') + M(d, 'flotaPropia') + M(d, 'nequi') + M(d, 'daviplata') + M(d, 'bancolombia') + M(d, 'otros');
+    const recaudo = (d) => d.consignado + (d.hasDat ? d.pos.datTotal : 0) + otros(d);
+    const metaMes = budgetOf(ds[ds.length - 1].day.slice(0, 7));
+    const metaDia = (d) => budgetOf(d.day.slice(0, 7)) / daysInMonth(d.day.slice(0, 7));
+    const fg = (n) => Math.round(n).toLocaleString('es-CO') + ' gal';
+    const R2 = [
+      ['sep', 'Ventas según Terpel POS'],
+      ['Corriente', (d) => fg(G(d, 'corriente')), (d) => money(V(d, 'corriente'))],
+      ['Extra', (d) => fg(G(d, 'extra')), (d) => money(V(d, 'extra'))],
+      ['ACPM', (d) => fg(G(d, 'acpm')), (d) => money(V(d, 'acpm'))],
+      ['Total galones', (d) => '<b>' + fg(d.pos.gal) + '</b>'],
+      ['Galones reportados en cierres', (d) => fg(galC(d))],
+      ...(metaMes ? [['Cumplimiento presupuesto EDS', (d) => { const p = d.pos.gal / metaDia(d) * 100; return `<span class="pill ${p >= 100 ? 'p-ok' : p >= 90 ? 'p-warn' : 'p-bad'}">${p.toFixed(0)}%</span> <span class="muted">meta ${fg(metaDia(d))}</span>`; }]] : []),
+      ['Total ventas ($)', (d) => '<b>' + money(d.pos.ventas) + '</b>'],
+      ['sep', 'Cómo se recaudó'],
+      ['Efectivo consignado (CashToday)', (d) => money(d.consignado)],
+      ['Datáfono (todo, incluye GNV pagado en efectivo)', (d) => d.hasDat ? money(d.pos.datTotal) : '—'],
+      ['Rumbo', (d) => money(M(d, 'rumbo'))], ['Mi Empresa', (d) => money(M(d, 'miEmpresa'))], ['Gopass', (d) => money(M(d, 'gopass'))],
+      ['App Terpel', (d) => money(M(d, 'appTerpel'))], ['Bono Vive Terpel', (d) => money(M(d, 'bonos'))], ['BBVA', (d) => money(M(d, 'bbva'))],
+      ['Consumo propio', (d) => money(M(d, 'flotaPropia'))], ['Nequi / DaviPlata / Bancolombia', (d) => money(M(d, 'nequi') + M(d, 'daviplata') + M(d, 'bancolombia'))],
+      ['Total recaudado', (d) => '<b>' + money(recaudo(d)) + '</b>'],
+      ['sep', 'Resultado'],
+      ['Recaudado − ventas', (d) => { const x = recaudo(d) - d.pos.ventas; return `<b class="${x < 0 ? 'neg' : 'pos'}">${smoney(x)}</b>`; }],
+      ['¿Cuadra?', (d) => { if (!d.hasDat) return '<span class="pill p-mut">falta datáfono</span>'; const x = recaudo(d) - d.pos.ventas; return Math.abs(x) <= Math.max(300000, d.pos.ventas * 0.002) ? '<span class="pill p-ok">Cuadra</span>' : x < 0 ? `<span class="pill p-bad">Faltan ${money(-x)}</span>` : `<span class="pill p-info">Sobran ${money(x)}</span>`; }],
+    ];
+    let h = `<section class="detail"><div class="dhead"><h2>Cuadre del día: ventas vs. medios de pago</h2><span class="muted">Galones y pesos del Terpel POS contra todo lo recaudado</span></div>
+      <div class="tbl"><table><thead><tr><th></th>${ds.map((d) => `<th class="n">${dayLabel(d.day, true)}</th>`).join('')}</tr></thead><tbody>`;
+    for (const row of R2) {
+      if (row[0] === 'sep') { h += `<tr class="sep"><td colspan="${ds.length + 1}">${row[1]}</td></tr>`; continue; }
+      h += `<tr><td>${row[0]}</td>${ds.map((d) => `<td class="n">${row[1](d)}${row[2] ? `<div class="muted" style="font-size:11.5px">${row[2](d)}</div>` : ''}</td>`).join('')}</tr>`;
+    }
+    const tv = ds.reduce((s, d) => s + d.pos.ventas, 0), tr = ds.reduce((s, d) => s + recaudo(d), 0), tg = ds.reduce((s, d) => s + d.pos.gal, 0);
+    h += `</tbody></table></div>
+      <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="kpi"><span class="eyebrow">Galones vendidos</span><span class="v">${fg(tg)}</span><span class="s">${ds.length} días con Terpel POS</span></div>
+      <div class="kpi"><span class="eyebrow">Ventas</span><span class="v">${money(tv)}</span><span class="s">Terpel POS</span></div>
+      <div class="kpi ${tr - tv < 0 ? 'bad' : ''}"><span class="eyebrow">Recaudado − ventas</span><span class="v">${smoney(tr - tv)}</span><span class="s">en todo el periodo</span></div></div>
+      ${budgetInput(ds[ds.length - 1].day.slice(0, 7))}
+      <p class="muted" style="margin:0;font-size:12px">"Efectivo + bono" mixto del POS queda dentro del efectivo, porque el POS no separa el bono. El 17 aparece cuando subas el POS y el datáfono de ese día.</p></section>`;
+    return h;
+  }
+
+  const fgal = (n) => Math.round(n).toLocaleString('es-CO');
+  function budgetInput(mk) {
+    const [y, m] = mk.split('-').map(Number);
+    return `<div class="panel"><div class="metas"><label for="b-${mk}">Presupuesto ${MESES[m - 1]} ${y} (galones del mes)<input id="b-${mk}" data-budget="${mk}" type="number" min="0" value="${budgets[mk] || ''}" placeholder="galones"></label>
+      <span class="muted" style="font-size:12.5px;max-width:60ch">Meta diaria = presupuesto ÷ ${daysInMonth(mk)} días = <b>${fgal(budgetOf(mk) / daysInMonth(mk))} gal</b>. Se guarda con tus datos.</span></div></div>`;
+  }
+  // ranking: galones por promotor y cumplimiento de su meta
+  function computeRanking(days) {
+    const set = new Set(days.map((d) => d.day));
+    const rows = (R.posRows || []).filter((v) => set.has(v.day));
+    if (!rows.length) return null;
+    const per = {}; const turnoGal = {};
+    for (const v of rows) {
+      const p = per[v.pid] || (per[v.pid] = { pid: v.pid, gal: 0, val: 0, g: {}, turnos: {} });
+      p.gal += v.gal; p.val += v.val; p.g[v.prod] = (p.g[v.prod] || 0) + v.gal;
+      const k = v.day + '|' + v.turno; p.turnos[k] = (p.turnos[k] || 0) + v.gal;
+    }
+    for (const p of Object.values(per)) for (const [k, g] of Object.entries(p.turnos)) { const t = k.split('|')[1]; (turnoGal[t] = turnoGal[t] || []).push(g); }
+    const avg = {}; for (const t of Object.keys(Cruce.TURNOS)) { const l = turnoGal[t] || []; avg[t] = l.length ? l.reduce((a, b) => a + b, 0) / l.length : 0; }
+    // con presupuesto: el promedio de cada turno se escala para que, si todos cumplen, la EDS cumpla el presupuesto
+    const nDays = set.size; const tot = rows.reduce((s, v) => s + v.gal, 0);
+    const mk = days[days.length - 1].day.slice(0, 7); const dailyBudget = budgetOf(mk) / daysInMonth(mk);
+    const scale = dailyBudget && tot ? dailyBudget / (tot / nDays) : 1;
+    const metaT = {}; const src = {};
+    for (const t of Object.keys(Cruce.TURNOS)) { if (+metas[t] > 0) { metaT[t] = +metas[t]; src[t] = 'tuya'; } else { metaT[t] = avg[t] * scale; src[t] = dailyBudget ? 'presupuesto' : 'promedio'; } }
+    const list = Object.values(per).map((p) => { const ks = Object.keys(p.turnos); const m = ks.reduce((s, k) => s + metaT[k.split('|')[1]], 0);
+      return { ...p, name: R.people[p.pid]?.name || '?', nt: ks.length, meta: m, cump: m ? p.gal / m * 100 : 0, gpt: p.gal / ks.length, ext: p.gal ? (p.g.extra || 0) / p.gal * 100 : 0 }; });
+    return { list, avg, metaT, src, tot, dailyBudget, mk };
+  }
+  // ---------- resumen del mes ----------
+  const recaudoOf = (d) => { const M = (k) => d.pos.m[k] || 0; return d.consignado + (d.hasDat ? d.pos.datTotal : 0) + M('rumbo') + M('miEmpresa') + M('gopass') + M('appTerpel') + M('bonos') + M('bbva') + M('flotaPropia') + M('nequi') + M('daviplata') + M('bancolombia') + M('otros'); };
+  function computeMes(mk) {
+    const ds = R.days.filter((d) => d.day.slice(0, 7) === mk && d.inCash);
+    const bud = budgetOf(mk), dim = daysInMonth(mk), metaDia = bud / dim;
+    let accG = 0, accM = 0, carry = 0;
+    const rows = ds.map((d) => {
+      const gal = d.pos ? d.pos.gal : null; const meta = metaDia;
+      if (gal != null) { accG += gal; accM += meta; }
+      const rec = d.pos ? recaudoOf(d) : null; const dif = d.pos && d.hasDat ? rec - d.pos.ventas : null;
+      let res = null, pasa = 0, falta = 0;
+      if (dif != null) { res = dif + carry; pasa = res > 0 ? res : 0; falta = res < 0 ? res : 0; carry = pasa; }
+      return { d, gal, g: d.pos ? d.pos.g : {}, meta, cump: gal != null && meta ? gal / meta * 100 : null, accG, accM, ventas: d.pos ? d.pos.ventas : null, rec, dif, res, pasa, falta, consignado: d.consignado, sinCierre: d.sinCierre.length };
+    });
+    const conPos = rows.filter((r) => r.gal != null);
+    const prom = conPos.length ? accG / conPos.length : 0;
+    return { mk, ds, rows, bud, dim, metaDia, accG, accM, prom, proy: prom * dim, conPos: conPos.length, carry };
+  }
+  function renderMes(days) {
+    const mk = days[days.length - 1].day.slice(0, 7); const [y, m] = mk.split('-').map(Number);
+    const M = computeMes(mk);
+    const pctFecha = M.accM ? M.accG / M.accM * 100 : 0, pctMes = M.bud ? M.accG / M.bud * 100 : 0, pctProy = M.bud ? M.proy / M.bud * 100 : 0;
+    const pill = (p) => p == null ? '—' : `<span class="pill ${p >= 100 ? 'p-ok' : p >= 90 ? 'p-warn' : 'p-bad'}">${p.toFixed(0)}%</span>`;
+    let h = `<section class="detail"><div class="dhead"><h2>${MESES[m - 1].replace(/^./, (c) => c.toUpperCase())} ${y}: galones contra presupuesto</h2><span class="muted">${M.conPos} días con Terpel POS de ${M.dim}</span></div>
+      <div class="kpis">
+        <div class="kpi main"><span class="eyebrow">Galones del mes</span><span class="v">${fgal(M.accG)}</span><span class="s">de ${fgal(M.bud)} presupuestados</span></div>
+        <div class="kpi"><span class="eyebrow">Avance del presupuesto</span><span class="v">${pctMes.toFixed(1)}%</span><span class="s">faltan ${fgal(Math.max(0, M.bud - M.accG))} gal</span></div>
+        <div class="kpi ${pctFecha < 100 ? 'warn' : ''}"><span class="eyebrow">Cumplimiento a la fecha</span><span class="v">${pctFecha.toFixed(0)}%</span><span class="s">meta a la fecha ${fgal(M.accM)} gal</span></div>
+        <div class="kpi ${pctProy < 100 ? 'bad' : ''}"><span class="eyebrow">Proyección al cierre</span><span class="v">${fgal(M.proy)}</span><span class="s">${pctProy.toFixed(0)}% del presupuesto · ${fgal(M.prom)} gal/día</span></div>
+        <div class="kpi"><span class="eyebrow">Para cumplir</span><span class="v">${fgal(M.dim > M.conPos ? Math.max(0, M.bud - M.accG) / (M.dim - M.conPos) : 0)}</span><span class="s">gal diarios en los ${M.dim - M.conPos} días que faltan</span></div>
+      </div>`;
+    h += chartMes(M);
+    h += `<div class="tbl"><table><thead><tr><th>Día</th><th class="n">Corriente</th><th class="n">Extra</th><th class="n">ACPM</th><th class="n">Total gal</th><th class="n">Meta</th><th class="n">Cumpl.</th><th class="n">Acumulado</th><th class="n">Meta acumulada</th><th class="n">Ventas</th><th class="n">Recaudado − ventas</th><th class="n">Con arrastre</th><th class="n">Turnos sin cierre</th></tr></thead><tbody>`;
+    for (const r of M.rows) {
+      h += `<tr><td><b>${dayLabel(r.d.day, true)}</b></td><td class="n">${r.gal != null ? fgal(r.g.corriente || 0) : '—'}</td><td class="n">${r.gal != null ? fgal(r.g.extra || 0) : '—'}</td><td class="n">${r.gal != null ? fgal(r.g.acpm || 0) : '—'}</td>
+        <td class="n big">${r.gal != null ? fgal(r.gal) : '—'}</td><td class="n">${fgal(r.meta)}</td><td class="n">${pill(r.cump)}</td><td class="n">${r.gal != null ? fgal(r.accG) : '—'}</td><td class="n">${r.gal != null ? fgal(r.accM) : '—'}</td>
+        <td class="n">${r.ventas != null ? money(r.ventas) : '—'}</td><td class="n ${r.dif == null ? '' : r.dif < 0 ? 'neg' : 'pos'}">${r.dif != null ? smoney(r.dif) : '—'}</td><td class="n ${r.res == null ? '' : r.res < 0 ? 'neg' : 'pos'}">${r.res != null ? smoney(r.res) : '—'}</td><td class="n">${r.sinCierre ? `<span class="pill p-bad">${r.sinCierre}</span>` : '—'}</td></tr>`;
+    }
+    const tv = M.rows.reduce((s, r) => s + (r.ventas || 0), 0), td = M.rows.reduce((s, r) => s + (r.dif || 0), 0);
+    h += `</tbody><tfoot><tr><td>Total</td><td class="n">${fgal(M.rows.reduce((s, r) => s + (r.g.corriente || 0), 0))}</td><td class="n">${fgal(M.rows.reduce((s, r) => s + (r.g.extra || 0), 0))}</td><td class="n">${fgal(M.rows.reduce((s, r) => s + (r.g.acpm || 0), 0))}</td><td class="n">${fgal(M.accG)}</td><td class="n">${fgal(M.accM)}</td><td class="n">${pill(pctFecha)}</td><td></td><td></td><td class="n">${money(tv)}</td><td class="n">${smoney(td)}</td><td class="n">${M.carry ? money(M.carry) + ' a favor' : ''}</td><td></td></tr></tfoot></table></div>`;
+    h += budgetInput(mk);
+    // ranking del mes
+    const RK = computeRanking(M.ds.filter((d) => d.pos));
+    if (RK) {
+      const list = RK.list.slice().sort((a, b) => b.gal - a.gal); const max = list[0].gal;
+      h += `<div class="dhead"><h2>Ranking del mes</h2><span class="muted">Meta de cada promotor = su parte del presupuesto según los turnos que trabajó</span></div>
+        <div class="bars"><div class="bar head"><span>#</span><span>Promotor</span><span>Galones por producto</span><span>Galones</span><span class="hide-s">Meta</span><span class="hide-s">Turnos</span><span class="hide-s">Gal/turno</span><span>Cumplimiento</span></div>`;
+      list.forEach((p, i) => { const w = (k) => (p.g[k] || 0) / max * 100;
+        h += `<div class="bar"><span class="rk${i < 3 ? ' top' : ''}">${i + 1}</span><span class="nm" title="${esc(p.name)}">${esc(p.name)}</span><span class="track"><i class="c" style="width:${w('corriente')}%"></i><i class="e" style="width:${w('extra')}%"></i><i class="a" style="width:${w('acpm')}%"></i></span>
+          <span class="v"><b>${fgal(p.gal)}</b><span>extra ${p.ext.toFixed(0)}%</span></span><span class="v hide-s">${fgal(p.meta)}</span><span class="v hide-s">${p.nt}</span><span class="v hide-s">${fgal(p.gpt)}</span>${pill(p.cump)}</div>`; });
+      h += `</div><div class="legend"><span><i class="sw" style="background:var(--accent)"></i>Corriente</span><span><i class="sw" style="background:var(--info)"></i>Extra</span><span><i class="sw" style="background:var(--warn)"></i>ACPM</span></div>`;
+    }
+    h += `</section>`;
+    return h;
+  }
+  function chartMes(M) {
+    const W = 1000, H = 230, padL = 56, padB = 28, padT = 14, n = M.dim;
+    const maxV = Math.max(M.metaDia * 1.25, ...M.rows.map((r) => r.gal || 0)) || 1;
+    const x = (i) => padL + (i + .5) * ((W - padL - 10) / n), bw = (W - padL - 10) / n * .62;
+    const y = (v) => padT + (H - padT - padB) * (1 - v / maxV);
+    const ticks = [0, .25, .5, .75, 1].map((t) => maxV * t);
+    let g = ticks.map((t) => `<line x1="${padL}" x2="${W - 10}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" stroke-width="1"/><text x="${padL - 8}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${fgal(t)}</text>`).join('');
+    const byDay = {}; M.rows.forEach((r) => { byDay[+r.d.day.slice(8)] = r; });
+    for (let i = 0; i < n; i++) {
+      const r = byDay[i + 1];
+      if (r && r.gal != null) { const ok = r.gal >= M.metaDia; g += `<rect x="${x(i) - bw / 2}" y="${y(r.gal)}" width="${bw}" height="${y(0) - y(r.gal)}" rx="3" fill="${ok ? 'var(--ok)' : 'var(--accent)'}"><title>${dayLabel(r.d.day)}: ${fgal(r.gal)} gal</title></rect>`; }
+      else g += `<rect x="${x(i) - bw / 2}" y="${y(M.metaDia * .04)}" width="${bw}" height="${y(0) - y(M.metaDia * .04)}" rx="2" fill="var(--line)"/>`;
+      if ((i + 1) % 2 === 1 || n < 16) g += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle" font-size="11" fill="var(--muted)">${i + 1}</text>`;
+    }
+    if (M.metaDia) g += `<line x1="${padL}" x2="${W - 10}" y1="${y(M.metaDia)}" y2="${y(M.metaDia)}" stroke="var(--sun)" stroke-width="2.5" stroke-dasharray="6 5"/><text x="${W - 12}" y="${y(M.metaDia) - 6}" text-anchor="end" font-size="12" font-weight="600" fill="var(--ink)">Meta diaria ${fgal(M.metaDia)} gal</text>`;
+    return `<div class="panel" style="padding:12px 12px 6px"><h3 style="margin:0 0 6px 4px">Galones por día</h3><div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:640px;height:auto" role="img" aria-label="Galones vendidos por día contra la meta diaria">${g}</svg></div>
+      <div class="legend" style="padding:4px"><span><i class="sw" style="background:var(--ok)"></i>Cumplió la meta</span><span><i class="sw" style="background:var(--accent)"></i>Por debajo</span><span><i class="sw" style="background:var(--line)"></i>Sin datos aún</span></div></div>`;
+  }
+
+  // ---------- Excel ----------
+  async function downloadXls() {
+    if (!R) return;
+    const btn = $('btnXls'); const old = btn.textContent; btn.disabled = true; btn.textContent = 'Preparando…';
+    try {
+      const from = $('optFrom').value, to = $('optTo').value;
+      const days = R.days.filter((d) => d.inCash && (!from || d.day >= from) && (!to || d.day <= to));
+      const mk = days[days.length - 1].day.slice(0, 7); const [yy, mm] = mk.split('-').map(Number);
+      const M = computeMes(mk); const RK = computeRanking(M.ds.filter((d) => d.pos));
+      const wb = XLSX.utils.book_new(); const r0 = (n) => n == null ? '' : Math.round(n);
+      // Hoja 1: todo el mes en una sola hoja
+      const A = [];
+      A.push([`EDS Terpel Av. Boyacá — Cuadre de ${MESES[mm - 1]} ${yy}`]);
+      A.push([`Presupuesto del mes: ${fgal(M.bud)} gal · Meta diaria: ${fgal(M.metaDia)} gal · Generado: ${new Date().toLocaleString('es-CO')}`]);
+      A.push([]);
+      A.push(['RESUMEN']);
+      A.push(['Galones del mes', r0(M.accG), 'Presupuesto', r0(M.bud), 'Avance', M.bud ? M.accG / M.bud : '']);
+      A.push(['Meta a la fecha', r0(M.accM), 'Cumplimiento a la fecha', M.accM ? M.accG / M.accM : '', 'Proyección al cierre', r0(M.proy)]);
+      A.push([]);
+      A.push(['CUADRE DIARIO']);
+      A.push(['Día', 'Corriente gal', 'Extra gal', 'ACPM gal', 'Total gal', 'Meta diaria', 'Cumplimiento', 'Galones acumulados', 'Meta acumulada', 'Ventas $', 'Efectivo consignado', 'Datáfono', 'Rumbo', 'Mi Empresa', 'Gopass', 'App Terpel', 'Bonos', 'BBVA', 'Consumo propio', 'Total recaudado', 'Recaudado − ventas', 'Con arrastre', 'Faltante real', 'Turnos sin cierre']);
+      const startRow = A.length;
+      for (const r of M.rows) { const P = r.d.pos; const m = (k) => P ? r0(P.m[k] || 0) : '';
+        A.push([r.d.day, P ? r0(r.g.corriente || 0) : '', P ? r0(r.g.extra || 0) : '', P ? r0(r.g.acpm || 0) : '', P ? r0(r.gal) : '', r0(r.meta), r.cump != null ? r.cump / 100 : '', P ? r0(r.accG) : '', P ? r0(r.accM) : '', P ? r0(r.ventas) : '', r0(r.consignado), P && r.d.hasDat ? r0(P.datTotal) : '', m('rumbo'), m('miEmpresa'), m('gopass'), m('appTerpel'), m('bonos'), m('bbva'), m('flotaPropia'), P ? r0(r.rec) : '', r.dif != null ? r0(r.dif) : '', r.res != null ? r0(r.res) : '', r.falta ? r0(r.falta) : '', r.sinCierre]); }
+      const sumCol = (i) => M.rows.reduce((s, r, k) => s + (+A[startRow + k][i] || 0), 0);
+      A.push(['TOTAL', ...[1, 2, 3, 4].map(sumCol), r0(M.accM), M.accM ? M.accG / M.accM : '', '', '', ...[9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(sumCol), '', sumCol(22), sumCol(23)]);
+      const pctRows = [startRow, A.length];
+      A.push([]);
+      A.push(['RANKING DE PROMOTORES']);
+      A.push(['#', 'Promotor', 'Galones', 'Corriente', 'Extra', 'ACPM', 'Ventas $', 'Turnos', 'Gal/turno', 'Meta', 'Cumplimiento']);
+      const rkStart = A.length;
+      if (RK) RK.list.slice().sort((a, b) => b.gal - a.gal).forEach((p, i) => A.push([i + 1, p.name, r0(p.gal), r0(p.g.corriente || 0), r0(p.g.extra || 0), r0(p.g.acpm || 0), r0(p.val), p.nt, r0(p.gpt), r0(p.meta), p.cump / 100]));
+      // faltantes por promotor
+      A.push([]); A.push(['FALTANTES Y SOBRANTES POR PROMOTOR (cierre vs. consignado)']);
+      A.push(['Promotor', 'Faltantes', 'Sobrantes', 'Neto', 'Turnos sin cierre', 'Efectivo consignado sin cierre']);
+      const per = {};
+      for (const d of M.ds) for (const r of d.rows) { const p = per[r.pid] || (per[r.pid] = { n: r.name, f: 0, s: 0, t: 0, e: 0 });
+        if (r.cierres.length && r.estado !== 'sincierre') { const x = diffX(r); if (x < 0) p.f += x; else p.s += x; }
+        if (r.estado === 'sincierre') { p.t += r.lines.filter((l) => !l.cierre).length; p.e += r.dep; } else if (r.estado === 'parcial') { p.t += r.turnosSinCierre.length; p.e += r.sinCierreAmt; } }
+      Object.values(per).sort((a, b) => (a.f + a.s) - (b.f + b.s)).forEach((p) => A.push([p.n, r0(p.f), r0(p.s), r0(p.f + p.s), p.t, r0(p.e)]));
+      const ws = XLSX.utils.aoa_to_sheet(A);
+      // formatos
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for (let R_ = 0; R_ <= range.e.r; R_++) for (let C = 0; C <= range.e.c; C++) { const c = ws[XLSX.utils.encode_cell({ r: R_, c: C })]; if (c && c.t === 'n') c.z = '#,##0'; }
+      const pct = (r, c) => { const cell = ws[XLSX.utils.encode_cell({ r, c })]; if (cell && cell.t === 'n') cell.z = '0%'; };
+      pct(4, 5); pct(5, 3);
+      for (let r = pctRows[0]; r < pctRows[1]; r++) pct(r, 6);
+      for (let r = rkStart; r < rkStart + (RK ? RK.list.length : 0); r++) pct(r, 10);
+      ws['!cols'] = [{ wch: 26 }, ...Array(23).fill({ wch: 14 })];
+      ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Mes');
+      // Hoja 2: detalle por promotor y día
+      const B = [['Día', 'Promotor', 'Turnos', 'Estado', 'Efectivo declarado', 'Consignado CashToday', 'Diferencia', 'Ventas Terpel POS', 'Efectivo según POS (estimado)', 'Datáfono (estimado)', 'Rumbo', 'Mi Empresa', 'Gopass', 'App Terpel', 'Bonos']];
+      const EST = { sincierre: 'Sin cierre', parcial: 'Turno sin cierre', falta: 'Falta consignar', noconsigno: 'Cerró, no consignó', sobra: 'Consignó de más', ok: 'Cuadra', nada: '' };
+      for (const d of days) for (const r of d.rows) { const P = r.posP; B.push([d.day, r.name, r.lines.map((l) => Cruce.TURNOS[l.t].short + (l.cierre ? '' : '*')).join(' + '), EST[r.estado], r0(r.efe), r0(r.dep), r.cierres.length ? r0(diffX(r)) : '', P ? r0(P.ventas) : '', P && d.hasDat ? r0(P.esperado) : '', P ? r0(P.dat) : '', P ? r0(P.m.rumbo || 0) : '', P ? r0(P.m.miEmpresa || 0) : '', P ? r0(P.m.gopass || 0) : '', P ? r0(P.m.appTerpel || 0) : '', P ? r0(P.m.bonos || 0) : '']); }
+      const ws2 = XLSX.utils.aoa_to_sheet(B); ws2['!cols'] = [{ wch: 12 }, { wch: 34 }, { wch: 22 }, { wch: 18 }, ...Array(11).fill({ wch: 15 })];
+      for (const k of Object.keys(ws2)) if (k[0] !== '!' && ws2[k].t === 'n') ws2[k].z = '#,##0';
+      XLSX.utils.book_append_sheet(wb, ws2, 'Promotores por día');
+      const buf = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
+      const fname = `Cuadre EDS Av Boyaca ${MESES[mm - 1]} ${yy}.xlsx`;
+      if (cloud.dl) await cloud.dl.save({ filename: fname, data: new Blob([buf]) });
+      else { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })); a.download = fname; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }
+      btn.textContent = 'Descargado';
+    } catch (e) { btn.textContent = e && e.code === 'declined' ? old : 'No se pudo descargar'; }
+    setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 1800);
+  }
+
+  function renderRanking(days) {
+    const RK = computeRanking(days);
+    if (!RK) return `<div class="panel">Para el ranking sube el reporte de venta detallada del Terpel POS.</div>`;
+    const { list, metaT, src, tot } = RK; const avg = metaT;
+    const usingAvg = Object.values(src).some((x) => x !== 'tuya');
+    list.sort((a, b) => rankSort === 'cump' ? b.cump - a.cump : rankSort === 'val' ? b.val - a.val : rankSort === 'gpt' ? b.gpt - a.gpt : b.gal - a.gal);
+    const max = Math.max(...list.map((p) => p.gal));
+    const fg = fgal;
+    const top = list.slice().sort((a, b) => b.cump - a.cump)[0];
+    let h = `<section class="detail"><div class="dhead"><h2>Ranking de promotores</h2><span class="muted">${dayLabel(days[0].day)} a ${dayLabel(days[days.length - 1].day)} · Terpel POS</span></div>
+      <div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+        <div class="kpi main"><span class="eyebrow">Galones vendidos</span><span class="v">${fg(tot)}</span><span class="s">${list.length} promotores</span></div>
+        <div class="kpi"><span class="eyebrow">Más galones</span><span class="v" style="font-size:16px">${esc(list.slice().sort((a, b) => b.gal - a.gal)[0].name)}</span><span class="s">${fg(Math.max(...list.map((p) => p.gal)))} gal</span></div>
+        <div class="kpi"><span class="eyebrow">Mejor cumplimiento</span><span class="v" style="font-size:16px">${esc(top.name)}</span><span class="s">${top.cump.toFixed(0)}% de su meta</span></div>
+        <div class="kpi"><span class="eyebrow">Cumplen la meta</span><span class="v">${list.filter((p) => p.cump >= 100).length} de ${list.length}</span><span class="s">${RK.dailyBudget ? 'meta repartida del presupuesto' : 'meta = promedio de la EDS'}</span></div>
+      </div>
+      <div class="panel"><div class="metas">
+        ${Object.entries(Cruce.TURNOS).map(([k, t]) => `<label for="m-${k}">Meta ${t.short} (gal/turno)<input id="m-${k}" data-meta="${k}" type="number" min="0" value="${esc(metas[k])}" placeholder="${fg(avg[k])}"></label>`).join('')}
+        <label for="rankSort">Ordenar por<select id="rankSort" style="font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)">
+          ${[['gal', 'Galones'], ['cump', 'Cumplimiento'], ['val', 'Ventas $'], ['gpt', 'Galones por turno']].map(([v, l]) => `<option value="${v}"${rankSort === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      </div><p class="muted" style="margin:8px 0 0;font-size:12.5px">${usingAvg ? (RK.dailyBudget ? `Si no escribes la meta de un turno, sale del presupuesto del mes (${fgal(RK.dailyBudget)} gal diarios) repartido según lo que vende cada turno: el número en gris. ` : 'Si no escribes la meta de un turno, se usa el promedio de galones de la EDS en ese turno (el número en gris). ') : ''}La meta de cada promotor suma la meta de cada turno que trabajó.</p></div>
+      <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>Corriente</span><span><i class="sw" style="background:var(--info)"></i>Extra</span><span><i class="sw" style="background:var(--warn)"></i>ACPM</span></div>
+      <div class="bars"><div class="bar head"><span>#</span><span>Promotor</span><span>Galones por producto</span><span>Galones</span><span class="hide-s">Ventas</span><span class="hide-s">Turnos</span><span class="hide-s">Gal/turno</span><span>Cumplimiento</span></div>`;
+    list.forEach((p, i) => {
+      const w = (k) => (p.g[k] || 0) / max * 100;
+      h += `<div class="bar"><span class="rk">${i + 1}</span><span class="nm" title="${esc(p.name)}">${esc(p.name)}</span>
+        <span class="track"><i class="c" style="width:${w('corriente')}%"></i><i class="e" style="width:${w('extra')}%"></i><i class="a" style="width:${w('acpm')}%"></i></span>
+        <span class="v"><b>${fg(p.gal)}</b><span>extra ${p.ext.toFixed(0)}%</span></span><span class="v hide-s">${money(p.val)}</span><span class="v hide-s">${p.nt}</span><span class="v hide-s">${fg(p.gpt)}</span>
+        <span class="pill ${p.cump >= 100 ? 'p-ok' : p.cump >= 90 ? 'p-warn' : 'p-bad'}">${p.cump.toFixed(0)}%</span></div>`;
+    });
+    h += `</div></section>`;
+    return h;
+  }
+
+  function renderPosDay(d) {
+    const P = d.pos, M = d.medios, pm = (k) => P.m[k] || 0;
+    const rows = [
+      ['Efectivo + datáfono (POS lo suma)', P.efBruto, (M.efectivo || 0) + (M.datafonoLiq || 0)],
+      ['Datáfono de ventas de líquidos', d.hasDat ? P.dat : null, M.datafonoLiq || 0],
+      ['Datáfono de GNV pagado en efectivo', d.hasDat ? P.datSinAsignar : null, M.datafonoGnv || 0],
+      ['Efectivo real (POS − todo el datáfono)', d.hasDat ? P.esperado : null, M.efectivo || 0],
+      ['Rumbo', pm('rumbo'), M.rumbo || 0], ['Mi Empresa', pm('miEmpresa'), M.miEmpresa || 0], ['Gopass', pm('gopass'), M.gopass || 0],
+      ['App Terpel', pm('appTerpel'), M.appTerpel || 0], ['Bono Vive Terpel', pm('bonos'), M.bonos || 0],
+      ['Consumo propio / flota propia', pm('flotaPropia'), M.flotaPropia || 0], ['BBVA', pm('bbva'), null],
+      ['Nequi / DaviPlata / Bancolombia', pm('nequi') + pm('daviplata') + pm('bancolombia'), (M.nequi || 0) + (M.daviplata || 0) + (M.bancolombia || 0)],
+      ['Total ventas', P.ventas, d.totalVentas],
+    ];
+    let h = `<div class="tbl"><table><thead><tr><th>Terpel POS vs. cierres · ${dayLabel(d.day)}</th><th class="n">Terpel POS</th><th class="n">Cierres</th><th class="n">Falta en cierres</th></tr></thead><tbody>`;
+    for (const [lab, a, b] of rows) { const df = a != null && b != null ? a - b : null;
+      h += `<tr><td>${lab}</td><td class="n">${a != null ? money(a) : '—'}</td><td class="n">${b != null ? money(b) : '—'}</td><td class="n ${df != null && Math.abs(df) > 10000 ? (df > 0 ? 'neg' : 'pos') : ''}">${df != null ? smoney(df) : '—'}</td></tr>`; }
+    h += `<tr><td>Efectivo consignado en CashToday</td><td class="n">${d.hasDat ? money(P.esperado) : '—'}</td><td class="n">${money(d.consignado)}</td><td class="n ${d.hasDat && Math.abs(P.esperado - d.consignado) > 10000 ? (P.esperado > d.consignado ? 'neg' : 'pos') : ''}">${d.hasDat ? smoney(P.esperado - d.consignado) : '—'}</td></tr>`;
+    h += `</tbody></table></div>`;
+    const notes = [];
+    if (pm('efbono')) notes.push(`${money(pm('efbono'))} se registraron en el POS como "efectivo + bono" en la misma venta; se cuentan como efectivo + datáfono porque el POS no los separa.`);
+    if (d.hasDat && P.datSinAsignar) notes.push(`${money(P.datSinAsignar)} del datáfono no corresponden a ninguna venta de líquidos: son ventas de GNV que los promotores de líquidos pasan por su datáfono y les pagan en efectivo a los de GNV. Se restan del efectivo de líquidos porque ese efectivo se le entregó a GNV.`);
+    if (!d.hasDat) notes.push('No hay reporte de datáfono para este día: no se puede calcular el efectivo real desde el POS.');
+    notes.push('"Falta en cierres" positivo = el POS registra más de lo que los promotores reportaron (incluye los turnos sin cierre).');
+    h += `<div class="note info">${notes.map((n) => `<div>${n}</div>`).join('')}</div>`;
+    return h;
+  }
+
+  function posList(ps) {
+    const it = [['Ventas Terpel POS', ps.ventas], ['Efectivo + datáfono', ps.efBruto], ['Datáfono (estimado)', ps.dat], ['Efectivo real estimado', ps.esperado]];
+    const extra = [['rumbo', 'Rumbo'], ['miEmpresa', 'Mi Empresa'], ['gopass', 'Gopass'], ['appTerpel', 'App Terpel'], ['bonos', 'Bono Vive Terpel'], ['efbono', 'Efectivo + bono (mixto)'], ['flotaPropia', 'Consumo propio'], ['bbva', 'BBVA'], ['nequi', 'Nequi'], ['daviplata', 'DaviPlata'], ['bancolombia', 'Bancolombia']];
+    for (const [k, l] of extra) it.push([l, ps.m[k] || 0]);
+    return `<div class="medios posm">${it.map(([l, v], i) => `<div${i === 3 ? ' class="hl"' : ''}><span>${l}</span><span>${money(v)}</span></div>`).join('')}</div>`;
+  }
+
+  function renderPerson(r, d) {
+    const [lab, cls] = ESTADO[r.estado];
+    const T = Cruce.TURNOS;
+    const turnos = r.lines.map((l) => T[l.t].short + (l.cierre ? '' : ' (sin cierre)')).join(' + ');
+    const diff = r.estado === 'parcial' ? r.diffCerrados : r.diff;
+    let h = `<details class="pcard e-${r.estado}"${r.estado !== 'ok' ? ' open' : ''}><summary>
+      <span class="who">${esc(r.name)}<small>${esc(turnos)}</small></span>
+      <span class="fig"><span>Declarado</span><b>${r.cierres.length ? money(r.efe) : '—'}</b></span>
+      <span class="fig"><span>Consignado</span><b>${money(r.dep)}</b></span>
+      <span class="fig"><span>Efectivo según POS</span><b>${r.posP && d.hasDat ? money(r.posP.esperado) : '—'}</b></span>
+      <span class="fig"><span>${r.estado === 'parcial' ? 'Dif. turnos cerrados' : 'Diferencia'}</span><b class="${r.cierres.length && Math.abs(diff) > 0 ? (diff > 0 ? 'pos' : 'neg') : ''}">${r.cierres.length ? smoney(diff) : '—'}</b></span>
+      <span class="pill ${cls}">${lab}</span></summary><div class="pbody">`;
+    for (const l of r.lines) {
+      h += `<div class="shiftline"><div class="sh"><b>${T[l.t].label}</b>`;
+      if (l.cierre) h += `<span class="muted">Cierre enviado ${l.cierre.hora != null ? Cruce.fmtSec(l.cierre.hora) : ''} · efectivo ${money(l.efe)} · consignado ${money(l.dep)}</span>`;
+      else h += `<span class="pill p-bad">Sin cierre</span><span>Efectivo según CashToday: <b>${money(l.dep)}</b></span>`;
+      h += `</div>`;
+      if (l.deps.length) h += `<div class="deps">${l.deps.map((x) => depChip(x, d.day)).join('')}</div>`;
+      else if (l.cierre) h += `<div class="muted" style="font-size:12.5px">No hay consignaciones en CashToday para este turno.</div>`;
+      if (l.aviso) h += `<div class="note" style="padding:6px 10px">${esc(l.aviso)}</div>`;
+      if (l.soloPos) h += `<div class="note bad" style="padding:6px 10px">Vendió en este turno según el Terpel POS, pero no hay cierre ni consignación.</div>`;
+      if (l.cierre) {
+        const c = l.cierre; h += `<div class="medios">`;
+        for (const [k, lab2] of Object.entries(Cruce.MEDIO_LABEL)) { const v = c.medios[k] || 0; h += `<div><span>${lab2}</span><span>${money(v)}</span></div>`; }
+        h += `<div><span>Total medios</span><span>${money(c.totalMedios)}</span></div><div><span>Total ventas</span><span>${money(c.totalVentas)}</span></div><div><span>Dif. del cierre</span><span class="${Math.abs(c.dif) > 10000 ? (c.dif > 0 ? 'pos' : 'neg') : ''}">${smoney(c.dif)}</span></div></div>`;
+        if (c.obs) h += `<div class="muted" style="font-size:12.5px">Obs.: ${esc(c.obs)}</div>`;
+        if (l.pos) h += `<div class="eyebrow">Según Terpel POS${d.hasDat ? ' y datáfono' : ''}</div>` + posList(l.pos);
+      } else if (l.pos) {
+        h += `<div class="eyebrow">Lo que falta reportar, según Terpel POS${d.hasDat ? ' y datáfono' : ''}</div>` + posList(l.pos) +
+          `<div class="muted" style="font-size:12.5px">Efectivo real estimado ${d.hasDat ? money(l.pos.esperado) : '—'} vs. consignado ${money(l.dep)}. El datáfono por promotor es un estimado (se cruza por valor y hora de cada venta).</div>`;
+      } else {
+        h += `<div class="medios">${MKEYS.map((k) => `<div class="pend"><span>${Cruce.MEDIO_LABEL[k]}</span><span>pendiente</span></div>`).join('')}</div>
+          <div class="muted" style="font-size:12.5px">Sin cierre no hay forma de saber datáfono, Gopass, Rumbo, Mi Empresa, bonos, créditos, App Terpel, billeteras, pruebas ni ventas de este turno. Pídele el cierre o el reporte del Terpel POS.</div>`;
+      }
+      h += `</div>`;
+    }
+    if (r.estado === 'falta' || r.estado === 'noconsigno') h += `<div class="note">Declaró ${money(r.efe)} en efectivo y consignó ${money(r.dep)}: faltan <b>${money(r.efe - r.dep)}</b>.</div>`;
+    if (r.estado === 'sobra') h += `<div class="note info">Consignó ${money(r.dep - r.efe)} más de lo que declaró en el cierre.</div>`;
+    h += `</div></details>`;
+    return h;
+  }
+
+  function renderSide(days) {
+    let h = `<section class="grid2">`;
+    // equivalencias
+    const cashPeople = Object.values(R.people).filter((p) => p.hasCash);
+    const cierreNames = [...new Set(Object.values(R.people).filter((p) => p.hasCierres).map((p) => p.name))].sort();
+    const special = cashPeople.filter((p) => p.cashKeys.some((k) => R.autoAlias[k] || alias[k] || FIXED_ALIAS[k]) || !p.hasCierres);
+    h += `<div class="panel alias"><h3>Equivalencias de nombres</h3><p class="muted" style="margin:0;font-size:12.5px">Cajeros de CashToday que no tienen el mismo nombre que en los cierres.</p>`;
+    if (!special.length) h += `<div class="muted">Todos los nombres coincidieron.</div>`;
+    for (const p of special) for (const k of p.cashKeys) {
+      const fixed = FIXED_ALIAS[k];
+      const label = p.cashNames.filter((n) => n && !n.startsWith('Cédula')).join(' / ') || 'Sin nombre';
+      h += `<div class="row"><span><b>${esc(label)}</b> <span class="muted">· cédula ${esc(k)}</span></span><span>→</span>
+        <select data-key="${esc(k)}" aria-label="Promotor para ${esc(label)}"><option value="__auto"${!alias[k] ? ' selected' : ''}>${fixed ? 'Fijo: ' + esc(fixed) : R.autoAlias[k] ? 'Automático: ' + esc(R.autoAlias[k]) : 'Sin asociar'}</option>
+        ${cierreNames.map((n) => `<option value="${esc(n)}"${alias[k] === n ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>
+        ${!alias[k] && fixed ? '<span class="pill p-ok">confirmado</span>' : !alias[k] && R.autoAlias[k] ? '<span class="pill p-info">por monto</span>' : ''}</div>`;
+    }
+    h += `</div>`;
+    // otros
+    const pre = R.days.filter((d) => !d.inCash && d.rows.some((r) => r.dep > 0));
+    h += `<div class="panel alias"><h3>Lo que no entra en el cruce</h3>`;
+    for (const d of pre) { const amt = d.rows.reduce((s, r) => s + r.dep, 0); if (amt) h += `<div class="row">Madrugada del ${dayLabel(Cruce.addDays(d.day, 1))}: ${money(amt)} corresponden al ${dayLabel(d.day)} (fuera del archivo de CashToday).</div>`; }
+    for (const [c, v] of Object.entries(R.otros)) h += `<div class="row">Código ${esc(c)}${c === '1200' ? ' (GNV)' : c === '1300' ? ' (tienda)' : ''}: ${money(v)} — no se cuenta.</div>`;
+    for (const g of R.recogidas.filter((g) => g.origen === 'Contado')) h += `<div class="row">Recogida de la transportadora ${dayLabel(g.day)} ${Cruce.fmtSec(g.sec)}: ${money(g.amt)}</div>`;
+    if (R.dupes) h += `<div class="row muted">${R.dupes} cierres repetidos se contaron una sola vez.</div>`;
+    h += `</div></section>`;
+    return h;
+  }
+
+  function copyTable(days, btn) {
+    const lines = [['Día', 'Consignado CashToday', 'Declarado cierres', 'Diferencia', 'Efectivo sin cierre', 'Quién no cerró', 'Falta consignar', 'Consignado de más', ...MKEYS.map((k) => Cruce.MEDIO_LABEL[k]), 'Total medios', 'Total ventas'].join('\t')];
+    for (const d of days) lines.push([d.day, d.consignado, d.declarado, d.consignado - d.declarado, d.sinCierreEfe, d.sinCierre.map((r) => r.name).join('; '), d.faltante, d.sobrante, ...MKEYS.map((k) => d.medios[k] || 0), d.totalMedios, d.totalVentas].map((v) => typeof v === 'number' ? Math.round(v) : v).join('\t'));
+    const txt = lines.join('\n');
+    const done = () => { btn.textContent = 'Copiada'; setTimeout(() => { btn.textContent = 'Copiar tabla para Excel'; }, 1800); };
+    try { navigator.clipboard.writeText(txt).then(done, () => fallback(txt, done)); } catch (e) { fallback(txt, done); }
+  }
+  function fallback(txt, done) { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} ta.remove(); }
+
+  run();
+  paintCloud();
+  initCloud();
+})();
+</script>
+
+</body>
+</html>
