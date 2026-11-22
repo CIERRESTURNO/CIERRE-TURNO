@@ -108,6 +108,29 @@ table.res th{font-family:var(--display);font-weight:800;color:var(--muted);font-
 .note{font-size:13px;color:var(--muted)}
 .hbtns{display:flex;gap:8px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){.fill{transition:none}}
+/* ---- constancia y respaldo (v2, 22 nov 2026) ---- */
+.firmas{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.firma{display:flex;flex-direction:column;gap:6px}
+.firma canvas{width:100%;height:130px;border:2px dashed var(--line);border-radius:12px;background:#fff;touch-action:none}
+.firma .lbl{font-size:13px;font-weight:700;color:var(--muted)}
+.firma button{align-self:flex-start;font-size:12px;padding:4px 10px}
+#constancia,#respaldo{display:none}
+#respaldo.on{display:block}
+@media (max-width:560px){.firmas{grid-template-columns:1fr}}
+@media print{
+  body > *:not(#constancia){display:none!important}
+  #constancia{display:block!important;width:100%;padding:28px 36px;color:#000;background:#fff;font-family:Arial,Helvetica,sans-serif}
+  #constancia h1{font-size:22px;margin:14px 0 4px}
+  #constancia .k{display:grid;grid-template-columns:170px 1fr;gap:6px 14px;font-size:14px;margin:16px 0}
+  #constancia .k b{font-weight:700}
+  #constancia p{font-size:13.5px;line-height:1.55}
+  #constancia .fs{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:30px}
+  #constancia .fs .ln{border-top:1px solid #000;padding-top:6px;font-size:12.5px;text-align:center}
+  #constancia .fs .sp{height:90px}
+  #constancia .fs img{display:block;height:90px;margin:0 auto 4px;object-fit:contain}
+  #constancia .pie{margin-top:28px;font-size:11px;color:#444}
+  @page{size:letter;margin:14mm}
+}
 </style>
 </head>
 <body>
@@ -184,7 +207,15 @@ table.res th{font-family:var(--display);font-weight:800;color:var(--muted);font-
     <section id="result" class="stack" style="margin-top:16px" hidden></section>
     <section id="quiz" class="stack" style="margin-top:16px" hidden></section>
   </section>
+  <!-- RESPALDO DE ESTE EQUIPO (administración: abrir con #respaldo) -->
+  <section id="respaldo" class="stack">
+    <div class="flag">Respaldo guardado en este equipo</div>
+    <p class="note">Cada autorización y evaluación hecha en este equipo queda guardada aquí, además de la hoja de Google. Descárgala para tu archivo o reenvía a la hoja lo que no se haya enviado.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="regCsv">Descargar respaldo (Excel/CSV)</button><button class="btn alt" id="regResend">Reenviar a la hoja lo pendiente</button></div>
+    <div class="tbl-wrap"><table class="res"><thead><tr><th>Fecha</th><th>Tipo</th><th>Nombre</th><th>Cédula</th><th>Puntaje</th><th>Código</th><th>Constancia</th><th>Enviado</th></tr></thead><tbody id="regBody"></tbody></table></div>
+  </section>
 </main>
+<div id="constancia" aria-hidden="true"></div>
 
 <div class="bar" id="bar" hidden>
   <div class="in">
@@ -252,6 +283,21 @@ $("toEval2").addEventListener("click",()=>view("eval"));
 $("toDeck").addEventListener("click",()=>view("deck"));
 $("toRes").addEventListener("click",()=>view("res"));
 if(location.hash==="#evaluacion") view("eval");
+function pintarRespaldo(){
+  const a=regGet(); const b=$("regBody");
+  b.innerHTML = a.length ? a.slice().reverse().map(r=>`<tr><td>${new Date(r.fecha||r.guardado).toLocaleString("es-CO")}</td><td>${r.tipo}</td><td>${(r.nombre||"").replace(/</g,"&lt;")}</td><td>${r.cedula||""}</td><td>${r.puntaje??""}</td><td>${r.codigo||""}</td><td>${r.constancia?"Firmada":""}</td><td>${r.enviado?"Sí":"Pendiente"}</td></tr>`).join("") : '<tr><td colspan="8">Todavía no hay registros en este equipo.</td></tr>';
+}
+if(location.hash==="#respaldo"){ $("respaldo").classList.add("on"); pintarRespaldo(); setTimeout(()=>$("respaldo").scrollIntoView(),300); }
+$("regCsv").addEventListener("click",()=>{
+  const a=regGet(); const cols=["fecha","tipo","nombre","cedula","intento","puntaje","correctas","total","aprobado","codigo","constancia","enviado"];
+  const csv="\ufeff"+[cols.join(";"),...a.map(r=>cols.map(c=>`"${String(r[c]??"").replace(/"/g,'""')}"`).join(";"))].join("\n");
+  const l=document.createElement("a"); l.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); l.download="respaldo-induccion-"+new Date().toISOString().slice(0,10)+".csv"; document.body.appendChild(l); l.click(); l.remove();
+});
+$("regResend").addEventListener("click",async()=>{
+  const a=regGet(); let n=0;
+  for(const r of a){ if(r.enviado) continue; const {id,tipo,guardado,enviado,firmas,constancia,...rec}=r; if(await send(tipo,rec)){ r.enviado=true; n++; } }
+  regSet(a); pintarRespaldo(); alert(n+" registro(s) reenviado(s) a la hoja.");
+});
 
 /* ---------- Envío a Google Sheets (Apps Script) ---------- */
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwDKwQ8n-268ipmA4k2o_ThUwRsruyJFhEDbAaoNbDetV19ORvmkFRkuU6GX6GNE5YuAw/exec";   // URL del Apps Script (Implementar > Aplicación web), termina en /exec
@@ -261,8 +307,45 @@ async function send(tipo, rec){
   try{ await fetch(SHEETS_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(Object.assign({tipo:tipo},rec))}); return true; }
   catch(e){ return false; }
 }
-const saveAuth = (rec)=>send("autorizacion", rec);
-const saveResult = (rec)=>send("evaluacion", rec);
+// Doble guardado: además de la hoja de Google, cada registro queda en este equipo (respaldo local con opción de reenviar y descargar)
+const REG_KEY="induccion_registros_v1";
+function regGet(){ try{ return JSON.parse(localStorage.getItem(REG_KEY)||"[]"); }catch(e){ return []; } }
+function regSet(a){ try{ localStorage.setItem(REG_KEY, JSON.stringify(a)); }catch(e){} }
+async function sendAndKeep(tipo, rec){
+  const id = tipo+"|"+(rec.cedula||"")+"|"+(rec.fecha||new Date().toISOString());
+  const a=regGet(); a.push(Object.assign({id, tipo, guardado:new Date().toISOString(), enviado:false}, rec)); regSet(a);
+  const ok = await send(tipo, rec);
+  if(ok){ const b=regGet(); const r=b.find(x=>x.id===id); if(r){ r.enviado=true; regSet(b); } }
+  return ok;
+}
+const saveAuth = (rec)=>sendAndKeep("autorizacion", rec);
+const saveResult = (rec)=>sendAndKeep("evaluacion", rec);
+function marcarFirmada(cedula, codigo, firmas){ const a=regGet(); const r=a.slice().reverse().find(x=>x.tipo==="evaluacion"&&x.codigo===codigo); if(r){ r.firmas=firmas; r.constancia=new Date().toISOString(); regSet(a); } }
+// firma en pantalla
+function padFirma(cv){
+  const ctx=cv.getContext("2d"); let dib=false, vacio=true;
+  const fit=()=>{ const r=cv.getBoundingClientRect(); cv.width=r.width*2; cv.height=r.height*2; ctx.scale(2,2); ctx.lineWidth=2.2; ctx.lineCap="round"; ctx.strokeStyle="#0b1f4d"; };
+  fit();
+  const p=(e)=>{ const r=cv.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return [t.clientX-r.left,t.clientY-r.top]; };
+  const down=(e)=>{ e.preventDefault(); dib=true; vacio=false; const [x,y]=p(e); ctx.beginPath(); ctx.moveTo(x,y); };
+  const move=(e)=>{ if(!dib) return; e.preventDefault(); const [x,y]=p(e); ctx.lineTo(x,y); ctx.stroke(); };
+  const up=()=>{ dib=false; };
+  cv.addEventListener("pointerdown",down); cv.addEventListener("pointermove",move); window.addEventListener("pointerup",up);
+  return { vacio:()=>vacio, img:()=>cv.toDataURL("image/png"), borrar:()=>{ ctx.clearRect(0,0,cv.width,cv.height); vacio=true; } };
+}
+function imprimirConstancia(d){
+  const c=$("constancia");
+  const esc=(t)=>String(t||"").replace(/[&<>"]/g,(m)=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));
+  c.innerHTML=`<img src="logo_planve.png" alt="PLAN VE S.A.S." style="height:48px">
+    <h1>Constancia de inducción de personal</h1>
+    <div style="font-size:13px">PLAN VE S.A.S. · EDS Terpel Av. Boyacá · Av. Boyacá No. 77A-15, Bogotá</div>
+    <div class="k"><b>Nombre</b><span>${esc(d.nombre)}</span><b>Cédula</b><span>${esc(d.cedula)}</span><b>Fecha de la evaluación</b><span>${esc(d.fechaTxt)}</span><b>Resultado</b><span>Aprobado · 100/100 (${esc(d.intento)} intento${d.intento==1?"":"s"})</span><b>Código de verificación</b><span>${esc(d.codigo)}</span><b>Autorización de lectura</b><span>Sí — "Leí y entendí todo el documento de inducción"${d.authTxt?` (${esc(d.authTxt)})`:""}</span></div>
+    <p>Se deja constancia de que el trabajador recibió la inducción de personal de PLAN VE S.A.S.: bienvenida, turnos y nómina, protocolos operativos, integridad y convivencia, y Seguridad y Salud en el Trabajo; que firmó la autorización de lectura y que aprobó la evaluación de conocimientos con 100 sobre 100.</p>
+    <div class="fs"><div>${d.fT?`<img src="${d.fT}" alt="">`:`<div class="sp"></div>`}<div class="ln">Firma del trabajador<br>${esc(d.nombre)} · C.C. ${esc(d.cedula)}</div></div>
+    <div>${d.fE?`<img src="${d.fE}" alt="">`:`<div class="sp"></div>`}<div class="ln">Por PLAN VE S.A.S.<br>Administración EDS Av. Boyacá</div></div></div>
+    <div class="pie">Generado el ${new Date().toLocaleString("es-CO",{dateStyle:"long",timeStyle:"short"})}. El resultado también quedó registrado en la hoja "Resultados Evaluación Inducción PLAN VE".</div>`;
+  setTimeout(()=>window.print(),300);
+}
 
 /* ---------- Evaluación ---------- */
 // Banco de preguntas: la primera opción de cada arreglo es la correcta (se baraja al mostrar).
@@ -424,11 +507,21 @@ $("send").addEventListener("click",()=>{
       <h2>¡Felicitaciones! Completaste tu inducción.</h2>
       <dl class="kv"><dt>Nombre</dt><dd id="cN"></dd><dt>Cédula</dt><dd id="cC"></dd><dt>Fecha</dt><dd>${fecha}</dd><dt>Intentos</dt><dd>${attempt}</dd><dt>Código</dt><dd class="code">${code}</dd></dl>
       <p id="saveMsg" class="note">Guardando el resultado…</p>
-      <p>Muestra esta pantalla a la administración para firmar tu constancia de inducción.</p>
-      <div><button class="btn alt" id="nextPerson">Terminar y dejar listo para otra persona</button></div></div>`;
+      <p>Ahora firman tú y la administración. Luego descarga la constancia en PDF (en la ventana de imprimir elige "Guardar como PDF") o imprímela.</p>
+      <div class="firmas"><div class="firma"><span class="lbl">Firma del trabajador</span><canvas id="fT"></canvas><button class="btn ghost" id="fTb">Borrar</button></div>
+        <div class="firma"><span class="lbl">Firma por PLAN VE S.A.S.</span><canvas id="fE"></canvas><button class="btn ghost" id="fEb">Borrar</button></div></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="pdfBtn">Descargar constancia (PDF)</button><button class="btn alt" id="nextPerson">Terminar y dejar listo para otra persona</button></div></div>`;
     $("nextPerson").addEventListener("click",()=>location.reload());
+    const pT=padFirma($("fT")), pE=padFirma($("fE"));
+    $("fTb").addEventListener("click",pT.borrar); $("fEb").addEventListener("click",pE.borrar);
+    $("pdfBtn").addEventListener("click",()=>{
+      if(pT.vacio()||pE.vacio()){ if(!confirm("Falta una firma. ¿Descargar la constancia de todas formas para firmarla en papel?")) return; }
+      const fT=pT.vacio()?"":pT.img(), fE=pE.vacio()?"":pE.img();
+      marcarFirmada(person.cedula, code, {trabajador:fT, empresa:fE});
+      imprimirConstancia({nombre:person.nombre, cedula:person.cedula, fechaTxt:fecha, intento:attempt, codigo:code, fT, fE});
+    });
     $("cN").textContent=person.nombre; $("cC").textContent=person.cedula;
-    savedP.then(ok=>{ $("saveMsg").textContent = ok ? "Resultado enviado a la administración." : "No se pudo enviar el resultado: toma una captura de esta pantalla."; });
+    savedP.then(ok=>{ $("saveMsg").textContent = ok ? "Resultado enviado a la hoja de la administración y guardado también en este equipo." : "No hubo internet para enviarlo: quedó guardado en este equipo y se puede reenviar desde el respaldo."; });
   } else {
     const bad=TOTAL-good;
     r.innerHTML=`<div class="panel stack"><div class="score bad">${score}/100</div><h2>Tuviste ${bad} ${bad===1?"respuesta incorrecta":"respuestas incorrectas"}.</h2>
